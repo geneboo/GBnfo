@@ -98,12 +98,14 @@
           border-radius: 50%;
           box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
           animation: glow 3s infinite ease-in-out;
+          z-index: 1; /* Ensure shapes are in the background */
       }
       .shape {
         position: absolute;
         width: 30px;
         height: 30px;
         animation: glow 3s infinite ease-in-out;
+        z-index: 1; /* Ensure shapes are in the background */
       }
 
       .cube {
