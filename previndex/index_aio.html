@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gene Boo - Portfolio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    :root {
+      --background-color: #1b1b1b;
+      --header-background-color: #2e2e2e;
+      --header-text-color: #ffffff;
+      --profile-border-color: #ffffff;
+      --nav-link-color: #cccccc;
+      --nav-link-hover-background-color: #444;
+      --nav-link-hover-color: #ffffff;
+      --container-background-color: rgba(30, 30, 30, 0.9);
+      --section-title-color: #ffffff;
+      --button-background-color: #555;
+      --button-text-color: #ffffff;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url('./5109267.jpg');
+      background-size: cover;
+      color: var(--section-title-color);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 920px;
+      width: 90%;
+      margin: 40px auto;
+      padding: 25px;
+      background-color: var(--container-background-color);
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      z-index: 2;
+      position: relative;
+    }
+
+    header {
+      background-color: var(--header-background-color);
+      color: var(--header-text-color);
+      text-align: center;
+      padding: 20px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .profile-img {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid var(--profile-border-color);
+      object-fit: cover;
+    }
+
+    nav {
+      text-align: center;
+      padding: 15px 0;
+      background: transparent;
+      z-index: 3;
+      position: relative;
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      color: var(--nav-link-color);
+      padding: 10px 20px;
+      margin: 0 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    nav button:hover {
+      background-color: var(--nav-link-hover-background-color);
+      color: var(--nav-link-hover-color);
+      border-radius: 5px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    section h2 {
+      font-size: 24px;
+      color: var(--section-title-color);
+      margin-bottom: 15px;
+    }
+
+    .theme-toggle, .layout-toggle {
+      position: absolute;
+      top: 20px;
+      right: 140px;
+      background-color: var(--button-background-color);
+      color: var(--button-text-color);
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 3;
+    }
+
+    .layout-toggle {
+      right: 20px;
+    }
+
+    /* Embedded PDF */
+    .pdf-container iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+
+    /* Background Animation Styles */
+    .dot, .shape {
+      position: absolute;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      animation: pulse 4s ease-in-out forwards;
+    }
+
+    .shape {
+      width: 30px;
+      height: 30px;
+      opacity: 0;
+      animation: fadeShape 4s ease-in-out forwards;
+    }
+
+    .cube {
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+      transform: rotate(45deg);
+    }
+
+    .pyramid {
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 30px solid #c1c1c1;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1.4); }
+      100% { opacity: 0; transform: scale(0.5); }
+    }
+
+    @keyframes fadeShape {
+      0% { opacity: 0; transform: rotate(0deg); }
+      30% { opacity: 0.8; }
+      100% { opacity: 0; transform: rotate(180deg); }
+    }
+
+    /* Responsive Layout */
+    @media (max-width: 768px) {
+      .container { width: 95%; }
+      .profile-img { width: 70px; height: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="https://www.linkedin.com/in/gene-boo-007/">
+      <img class="profile-img" src="./Gene-removebg-preview.png" alt="Gene Boo" />
+    </a>
+    <h1>Gene Boo</h1>
+    <p>Curriculum Vitae</p>
+    <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
+    <button class="layout-toggle" onclick="toggleLayout()">Layout</button>
+  </header>
+
+  <nav>
+    <button onclick="switchTab('about')">About Me</button>
+    <button onclick="switchTab('resume')">Resume</button>
+    <button onclick="switchTab('contact')">Contact</button>
+    <button onclick="switchTab('projects')">Projects</button>
+  </nav>
+
+  <div class="container">
+    <section id="about" class="tab-content active">
+      <h2>About Me</h2>
+      <!-- (Your full About Me content here — unchanged for brevity) -->
+      <p>Dear Hiring Manager, ...</p>
+    </section>
+
+    <section id="resume" class="tab-content">
+      <h2>Resume</h2>
+      <p>
+        View or download my CV:
+        <a href="./CV of Gene Boo (2024 v3-s).pdf" target="_blank">Download PDF</a>
+      </p>
+      <div class="pdf-container">
+        <iframe src="./CV of Gene Boo (2024 v3-s).pdf"></iframe>
+      </div>
+    </section>
+
+    <section id="contact" class="tab-content">
+      <h2>Contact</h2>
+      <p>Email: gene.boo@aol.com / gene.boo@gmail.com</p>
+      <p>Phone: Please contact via email</p>
+      <p>
+        <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank">
+          <i class="fab fa-linkedin"></i> LinkedIn
+        </a>
+      </p>
+    </section>
+
+    <section id="projects" class="tab-content">
+      <h2>Projects</h2>
+      <ul>
+        <li><a href="https://funkygraffy.onrender.com/" target="_blank">Funkygraffy</a>: Visual education tool for math functions.</li>
+        <li><b>Convolve! - WIP</b>: Empirical convolution visualization tool.</li>
+      </ul>
+    </section>
+  </div>
+
+  <script>
+    const themes = [
+      { "--background-color": "#111", "--header-background-color": "#222", "--nav-link-color": "#ccc" },
+      { "--background-color": "#1a1a2e", "--header-background-color": "#16213e", "--nav-link-color": "#e94560" },
+      { "--background-color": "#202124", "--header-background-color": "#303134", "--nav-link-color": "#8ab4f8" },
+      { "--background-color": "#121212", "--header-background-color": "#1e1e1e", "--nav-link-color": "#bb86fc" },
+      { "--background-color": "#0f0f0f", "--header-background-color": "#232323", "--nav-link-color": "#00ffff" },
+      { "--background-color": "#0c1c2c", "--header-background-color": "#1f4068", "--nav-link-color": "#00bcd4" },
+      { "--background-color": "#101010", "--header-background-color": "#212121", "--nav-link-color": "#ff4081" },
+      { "--background-color": "#191919", "--header-background-color": "#2b2b2b", "--nav-link-color": "#7e57c2" },
+      { "--background-color": "#1e272e", "--header-background-color": "#485460", "--nav-link-color": "#f5f6fa" },
+      { "--background-color": "#2c2c2c", "--header-background-color": "#383838", "--nav-link-color": "#ffc107" },
+      { "--background-color": "#1f1f1f", "--header-background-color": "#292929", "--nav-link-color": "#4caf50" },
+      { "--background-color": "#141414", "--header-background-color": "#2a2a2a", "--nav-link-color": "#03a9f4" }
+    ];
+
+    let themeIndex = 0;
+    function toggleTheme() {
+      const theme = themes[themeIndex % themes.length];
+      Object.entries(theme).forEach(([key, value]) => {
+        document.documentElement.style.setProperty(key, value);
+      });
+      themeIndex++;
+    }
+
+    const layouts = ['90%', '85%', '95%', '100%', '80%'];
+    let layoutIndex = 0;
+    function toggleLayout() {
+      document.querySelector('.container').style.width = layouts[layoutIndex % layouts.length];
+      layoutIndex++;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function createDot() {
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      dot.style.top = `${Math.random() * 100}vh`;
+      dot.style.left = `${Math.random() * 100}vw`;
+      dot.style.backgroundColor = `hsla(${Math.random() * 360}, 80%, 70%, 0.9)`;
+      document.body.appendChild(dot);
+      setTimeout(() => dot.remove(), 4000);
+    }
+
+    function createShape() {
+      const shape = document.createElement('div');
+      const types = ['cube', 'pyramid'];
+      shape.className = `shape ${types[Math.floor(Math.random() * types.length)]}`;
+      shape.style.top = `${Math.random() * 100}vh`;
+      shape.style.left = `${Math.random() * 100}vw`;
+      document.body.appendChild(shape);
+      setTimeout(() => shape.remove(), 4000);
+    }
+
+    setInterval(createDot, 700);
+    setInterval(createShape, 2000);
+
+    window.addEventListener('load', () => {
+      toggleTheme(); // Apply first theme
+    });
+  </script>
+</body>
+</html>
