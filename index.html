@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<script>
+  <script>
     const themes = {
         "default": {
             "background-color": "#f0f0f0",
@@ -63,321 +63,386 @@
     document.addEventListener('DOMContentLoaded', () => {
         applyTheme(themes.default);
     });
-</script>
+  </script>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gene Boo - CV</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
     <style>
-        /* Global styles */
-        * {
-            box-sizing: border-box;
-            }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-image: url('./5109267.jpg'); /* Added background image */
-            background-size: cover;
-            color: #444;
-        }
-        .dot {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-            animation: glow 3s infinite ease-in-out;
-        }
-        .shape {
+      /* Global styles */
+      * {
+          box-sizing: border-box;
+          }
+      body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-image: url('./5109267.jpg'); /* Added background image */
+          background-size: cover;
+          color: #444;
+      }
+      .dot {
           position: absolute;
-          width: 30px;
-          height: 30px;
-          animation: glow 3s infinite ease-in-out;
-        }
-    
-        .cube {
+          width: 10px;
+          height: 10px;
           background-color: rgba(255, 255, 255, 0.8);
-          transform: rotate(45deg);
-        }
-    
-        .pyramid {
-          width: 0;
-          height: 0;
-          border-left: 15px solid transparent;
-          border-right: 15px solid transparent;
-          border-bottom: 30px solid rgba(255, 255, 255, 0.8);
-        }
-    
-        rgba(255, 255, 255, 0.8);
-            border-radius: 50%;            
-        @keyframes glow {
-            0%, 100% {
-            opacity: 0;
-            transform: scale(0.5);
-            }
-            50% {
-            opacity: 1;
-            transform: scale(1);
-            }
-        }
-        /* Header styles */
-        header {
-            background-color: var(--header-background-color);
-            color: var(--header-text-color);
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 36px;
-        }
-        header p {
-            margin: 5px 0 0;
-            font-size: 18px;
-        }
-        .profile-img {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 3px solid var(--profile-border-color);
-            object-fit: cover;
-        }
-        /* Navigation styles */
-        nav {
-            text-align: center;
-            margin: 20px 0;
-        }
-        nav a {
-            text-decoration: none;
-            color: var(--nav-link-color);
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        nav a:hover {
-            background-color: var(--nav-link-hover-background-color);
-            color: var(--nav-link-hover-color);
-        }
-        /* Main content container styles */
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: var(--container-background-color);; /* Added background color with transparency */
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        /* Section styles */
-        section {
-            margin-bottom: 40px;
-        }
-        section h2 {
-            margin-top: 0;
-            font-size: 24px;
-            color: #333;
-        }
-        section p {
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        /* Contact information styles */
-        .contact-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .contact-info i {
-            margin-right: 10px;
-        }
-        /* Theme toggle button styles */
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 10px;
-            background-color: var(--button-background-color);
-            color: var(--button-text-color);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 34px;
-            }
-            header p {
-                font-size: 16px;
-            }
-            section h2 {
-                font-size: 20px;
-            }
-            section p {
-                font-size: 14px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <a href="https://www.linkedin.com/in/gene-boo-007/">
-            <img class="profile-img" src="./Gene-removebg-preview.png" alt="Your Photo">
-        </a>
-        <h1>Gene Boo</h1>
-        <p>Curriculum Vitae</p>
-        <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-    </header>
-    <nav>
-        <a href="#about">About Me</a>
-        <a href="#resume">Resume</a>
-        <a href="#contact">Contact</a>
-    </nav>
-    <div class="container">
-        <section id="about">
-            <h2>About Me</h2>
-            <p class=MsoNormal><span lang=EN-MY>Dear Hiring Manager, </span></p>
-
-            <p class=MsoNormal><span lang=EN-MY>Thank you for having an interest in my profile. 
-            I am a candidate with a background in mathematical model development and risk management, 
-            as well as some experience in pre- and post-sales of vendor systems. I am an avid fan
-            of coding and use a lot of programming at my various jobs, regardless of whatever its
-            nature may be - I tend to find some way to integrate small coding projects into my
-            day-to-day.</span></p>
-            
-            <p class=MsoNormal><span lang=EN-MY>In my vendor experience, I have supported
-            sales and dev teams providing insightful product knowledge and helping buy-side
-            clients to streamline their processes and workflows, as well as understand the
-            risk metrics produced by the system and computation processes. This role
-            allowed me some exposure in communicating with C-level executives and risk
-            practitioners. </span></p>
-            
-            <p class=MsoNormal><span lang=EN-MY>In my middle office and model validation /
-            development roles within banks and the energy company, I accumulated experience
-            in quantitative model development in Python, VBA and C pertaining to financial
-            derivatives, option pricing, risk metrics, optimization routines in the scopes
-            of market risk, and operational (non-financial) risk. I was also exposed to
-            some leadership experience, having assumed the team head role in one of the
-            bank positions. During this time, I have had dealings with banking supervisory,
-            external consultants and vendors. Working with financial institutions also
-            granted me some familiarity with concepts behind risk and capital adequacy as
-            well as Basel compliance. </span></p>
-            
-            <p class=MsoNormal><span lang=EN-MY>I see myself as an efficient professional
-            who takes pride in technical quality and details. For 2 of the banks I worked
-            for, I created benchmark <span class=SpellE>VaR</span> models across
-            multi-asset classes and their derivatives, that helped prove and locate errors
-            found within the vendor-procured risk engines. </span></p>
-            
-            <p class=MsoNormal><span lang=EN-MY>My hobbies span across developing personal 
-            quantitative tools, electronic music development, computer art and mathematical 
-            write-ups for the benefit of young people, as well as a bit of cooking. I am actively 
-            developing coding projects in hopes of sharing my love of coding, math and music with 
-            the youth.</span></p>
-                
-            <p class=MsoNormal><span lang=EN-MY>Here are some links to my webpages:</span></p>
-
-            <p class=MsoNormal><span lang=EN-MY>
-                
-                <p>Funkygraffy - <a href="https://funkygraffy.onrender.com/" target="_blank">Visit Funkygraffy</a></p>
-
-                <p>This is meant to be a visual-education tool for various mathematical functions, as well
-                    as some sort of a library / collection, which I hope to expand over time as and when 
-                    I have free time to spare. At the moment, it is able to plot 2D and 3D graphs of various
-                    functions, including chaos functions, trajectories, ODEs, chaos sets, contours, surfaces 
-                    and volumes. It is in the pipeline to enable visualisation of trees, ANNs, fourier epicycles 
-                    and others.</p>
-                <p>Convolve! - WIP - </p>
-                <p>This simultaneous project is meant to make empirical convolutions easy to compute and visualise
-                    online - i.e. this tool will enable users to upload data series representing functions, where
-                    the tool will return FFT based convolution as an output. This will make it easy for probabilists 
-                    to obtain empirical series that represent p(A and B), given p(A) and p(B), as an example usecase.</p>
-            
-            </span></p>
-            
-            <p class=MsoNormal><span lang=EN-MY>I hope that my resume would be reviewed. My
-            contact details are at the bottom of this page, please feel free to reach
-            out to me. </span></p>
-            
-            <p class=MsoNormal><span lang=EN-MY>Thank you for the consideration. </span></p>
-            
-            <p class=MsoNormal><span lang=EN-MY>Sincerely, </span></p>
-        </section>
-        <section id="resume">
-            <h2>Resume</h2>
-            <p>You can view/download my CV <a href="./CV of Gene Boo (2024 v3-s).pdf" target="_blank">here</a>.</p>
-        </section>
-        <section id="contact">
-            <h2>Contact</h2>
-            <div class="contact-info">
-                <i class="fas fa-envelope"></i>
-                <p><b>Primary eMail: </b>gene.boo@aol.com
-                   <br> <b>2nd eMail: </b>gene.boo@gmail.com</p>
-            </div>
-            <div class="contact-info">
-                <i class="fas fa-phone"></i>
-                <p><b>WhatsApp & Main Phone (Malaysia): </b>{Please contact me via Primary eMail}
-                   <br><b>Phone (Only in Hong Kong): </b>{Please contact me via Primary eMail}</p>
-            </div>
-            <div class="contact-info">
-                <i class="fas fa-linkedin" style="font-size:24px"></i>
-                <a href="https://www.linkedin.com/in/gene-boo-007/">
-                    <button style="font-size:20px;color:blue">Me on Linked<i class="fa fa-linkedin"></i></button>
-                </a>           
-            </div>
-        </section>
-    </div>
-
-<script>
-    function createDot() {
-      const dot = document.createElement('div');
-      dot.classList.add('dot');
-      dot.style.top = `${Math.random() * 100}vh`;
-      dot.style.left = `${Math.random() * 100}vw`;
-      document.body.appendChild(dot);
-    
-      setTimeout(() => {
-        dot.remove();
-      }, 3000);
-    }
-    function createShape() {
-      const shapes = ['cube', 'pyramid', 'sphere'];
-      const colors = ['rgba(255, 126, 95, 0.8)', 'rgba(254, 180, 123, 0.8)', 'rgba(134, 168, 231, 0.8)', 'rgba(145, 234, 228, 0.8)', 'rgba(243, 230, 232, 0.8)'];
-      const shapeType = shapes[Math.floor(Math.random() * shapes.length)];
-      const color = colors[Math.floor(Math.random() * colors.length)];
-
-      const shape = document.createElement('div');
-      shape.classList.add('shape', shapeType);
-      shape.style.top = `${Math.random() * 100}vh`;
-      shape.style.left = `${Math.random() * 100}vw`;
-
-      if (shapeType === 'cube' || shapeType === 'sphere') {
-        shape.style.backgroundColor = color;
-      } else if (shapeType === 'pyramid') {
-        shape.style.borderBottomColor = color;
+          border-radius: 50%;
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+          animation: glow 3s infinite ease-in-out;
+      }
+      .shape {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        animation: glow 3s infinite ease-in-out;
       }
 
-      document.body.appendChild(shape);
+      .cube {
+        background-color: rgba(255, 255, 255, 0.8);
+        transform: rotate(45deg);
+      }
 
-      setTimeout(() => {
-        shape.remove();
-      }, 3000);
-    }
+      .pyramid {
+        width: 0;
+        height: 0;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-bottom: 30px solid rgba(255, 255, 255, 0.8);
+      }
 
-    setInterval(createShape, 300);
-    setInterval(createDot, 500);
-    
-</script>
+      rgba(255, 255, 255, 0.8);
+          border-radius: 50%;
+      @keyframes glow {
+          0%, 100% {
+          opacity: 0;
+          transform: scale(0.5);
+          }
+          50% {
+          opacity: 1;
+          transform: scale(1);
+          }
+      header, button, .main-text {
+        position: relative;
+        z-index: 2; /* Ensure these elements are above the shapes */
+      }
+      }
+      /* Header styles */
+      header {
+          background-color: var(--header-background-color);
+          color: var(--header-text-color);
+          padding: 20px;
+          text-align: center;
+          position: relative;
+      }
+      header h1 {
+          margin: 0;
+          font-size: 36px;
+      }
+      header p {
+          margin: 5px 0 0;
+          font-size: 18px;
+      }
+      .profile-img {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          border: 3px solid var(--profile-border-color);
+          object-fit: cover;
+      }
+      /* Navigation styles */
+      nav {
+          text-align: center;
+          margin: 20px 0;
+      }
+      nav a {
+          text-decoration: none;
+          color: var(--nav-link-color);
+          padding: 10px 20px;
+          margin: 0 10px;
+          border-radius: 5px;
+          transition: background-color 0.3s, color 0.3s;
+      }
+      nav a:hover {
+          background-color: var(--nav-link-hover-background-color);
+          color: var(--nav-link-hover-color);
+      }
+      /* Main content container styles */
+      .container {
+          max-width: 800px;
+          margin: 20px auto;
+          padding: 20px;
+          background-color: var(--container-background-color);; /* Added background color with transparency */
+          border-radius: 10px;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+      /* Section styles */
+      section {
+          margin-bottom: 40px;
+      }
+      section h2 {
+          margin-top: 0;
+          font-size: 24px;
+          color: #333;
+      }
+      section p {
+          font-size: 16px;
+          line-height: 1.6;
+      }
+      /* Contact information styles */
+      .contact-info {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 20px;
+      }
+      .contact-info i {
+          margin-right: 10px;
+      }
+      /* Theme toggle button styles */
+      .theme-toggle {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          padding: 10px;
+          background-color: var(--button-background-color);
+          color: var(--button-text-color);
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+      /* Responsive styles */
+      @media (max-width: 768px) {
+          header h1 {
+              font-size: 34px;
+          }
+          header p {
+              font-size: 16px;
+          }
+          section h2 {
+              font-size: 20px;
+          }
+          section p {
+              font-size: 14px;
+          }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="https://www.linkedin.com/in/gene-boo-007/">
+        <img
+          class="profile-img"
+          src="./Gene-removebg-preview.png"
+          alt="Your Photo"
+        />
+      </a>
+      <h1>Gene Boo</h1>
+      <p>Curriculum Vitae</p>
+      <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+    </header>
+    <nav>
+      <a href="#about">About Me</a>
+      <a href="#resume">Resume</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="container">
+      <section id="about">
+        <h2>About Me</h2>
+        <p class="MsoNormal"><span lang="EN-MY">Dear Hiring Manager, </span></p>
 
-</body>
+        <p class="MsoNormal">
+          <span lang="EN-MY"
+            >Thank you for having an interest in my profile. I am a candidate
+            with a background in mathematical model development and risk
+            management, as well as some experience in pre- and post-sales of
+            vendor systems. I am an avid fan of coding and use a lot of
+            programming at my various jobs, regardless of whatever its nature
+            may be - I tend to find some way to integrate small coding projects
+            into my day-to-day.</span
+          >
+        </p>
+
+        <p class="MsoNormal">
+          <span lang="EN-MY"
+            >In my vendor experience, I have supported sales and dev teams
+            providing insightful product knowledge and helping buy-side clients
+            to streamline their processes and workflows, as well as understand
+            the risk metrics produced by the system and computation processes.
+            This role allowed me some exposure in communicating with C-level
+            executives and risk practitioners.
+          </span>
+        </p>
+
+        <p class="MsoNormal">
+          <span lang="EN-MY"
+            >In my middle office and model validation / development roles within
+            banks and the energy company, I accumulated experience in
+            quantitative model development in Python, VBA and C pertaining to
+            financial derivatives, option pricing, risk metrics, optimization
+            routines in the scopes of market risk, and operational
+            (non-financial) risk. I was also exposed to some leadership
+            experience, having assumed the team head role in one of the bank
+            positions. During this time, I have had dealings with banking
+            supervisory, external consultants and vendors. Working with
+            financial institutions also granted me some familiarity with
+            concepts behind risk and capital adequacy as well as Basel
+            compliance.
+          </span>
+        </p>
+
+        <p class="MsoNormal">
+          <span lang="EN-MY"
+            >I see myself as an efficient professional who takes pride in
+            technical quality and details. For 2 of the banks I worked for, I
+            created benchmark <span class="SpellE">VaR</span> models across
+            multi-asset classes and their derivatives, that helped prove and
+            locate errors found within the vendor-procured risk engines.
+          </span>
+        </p>
+
+        <p class="MsoNormal">
+          <span lang="EN-MY"
+            >My hobbies span across developing personal quantitative tools,
+            electronic music development, computer art and mathematical
+            write-ups for the benefit of young people, as well as a bit of
+            cooking. I am actively developing coding projects in hopes of
+            sharing my love of coding, math and music with the youth.</span
+          >
+        </p>
+
+        <p class="MsoNormal">
+          <span lang="EN-MY">Here are some links to my webpages:</span>
+        </p>
+
+        <p class="MsoNormal">
+          <span lang="EN-MY">
+            <p>
+              Funkygraffy -
+              <a href="https://funkygraffy.onrender.com/" target="_blank"
+                >Visit Funkygraffy</a
+              >
+            </p>
+
+            <p>
+              This is meant to be a visual-education tool for various
+              mathematical functions, as well as some sort of a library /
+              collection, which I hope to expand over time as and when I have
+              free time to spare. At the moment, it is able to plot 2D and 3D
+              graphs of various functions, including chaos functions,
+              trajectories, ODEs, chaos sets, contours, surfaces and volumes. It
+              is in the pipeline to enable visualisation of trees, ANNs, fourier
+              epicycles and others.
+            </p>
+            <p>Convolve! - WIP -</p>
+            <p>
+              This simultaneous project is meant to make empirical convolutions
+              easy to compute and visualise online - i.e. this tool will enable
+              users to upload data series representing functions, where the tool
+              will return FFT based convolution as an output. This will make it
+              easy for probabilists to obtain empirical series that represent
+              p(A and B), given p(A) and p(B), as an example usecase.
+            </p>
+          </span>
+        </p>
+
+        <p class="MsoNormal">
+          <span lang="EN-MY"
+            >I hope that my resume would be reviewed. My contact details are at
+            the bottom of this page, please feel free to reach out to me.
+          </span>
+        </p>
+
+        <p class="MsoNormal">
+          <span lang="EN-MY">Thank you for the consideration. </span>
+        </p>
+
+        <p class="MsoNormal"><span lang="EN-MY">Sincerely, </span></p>
+      </section>
+      <section id="resume">
+        <h2>Resume</h2>
+        <p>
+          You can view/download my CV
+          <a href="./CV of Gene Boo (2024 v3-s).pdf" target="_blank">here</a>.
+        </p>
+      </section>
+      <section id="contact">
+        <h2>Contact</h2>
+        <div class="contact-info">
+          <i class="fas fa-envelope"></i>
+          <p>
+            <b>Primary eMail: </b>gene.boo@aol.com <br />
+            <b>2nd eMail: </b>gene.boo@gmail.com
+          </p>
+        </div>
+        <div class="contact-info">
+          <i class="fas fa-phone"></i>
+          <p>
+            <b>WhatsApp & Main Phone (Malaysia): </b>{Please contact me via
+            Primary eMail} <br /><b>Phone (Only in Hong Kong): </b>{Please
+            contact me via Primary eMail}
+          </p>
+        </div>
+        <div class="contact-info">
+          <i class="fas fa-linkedin" style="font-size:24px"></i>
+          <a href="https://www.linkedin.com/in/gene-boo-007/">
+            <button style="font-size:20px;color:blue">
+              Me on Linked<i class="fa fa-linkedin"></i>
+            </button>
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      function createDot() {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        dot.style.top = `${Math.random() * 100}vh`;
+        dot.style.left = `${Math.random() * 100}vw`;
+        document.body.appendChild(dot);
+
+        setTimeout(() => {
+          dot.remove();
+        }, 3000);
+      }
+      function createShape() {
+        const shapes = ['cube', 'pyramid', 'sphere'];
+        const colors = ['rgba(255, 126, 95, 0.8)', 'rgba(254, 180, 123, 0.8)', 'rgba(134, 168, 231, 0.8)', 'rgba(145, 234, 228, 0.8)', 'rgba(243, 230, 232, 0.8)'];
+        const shapeType = shapes[Math.floor(Math.random() * shapes.length)];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        const shape = document.createElement('div');
+        shape.classList.add('shape', shapeType);
+        shape.style.top = `${Math.random() * 100}vh`;
+        shape.style.left = `${Math.random() * 100}vw`;
+
+        if (shapeType === 'cube' || shapeType === 'sphere') {
+          shape.style.backgroundColor = color;
+        } else if (shapeType === 'pyramid') {
+          shape.style.borderBottomColor = color;
+        }
+
+        document.body.appendChild(shape);
+
+        setTimeout(() => {
+          shape.remove();
+        }, 3000);
+      }
+
+      setInterval(createShape, 300);
+      setInterval(createDot, 500);
+    </script>
+  </body>
 </html>
