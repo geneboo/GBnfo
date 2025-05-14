@@ -208,21 +208,6 @@
         }
     </style>
 </head>
-<script>
-    function createDot() {
-      const dot = document.createElement('div');
-      dot.classList.add('dot');
-      dot.style.top = `${Math.random() * 100}vh`;
-      dot.style.left = `${Math.random() * 100}vw`;
-      document.body.appendChild(dot);
-    
-      setTimeout(() => {
-        dot.remove();
-      }, 3000);
-}
-
-setInterval(createDot, 500);
-</script>
 <body>
     <header>
         <a href="https://www.linkedin.com/in/gene-boo-007/">
@@ -331,5 +316,22 @@ setInterval(createDot, 500);
             </div>
         </section>
     </div>
+
+<script>
+    function createDot() {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      dot.style.top = `${Math.random() * 100}vh`;
+      dot.style.left = `${Math.random() * 100}vw`;
+      document.body.appendChild(dot);
+    
+      setTimeout(() => {
+        dot.remove();
+      }, 3000);
+}
+
+setInterval(createDot, 500);
+</script>
+
 </body>
 </html>
