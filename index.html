@@ -84,6 +84,41 @@
             background-size: cover;
             color: #444;
         }
+
+        body::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(270deg, rgba(255, 126, 95, 0.5), rgba(254, 180, 123, 0.5), rgba(134, 168, 231, 0.5), rgba(145, 234, 228, 0.5), rgba(243, 230, 232, 0.5));
+          background-size: 800% 800%;
+          animation: gradientAnimation 20s ease infinite;
+          z-index: 1;
+        }
+        
+        @keyframes gradientAnimation {
+          0% {
+            background-position: 0% 50%;
+          }
+          20% {
+            background-position: 100% 50%;
+          }
+          40% {
+            background-position: 200% 50%;
+          }
+          60% {
+            background-position: 300% 50%;
+          }
+          80% {
+            background-position: 400% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+        
         /* Header styles */
         header {
             background-color: var(--header-background-color);
