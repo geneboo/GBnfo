@@ -1,5 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
+<script>
+    const themes = {
+        "default": {
+            "background-color": "#f0f0f0",
+            "header-background-color": "#521851",
+            "header-text-color": "#ffffff",
+            "profile-border-color": "#ffffff",
+            "nav-link-color": "#6E839F",
+            "nav-link-hover-background-color": "#863DB0",
+            "nav-link-hover-color": "#ffffff",
+            "container-background-color": "rgba(255, 255, 255, 0.8)",
+            "section-title-color": "#333333",
+            "button-background-color": "#521851",
+            "button-text-color": "#ffffff"
+        },
+        "theme1": {
+            "background-color": "#ffffff",
+            "header-background-color": "#1E90FF",
+            "header-text-color": "#ffffff",
+            "profile-border-color": "#1E90FF",
+            "nav-link-color": "#1E90FF",
+            "nav-link-hover-background-color": "#4682B4",
+            "nav-link-hover-color": "#ffffff",
+            "container-background-color": "rgba(240, 248, 255, 0.8)",
+            "section-title-color": "#1E90FF",
+            "button-background-color": "#1E90FF",
+            "button-text-color": "#ffffff"
+        },
+        "theme2": {
+            "background-color": "#f5f5f5",
+            "header-background-color": "#FF6347",
+            "header-text-color": "#ffffff",
+            "profile-border-color": "#FF6347",
+            "nav-link-color": "#FF6347",
+            "nav-link-hover-background-color": "#FF4500",
+            "nav-link-hover-color": "#ffffff",
+            "container-background-color": "rgba(255, 228, 225, 0.8)",
+            "section-title-color": "#FF6347",
+            "button-background-color": "#FF6347",
+            "button-text-color": "#ffffff"
+        }
+    };
+
+    function applyTheme(theme) {
+        for (const [key, value] of Object.entries(theme)) {
+            document.documentElement.style.setProperty(`--${key}`, value);
+        }
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.style.getPropertyValue('--background-color');
+        if (currentTheme === themes.default["background-color"]) {
+            applyTheme(themes.theme1);
+        } else if (currentTheme === themes.theme1["background-color"]) {
+            applyTheme(themes.theme2);
+        } else {
+            applyTheme(themes.default);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyTheme(themes.default);
+    });
+</script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,8 +86,8 @@
         }
         /* Header styles */
         header {
-            background-color: rgba(82, 24, 81, 0.7); /* Added background color with transparency */
-            color: #fff;
+            background-color: var(--header-background-color);
+            color: var(--header-text-color);
             padding: 20px;
             text-align: center;
             position: relative;
@@ -42,7 +107,7 @@
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            border: 3px solid #fff;
+            border: 3px solid var(--profile-border-color);
             object-fit: cover;
         }
         /* Navigation styles */
@@ -52,22 +117,22 @@
         }
         nav a {
             text-decoration: none;
-            color: #6E839F;
+            color: var(--nav-link-color);
             padding: 10px 20px;
             margin: 0 10px;
             border-radius: 5px;
             transition: background-color 0.3s, color 0.3s;
         }
         nav a:hover {
-            background-color: #863DB0;
-            color: #fff;
+            background-color: var(--nav-link-hover-background-color);
+            color: var(--nav-link-hover-color);
         }
         /* Main content container styles */
         .container {
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8); /* Added background color with transparency */
+            background-color: var(--container-background-color);; /* Added background color with transparency */
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
@@ -94,6 +159,18 @@
         .contact-info i {
             margin-right: 10px;
         }
+        /* Theme toggle button styles */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: var(--button-background-color);
+            color: var(--button-text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
         /* Responsive styles */
         @media (max-width: 768px) {
             header h1 {
@@ -118,6 +195,7 @@
         </a>
         <h1>Gene Boo</h1>
         <p>Curriculum Vitae</p>
+        <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
     </header>
     <nav>
         <a href="#about">About Me</a>
