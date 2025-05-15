@@ -47,10 +47,10 @@ portfolio_site/
 ## 🛠️ Customization
 
 ### 🔧 Add Your Projects
-Edit the `#projects` section in `index.html` to showcase your actual websites or GitHub repos.
+TODO: Edit the `#projects` section in `index.html` to showcase your actual websites or GitHub repos.
 
 ### 🖼️ Replace Assets
-Replace the following with your own files:
+DONE: Replace the following with own files:
 - `assets/Gene-removebg-preview.png` → Your profile photo
 - `assets/5109267.jpg` → Your background image
 - `assets/CV of Gene Boo (2024 v3-s).pdf` → Your latest resume PDF
@@ -62,13 +62,12 @@ Themes are defined in `js/scripts.js`. Add new entries to the `themes` object wi
 
 ## 🚀 Deployment
 
-You can host the site using:
+DONE on Github Pages: You can host the site using:
 - GitHub Pages (just push to `main` branch)
 - [Vercel](https://vercel.com)
 - [Render](https://render.com)
 - Google Cloud / Firebase Hosting
 
-Just upload the project as-is or build your own deployment pipeline.
 
 ---
 
