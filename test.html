@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF.js Static Example</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    #pdf-container {
+      text-align: center;
+      margin: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="pdf-container"></div>
+
+  <script>
+    const url = 'your-file.pdf'; // Local path to your PDF file
+
+    const container = document.getElementById('pdf-container');
+
+    const renderPDF = async (url) => {
+      const loadingTask = pdfjsLib.getDocument(url);
+      const pdf = await loadingTask.promise;
+
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+
+        const scale = 1.5;
+        const viewport = page.getViewport({ scale });
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({ canvasContext: context, viewport }).promise;
+        container.appendChild(canvas);
+      }
+    };
+
+    renderPDF(url);
+  </script>
+</body>
+</html>
