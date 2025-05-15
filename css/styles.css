@@ -376,93 +376,24 @@ body.layout-classic-top .theme-controls {
     right: 20px;
 }
 
-/* 3. LAYOUT: SIDEBAR RIGHT */
-body.layout-sidebar-right {
-  padding-right: 260px; /* Space for the sidebar */
-}
-
-body.layout-sidebar-right header {
-  /* Header remains at top, doesn't overlap sidebar */
-  margin-right: -260px; /* Counteract body padding for full width header */
-}
-
-body.layout-sidebar-right nav {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 240px; /* Sidebar width */
-  height: 100vh; /* Full viewport height */
-  background-color: var(--container-background-color); /* Or a distinct sidebar color */
-  border-left: 1px solid var(--profile-border-color);
-  padding: 20px;
-  padding-top: calc(50px + 30px + 20px); /* Space for profile image if moved there */
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Align buttons to the left of the sidebar */
-  z-index: 100;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-}
-
-body.layout-sidebar-right nav button {
-  width: 100%;
-  text-align: left;
-  margin-bottom: 10px;
-  padding: 12px 15px;
-}
-
-body.layout-sidebar-right .container {
-  /* Container uses remaining space */
-  max-width: none; /* Allow it to fill available space up to body padding */
-  width: auto;
-  margin-left: 20px; /* Or desired margin */
-  margin-right: 20px; /* Or desired margin */
-}
-
-body.layout-sidebar-right .profile-img {
-  /* Option 1: Keep in header (as is) */
-  /* Option 2: Move to top of sidebar */
-  position: absolute; /* Relative to nav if nav is its offsetParent */
-  top: 20px;
-  left: 50%; /* Centered in sidebar */
-  transform: translateX(-50%);
-  width: 80px; /* Adjust size for sidebar */
-  height: 80px;
-  /* Ensure nav has position:relative if this is to be relative to nav */
-}
-/* If moving profile-img to sidebar, ensure `nav` has `position: relative` or adjust `body.layout-sidebar-right nav` to `position:fixed` and `profile-img` accordingly */
-body.layout-sidebar-right nav {
-    position: fixed; /* ... (rest of nav styles) ... */
-    padding-top: 140px; /* Example: 100px for image + 20px top + 20px bottom margin = 140px */
+.pdf-container {
+    max-height: 600px; /* or whatever fits your layout */
+	scroll-behavior: smooth;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
 
-body.layout-sidebar-right .theme-controls {
-  /* Move theme controls to inside the sidebar, or keep in header */
-  /* Example: move to bottom of sidebar */
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  flex-direction: column; /* Stack them */
-  gap: 15px;
-  align-items: stretch;
-}
-body.layout-sidebar-right #theme-select,
-body.layout-sidebar-right .layout-toggle {
-    width: 100%;
-}
-
-/* Ensure header content doesn't go under the fixed nav styling */
-body.layout-sidebar-right header > h1,
-body.layout-sidebar-right header > p {
-    margin-right: 260px; /* Adjust if header's direct children need to avoid sidebar area */
-}
-
-
-
-
-
+/* Smaller max-height on small screen */
 @media (max-width: 768px) {
+  body {
+  overflow-x: hidden;
+  }
+  
+  
   body.layout-sidebar-right {
     padding-right: 0; /* Remove sidebar space */
   }
@@ -499,5 +430,13 @@ body.layout-sidebar-right header > p {
   body.layout-sidebar-right #theme-select,
   body.layout-sidebar-right .layout-toggle {
       width: auto;
+  }
+  .pdf-container {
+	max-height: 400px;
+	}
+  
+  nav button {
+  padding: 10px 16px;
+  font-size: 1rem;
   }
 }
