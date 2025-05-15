@@ -174,30 +174,7 @@
                         >
                     </p>
                     <div class="pdf-container cover-letter-container">
-                        <script>
-                            const url = "assets/Cover Letter - Gene Boo.pdf";
-                            const container = document.querySelector(".pdf-container.cover-letter-container");
-                            const renderPDF = async (url) => {
-                              				const loadingTask = pdfjsLib.getDocument(url);
-                              				const pdf = await loadingTask.promise;
-                             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                                   const page = await pdf.getPage(pageNum);
 
-                                   const scale = 1.5;
-                                   const viewport = page.getViewport({ scale });
-
-                                   const canvas = document.createElement('canvas');
-                                   const context = canvas.getContext('2d');
-                                   canvas.width = viewport.width;
-                                   canvas.height = viewport.height;
-
-                                   await page.render({ canvasContext: context, viewport }).promise;
-                                   container.appendChild(canvas);
-                                }
-                              };
-
-                             renderPDF(url);
-                        </script>
                         <!--<iframe src="assets/Cover Letter - Gene Boo.pdf" title="Cover Letter PDF"></iframe>-->
                     </div>
                 </div>
@@ -213,30 +190,7 @@
                         >
                     </p>
                     <div class="pdf-container cv-container">
-                        <script>
-                            const url = "assets/CV of Gene Boo (2024 v3-s).pdf";
-                            const container = document.querySelector(".pdf-container.cv-container");
-                            const renderPDF = async (url) => {
-                              				const loadingTask = pdfjsLib.getDocument(url);
-                              				const pdf = await loadingTask.promise;
-                             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                                   const page = await pdf.getPage(pageNum);
 
-                                   const scale = 1.5;
-                                   const viewport = page.getViewport({ scale });
-
-                                   const canvas = document.createElement('canvas');
-                                   const context = canvas.getContext('2d');
-                                   canvas.width = viewport.width;
-                                   canvas.height = viewport.height;
-
-                                   await page.render({ canvasContext: context, viewport }).promise;
-                                   container.appendChild(canvas);
-                                }
-                              };
-
-                             renderPDF(url);
-                        </script>
                         <!--<iframe src="assets/CV of Gene Boo (2024 v3-s).pdf" title="CV PDF"></iframe>-->
                     </div>
                 </div>
