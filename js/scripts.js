@@ -269,6 +269,46 @@ function switchResumeSubTab(subTabId, clickedButton) {
   }
 }
 
+// scripts.js
+
+// Renders a PDF to a canvas inside a given container
+async function renderPDFtoContainer(url, containerSelector) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    try {
+        const loadingTask = pdfjsLib.getDocument(url);
+        const pdf = await loadingTask.promise;
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+			
+            canvas.style.width = "100%";
+            canvas.style.height = "auto";			
+
+            await page.render({ canvasContext: context, viewport }).promise;
+            container.appendChild(canvas);
+        }
+    } catch (err) {
+        console.error(`Failed to render PDF at ${url}:`, err);
+    }
+}
+
+// Automatically render both PDFs when DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+    renderPDFtoContainer("assets/Cover Letter - Gene Boo.pdf", ".pdf-container.cover-letter-container");
+    renderPDFtoContainer("assets/CV of Gene Boo (2024 v3-s).pdf", ".pdf-container.cv-container");
+});
+
+
+
 // Initialize on page load
 window.addEventListener('load', () => {
   // Initialize themeControlsElement and its original parent here
