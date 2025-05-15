@@ -173,10 +173,10 @@
                             >Download PDF</a
                         >
                     </p>
-                    <div class="pdf-container">
+                    <div class="pdf-container cover-letter-container">
                         <script>
                             const url = "assets/Cover Letter - Gene Boo.pdf";
-                            const container = document.querySelector(".pdf-container");
+                            const container = document.querySelector(".pdf-container cover-letter-container");
                             const renderPDF = async (url) => {
                               				const loadingTask = pdfjsLib.getDocument(url);
                               				const pdf = await loadingTask.promise;
@@ -212,10 +212,10 @@
                             >Download PDF</a
                         >
                     </p>
-                    <div class="pdf-container">
+                    <div class="pdf-container cv-container">
                         <script>
                             const url = "assets/CV of Gene Boo (2024 v3-s).pdf";
-                            const container = document.querySelector(".pdf-container");
+                            const container = document.querySelector(".pdf-container cv-container");
                             const renderPDF = async (url) => {
                               				const loadingTask = pdfjsLib.getDocument(url);
                               				const pdf = await loadingTask.promise;
