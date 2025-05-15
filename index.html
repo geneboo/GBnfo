@@ -1,37 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gene Boo - Portfolio</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <link rel="stylesheet" href="css/styles.css" />
-</head>
-<body>
-  <header>
-    <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank">
-      <img class="profile-img" src="assets/Gene-removebg-preview.png" alt="Gene Boo" title="Visit my LinkedIn profile" />
-    </a>
-    <h1>Gene Boo</h1>
-    <p>Curriculum Vitae</p>
-    <div class="theme-controls">
-      <label for="theme-select" title="Change the website's color scheme">Theme:</label>
-      <select id="theme-select" onchange="selectTheme(this.value)"></select>
-      <button class="layout-toggle" onclick="toggleLayout()" title="Toggle site layout (custom CSS needed)">Layout</button>
-    </div>
-  </header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Gene Boo - Portfolio</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        />
+        <link rel="stylesheet" href="css/styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    </head>
+    <body>
+        <header>
+            <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank">
+                <img
+                    class="profile-img"
+                    src="assets/Gene-removebg-preview.png"
+                    alt="Gene Boo"
+                    title="Visit my LinkedIn profile"
+                />
+            </a>
+            <h1>Gene Boo</h1>
+            <p>Curriculum Vitae</p>
+            <div class="theme-controls">
+                <label
+                    for="theme-select"
+                    title="Change the website's color scheme"
+                    >Theme:</label
+                >
+                <select
+                    id="theme-select"
+                    onchange="selectTheme(this.value)"
+                ></select>
+                <button
+                    class="layout-toggle"
+                    onclick="toggleLayout()"
+                    title="Toggle site layout (custom CSS needed)"
+                >
+                    Layout
+                </button>
+            </div>
+        </header>
 
-  <nav id="main-nav">
-    <button onclick="switchTab('about', this)" data-tab-id="about" title="Learn more about me">About Me</button>
-    <button onclick="switchTab('resume', this)" data-tab-id="resume" title="View my resume and cover letter">Resume</button>
-    <button onclick="switchTab('contact', this)" data-tab-id="contact" title="How to get in touch">Contact</button>
-    <button onclick="switchTab('projects', this)" data-tab-id="projects" title="Check out my work">Projects</button>
-  </nav>
+        <nav id="main-nav">
+            <button
+                onclick="switchTab('about', this)"
+                data-tab-id="about"
+                title="Learn more about me"
+            >
+                About Me
+            </button>
+            <button
+                onclick="switchTab('resume', this)"
+                data-tab-id="resume"
+                title="View my resume and cover letter"
+            >
+                Resume
+            </button>
+            <button
+                onclick="switchTab('contact', this)"
+                data-tab-id="contact"
+                title="How to get in touch"
+            >
+                Contact
+            </button>
+            <button
+                onclick="switchTab('projects', this)"
+                data-tab-id="projects"
+                title="Check out my work"
+            >
+                Projects
+            </button>
+        </nav>
 
-  <div class="container">
-    <section id="about" class="tab-content active">
-      <h2>About Me</h2>
-            <p class="MsoNormal">
+        <div class="container">
+            <section id="about" class="tab-content active">
+                <h2>About Me</h2>
+                <p class="MsoNormal">
                     <span lang="EN-MY"
                         >Thank you for having an interest in my profile. I am a
                         candidate with a background in mathematical model
@@ -96,53 +142,181 @@
                         math and music with the youth.</span
                     >
                 </p>
-    </section>
+            </section>
 
-    <section id="resume" class="tab-content">
-      <h2>Resume</h2>
-      <nav class="sub-nav" id="resume-sub-nav">
-        <button onclick="switchResumeSubTab('cover-letter', this)" data-subtab-id="cover-letter" title="View Cover Letter">Cover Letter</button>
-        <button onclick="switchResumeSubTab('cv', this)" data-subtab-id="cv" title="View CV">CV</button>
-      </nav>
-      <div id="cover-letter-content" class="resume-sub-content">
-        <h3>Cover Letter</h3>
-        <p>View or download my Cover Letter: <a href="assets/Cover Letter - Gene Boo.pdf" target="_blank" download="Cover Letter - Gene Boo.pdf">Download PDF</a></p>
-        <div class="pdf-container">
-          <iframe src="assets/Cover Letter - Gene Boo.pdf" title="Cover Letter PDF"></iframe>
+            <section id="resume" class="tab-content">
+                <h2>Resume</h2>
+                <nav class="sub-nav" id="resume-sub-nav">
+                    <button
+                        onclick="switchResumeSubTab('cover-letter', this)"
+                        data-subtab-id="cover-letter"
+                        title="View Cover Letter"
+                    >
+                        Cover Letter
+                    </button>
+                    <button
+                        onclick="switchResumeSubTab('cv', this)"
+                        data-subtab-id="cv"
+                        title="View CV"
+                    >
+                        CV
+                    </button>
+                </nav>
+                <div id="cover-letter-content" class="resume-sub-content">
+                    <h3>Cover Letter</h3>
+                    <p>
+                        View or download my Cover Letter:
+                        <a
+                            href="assets/Cover Letter - Gene Boo.pdf"
+                            target="_blank"
+                            download="Cover Letter - Gene Boo.pdf"
+                            >Download PDF</a
+                        >
+                    </p>
+                    <div class="pdf-container">
+                        <script>
+                            const url = "assets/Cover Letter - Gene Boo.pdf";
+                            const container = document.querySelector(".pdf-container");
+                            const renderPDF = async (url) => {
+                              				const loadingTask = pdfjsLib.getDocument(url);
+                              				const pdf = await loadingTask.promise;
+                             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                                   const page = await pdf.getPage(pageNum);
+
+                                   const scale = 1.5;
+                                   const viewport = page.getViewport({ scale });
+
+                                   const canvas = document.createElement('canvas');
+                                   const context = canvas.getContext('2d');
+                                   canvas.width = viewport.width;
+                                   canvas.height = viewport.height;
+
+                                   await page.render({ canvasContext: context, viewport }).promise;
+                                   container.appendChild(canvas);
+                                }
+                              };
+
+                             renderPDF(url);
+                        </script>
+                        <!--<iframe src="assets/Cover Letter - Gene Boo.pdf" title="Cover Letter PDF"></iframe>-->
+                    </div>
+                </div>
+                <div id="cv-content" class="resume-sub-content">
+                    <h3>Curriculum Vitae</h3>
+                    <p>
+                        View or download my CV:
+                        <a
+                            href="assets/CV of Gene Boo (2024 v3-s).pdf"
+                            target="_blank"
+                            download="CV of Gene Boo (2024 v3-s).pdf"
+                            >Download PDF</a
+                        >
+                    </p>
+                    <div class="pdf-container">
+                        <script>
+                            const url = assets/CV of Gene Boo (2024 v3-s).pdf;
+                            const container = document.querySelector(".pdf-container");
+                            const renderPDF = async (url) => {
+                              				const loadingTask = pdfjsLib.getDocument(url);
+                              				const pdf = await loadingTask.promise;
+                             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                                   const page = await pdf.getPage(pageNum);
+
+                                   const scale = 1.5;
+                                   const viewport = page.getViewport({ scale });
+
+                                   const canvas = document.createElement('canvas');
+                                   const context = canvas.getContext('2d');
+                                   canvas.width = viewport.width;
+                                   canvas.height = viewport.height;
+
+                                   await page.render({ canvasContext: context, viewport }).promise;
+                                   container.appendChild(canvas);
+                                }
+                              };
+
+                             renderPDF(url);
+                        </script>
+                        <!--<iframe src="assets/CV of Gene Boo (2024 v3-s).pdf" title="CV PDF"></iframe>-->
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="tab-content">
+                <h2>Contact</h2>
+                <p>Email: gene.boo@aol.com / gene.boo@gmail.com</p>
+                <p>Phone: Please contact via email</p>
+                <p>
+                    <a
+                        href="https://www.linkedin.com/in/gene-boo-007/"
+                        target="_blank"
+                        ><i class="fab fa-linkedin"></i> LinkedIn</a
+                    >
+                </p>
+            </section>
+
+            <section id="projects" class="tab-content">
+                <h2>Projects</h2>
+                <ul>
+                    <li>
+                        <a
+                            href="https://funkygraffy.onrender.com/"
+                            target="_blank"
+                            >Funkygraffy!</a
+                        >
+                        This is a math function graphing website as well as an
+                        ever-growing library of interesting functions that I
+                        hope can serve as an educational toy to try to make math
+                        more intuitive. The site is colourful and contains
+                        hidden easter eggs!
+                    </li>
+                    <br />
+                    <li>
+                        <strong>Convolve! - Coming Soon:</strong> Empirical
+                        convolution online tool - this can help combine any
+                        shape - to get like joint distributions or other
+                        intercepting functions!
+                    </li>
+                    <br />
+                    <li>
+                        <strong>Fit it! - Coming Soon:</strong> Continuous
+                        distribution fitting tool - you provide the data, and my
+                        tool will run a bunch of continuous distributions and
+                        give you a list of best fitting ones!
+                    </li>
+                    <br />
+                    <li>
+                        <strong
+                            >SVG Fourier Epicycle Rendering - Coming
+                            Soon:</strong
+                        >
+                        You can save your pictures as SVG and use my tool to
+                        generate Fourier series coefficients of your silhouette
+                        to regenerate in a graph!
+                    </li>
+                    <br />
+                </ul>
+                <h2>Written Works</h2>
+                <ul>
+                    <li>
+                        <a
+                            href="assets/FFT_Convolution_GB2020_Excerpt.pdf"
+                            target="_blank"
+                            download="FFT_Convolution_GB2020_Excerpt.pdf"
+                            >Download PDF Excerpt: </a
+                        ><strong
+                            >Fast Fourier Transform as an Engine for the
+                            Convolution of PDFs and Black-Scholes Option Pricing
+                            Using Python - Gene Boo, 2020</strong
+                        >
+                        An informative essay for enthusiasts and practitioners
+                        on use of Fast Fourier Transform in Statistics and
+                        Finance
+                    </li>
+                </ul>
+            </section>
         </div>
-      </div>
-      <div id="cv-content" class="resume-sub-content">
-        <h3>Curriculum Vitae</h3>
-        <p>View or download my CV: <a href="assets/CV of Gene Boo (2024 v3-s).pdf" target="_blank" download="CV of Gene Boo (2024 v3-s).pdf">Download PDF</a></p>
-        <div class="pdf-container">
-          <iframe src="assets/CV of Gene Boo (2024 v3-s).pdf" title="CV PDF"></iframe>
-        </div>
-      </div>
-    </section>
 
-    <section id="contact" class="tab-content">
-      <h2>Contact</h2>
-      <p>Email: gene.boo@aol.com / gene.boo@gmail.com</p>
-      <p>Phone: Please contact via email</p>
-      <p><a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a></p>
-    </section>
-
-    <section id="projects" class="tab-content">
-      <h2>Projects</h2>
-      <ul>
-        <li><a href="https://funkygraffy.onrender.com/" target="_blank">Funkygraffy!</a> This is a math function graphing website as well as an ever-growing library of interesting functions that I hope can serve as an educational toy to try to make math more intuitive. The site is colourful and contains hidden easter eggs!</li><br>
-        <li><strong>Convolve! - Coming Soon:</strong> Empirical convolution online tool - this can help combine any shape - to get like joint distributions or other intercepting functions!</li><br>
-		<li><strong>Fit it! - Coming Soon:</strong> Continuous distribution fitting tool - you provide the data, and my tool will run a bunch of continuous distributions and give you a list of best fitting ones!</li><br>
-		<li><strong>SVG Fourier Epicycle Rendering - Coming Soon:</strong> You can save your pictures as SVG and use my tool to generate Fourier series coefficients of your silhouette to regenerate in a graph!</li><br>
-      </ul>
-      <h2>Written Works</h2>
-      <ul>
-        <li><a href="assets/FFT_Convolution_GB2020_Excerpt.pdf" target="_blank" download="FFT_Convolution_GB2020_Excerpt.pdf">Download PDF Excerpt: </a><strong>Fast Fourier Transform as an Engine for the Convolution of PDFs
- and Black-Scholes Option Pricing Using Python - Gene Boo, 2020</strong> An informative essay for enthusiasts and practitioners on use of Fast Fourier Transform in Statistics and Finance</li>  
-      </ul>	
-	</section>
-  </div>
-
-  <script src="js/scripts.js"></script>
-</body>
+        <script src="js/scripts.js"></script>
+    </body>
 </html>
