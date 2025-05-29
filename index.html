@@ -298,50 +298,6 @@
         </div>
 
         <script src="js/scripts.js"></script>
-        <script>
-            // PDF.js rendering function
-            async function renderPDF(pdfPath, canvasId) {
-                const loadingTask = pdfjsLib.getDocument(pdfPath);
-                const pdf = await loadingTask.promise;
-                const page = await pdf.getPage(1);
-                
-                const viewport = page.getViewport({ scale: 1.5 });
-                const canvas = document.getElementById(canvasId);
-                const context = canvas.getContext('2d');
-                
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                
-                await page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                }).promise;
-            }
-
-            // Initialize PDF rendering when tab is active
-            function initResumeTab() {
-                renderPDF('assets/CV of Gene Boo (2024 v3-s).pdf', 'cv-2024-canvas');
-                renderPDF('assets/CV of Gene Boo (2025 v1-s).pdf', 'cv-2025-canvas');
-            }
-
-            // Update tab switching function
-            function switchResumeSubTab(subTabId, buttonElement) {
-                // ... existing tab switching logic ...
-                
-                // Initialize PDFs when resume tab is opened
-                if(subTabId.includes('cv')) {
-                    setTimeout(initResumeTab, 100);
-                }
-            }
-
-            // Call initialization when resume tab is opened
-            function switchTab(tabId, element) {
-                // ... existing tab switching logic ...
-                
-                if(tabId === 'resume') {
-                    setTimeout(initResumeTab, 100);
-                }
-            }
-        </script>
+        
     </body>
 </html>
