@@ -304,7 +304,8 @@ async function renderPDFtoContainer(url, containerSelector) {
 // Automatically render both PDFs when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
     renderPDFtoContainer("assets/Cover Letter - Gene Boo.pdf", ".pdf-container.cover-letter-container");
-    renderPDFtoContainer("assets/CV of Gene Boo (2024 v3-s).pdf", ".pdf-container.cv-container");
+    renderPDFtoContainer("assets/CV of Gene Boo (2024 v3-s).pdf", ".pdf-container.cv-2024-container");
+    renderPDFtoContainer("assets/CV of Gene Boo (2025 v1-s).pdf", ".pdf-container.cv-2025-container");
 });
 
 
