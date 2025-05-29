@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gene Boo - Professional CV</title>
+    <style>
+        /* Modern, condensed professional styling */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #1a5276;
+            --accent: #c0392b;
+            --light: #f5f7fa;
+            --dark: #34495e;
+        }
+        
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Roboto', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.4;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #f8f9fa;
+            font-size: 14px;
+        }
+        
+        .cv-container {
+            background: white;
+            box-shadow: 0 0 15px rgba(0,0,0,0.08);
+            border-radius: 6px;
+            padding: 25px;
+            margin-top: 10px;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .name {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        
+        .title {
+            font-size: 18px;
+            color: var(--secondary);
+            font-weight: 600;
+            margin: 8px 0 12px;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            color: var(--primary);
+            border-bottom: 1px solid #e0e6ed;
+            padding-bottom: 5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .subsection {
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+        }
+        
+        .subsection-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .position {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--dark);
+        }
+        
+        .company {
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+        
+        .date {
+            color: #666;
+            font-style: italic;
+            font-size: 13px;
+        }
+        
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 10px;
+        }
+        
+        .skill-category {
+            margin-bottom: 10px;
+        }
+        
+        .skill-category h4 {
+            margin: 0 0 5px 0;
+            color: var(--primary);
+            font-size: 14px;
+        }
+        
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            padding: 8px 18px;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .btn:hover {
+            background: #154360;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        ul {
+            padding-left: 18px;
+            margin: 8px 0;
+        }
+        
+        li {
+            margin-bottom: 6px;
+            line-height: 1.35;
+        }
+        
+        .website-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 13px;
+        }
+        
+        .website-link:hover {
+            text-decoration: underline;
+        }
+        
+        .compact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .two-column-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .print-optimized {
+            display: none;
+        }
+        
+        @media print {
+            .download-buttons {
+                display: none;
+            }
+            
+            body {
+                background: white;
+                padding: 0;
+                font-size: 12px;
+            }
+            
+            .cv-container {
+                box-shadow: none;
+                padding: 15px;
+            }
+            
+            .name {
+                font-size: 24px;
+            }
+            
+            .title {
+                font-size: 16px;
+            }
+            
+            .section-title {
+                font-size: 16px;
+            }
+            
+            .position {
+                font-size: 13px;
+            }
+            
+            .company {
+                font-size: 13px;
+            }
+            
+            .date {
+                font-size: 12px;
+            }
+            
+            .contact-info {
+                font-size: 11px;
+                gap: 8px;
+            }
+            
+            li {
+                margin-bottom: 4px;
+                font-size: 11px;
+            }
+            
+            .print-optimized {
+                display: block;
+            }
+        }
+        
+        /* Updated Technical Proficiencies */
+        .tech-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .tech-column {
+            background-color: #f8fafc;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .tech-column h4 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        /* New horizontal layout for Technical Proficiencies */
+        .tech-proficiencies-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .tech-skill-category {
+            margin-bottom: 10px;
+        }
+        
+        .tech-skill-category h4 {
+            margin: 0 0 5px 0;
+            color: var(--primary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Hobby projects styling */
+        .hobby-projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .project-card {
+            background-color: #f8fafc;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .project-card h4 {
+            margin-top: 0;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .project-card p {
+            margin: 8px 0;
+        }
+        
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .language-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .language-level {
+            margin-left: 8px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="cv-container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1 class="name">Gene Boo Ee Jin</h1>
+            <div class="title">Quantitative Risk & Analytics Specialist</div>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    gene.boo@aol.com | gene.boo@gmail.com
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    +60-17-293 5647 (WhatsApp)
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    +852-6507 8429 (HK)
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Kuala Lumpur, Malaysia
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-linkedin"></i>
+                    <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank" class="website-link">
+                        linkedin.com/in/gene-boo-007
+                    </a>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-globe"></i>
+                    <a href="https://geneboo.github.io/GBnfo/" target="_blank" class="website-link">
+                        geneboo.github.io/GBnfo
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Professional Summary -->
+        <div class="section">
+            <h2 class="section-title">Professional Summary</h2>
+            <p>
+                Quantitative risk specialist with 20+ years of experience in financial derivatives, risk modeling, and data analytics. 
+                Proven expertise in developing and validating risk models across multiple asset classes, leading technical teams, 
+                and delivering client-focused solutions. Adept at Python, VBA, and cloud-based platforms with a passion for 
+                optimization and innovation. Strong background in both buy-side and sell-side environments with regulatory 
+                compliance experience (MAS, BNM, Basel).
+            </p>
+        </div>
+        
+        <!-- Core Competencies -->
+        <div class="section">
+            <h2 class="section-title">Core Competencies</h2>
+            <div class="skills-container">
+                <div class="skill-category">
+                    <h4>Quantitative Analysis</h4>
+                    <ul>
+                        <li>Financial Derivatives Pricing</li>
+                        <li>Monte Carlo Simulation</li>
+                        <li>Copula Modeling</li>
+                        <li>Gradient Boosting/FFT/PCA/Hybrid Modeling</li>
+                        <li>Risk Metrics (VaR, ES)</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <h4>Technical Expertise</h4>
+                    <ul>
+                        <li>Python (Pandas, NumPy)</li>
+                        <li>VBA/Excel Financial Modeling</li>
+                        <li>C++ Quantitative Libraries</li>
+                        <li>SQL & Database Management</li>
+                        <li>RESTful API Integration</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <h4>Risk Management</h4>
+                    <ul>
+                        <li>Market & Operational Risk</li>
+                        <li>Traded & Non-traded Risk</li>
+                        <li>IRRBB & Liquidity Risk</li>
+                        <li>Model Validation Frameworks</li>
+                        <li>Basel Compliance</li>
+                    </ul>
+                </div>
+                
+                <div class="skill-category">
+                    <h4>Leadership & Strategy</h4>
+                    <ul>
+                        <li>Team Leadership (5+ members regionally)</li>
+                        <li>Pre/Post-Sales Engagement</li>
+                        <li>Regulatory Communication</li>
+                        <li>Workflow Optimization</li>
+                        <li>Policy/Model/Technical Documentation</li>
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- Professional Experience -->
+        <div class="section">
+            <h2 class="section-title">Professional Experience</h2>
+            
+            <div class="subsection">
+                <div class="subsection-header">
+                    <div>
+                        <span class="position">IBMR Projects Consultant</span>
+                        <span class="company">Ambank Group</span>
+                    </div>
+                    <div class="date">Mar 2025 - Present</div>
+                </div>
+                <ul>
+                    <li>Provided SA-CCR implementation guidance across multiple asset classes</li>
+                    <li>Optimized Dupire PDE Local Volatility surface building in Python for VaR-testing engine</li>
+                    <li>Optimized Autocallable contract valuation in Python</li>
+                    <li>Developed accelerated Monte Carlo frameworks for derivative pricing</li>
+                    <li>Provided implementation guidance on IRRBB pre-payment modeling</li>
+                </ul>
+                <p><strong>Technologies:</strong> Python, Excel VBA</p>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-header">
+                    <div>
+                        <span class="position">Product Specialist</span>
+                        <span class="company">Qontigo, AxiomaRisk (now Simcorp)</span>
+                    </div>
+                    <div class="date">Dec 2021 - Jun 2023</div>
+                </div>
+                <ul>
+                    <li>Directed pre/post-sales for AxiomaRisk and Performance Attribution solutions</li>
+                    <li>Conducted buy-side client demos across multi-asset classes (EQ, FX, FI, ESG, Crypto, Private Assets)</li>
+                    <li>Developed Python automation scripts using AxiomaRisk API, reducing report generation time by 70%</li>
+                    <li>Created Excel integration tools using XLWings for real-time market data access</li>
+                    <li>Collaborated with engineering teams to resolve complex client technical issues</li>
+                </ul>
+                <p><strong>Technologies:</strong> Python, Pandas, Jira, Salesforce, AxiomaRisk API, Postman</p>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-header">
+                    <div>
+                        <span class="position">Senior Quantitative Analyst</span>
+                        <span class="company">Maybank Group</span>
+                    </div>
+                    <div class="date">Sep 2019 - Aug 2021</div>
+                </div>
+                <ul>
+                    <li>Designed Monte Carlo+bootstrap models for Operational Risk capital allocation</li>
+                    <li>Implemented Gaussian & T-copulae for tail-risk aggregation and Euler Allocation to quantify risk across 8 business units</li>
+                    <li>Built COVID-19 R₀ prediction model using polynomial regression (92% accuracy)</li>
+                    <li>Built FFT-based convolution tools for joint distribution modeling</li>
+                    <li>Developed Python based custom distribution (multi-modal) distribution fitting tools</li>
+                </ul>
+                <p><strong>Technologies:</strong> Python, Excel VBA, SQL</p>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-header">
+                    <div>
+                        <span class="position">Head of Market Risk Model Validation</span>
+                        <span class="company">Maybank Group</span>
+                    </div>
+                    <div class="date">Mar 2014 - Mar 2019</div>
+                </div>
+                <ul>
+                    <li>Led regional 5-member team validating traded/non-traded portfolio value and risk</li>
+                    <li>Presented validation results to senior management and regulators (BNM, MAS, HKMA)</li>
+                    <li>Developed independent pricing validation tools for FXO, IRO, Equity Derivatives</li>
+                    <li>Authored model documentation standards adopted bank-wide</li>
+                    <li>Designed IRRBB framework for non-maturing assets/liabilities</li>
+                </ul>
+                <p><strong>Technologies:</strong> Python, Excel VBA, C++, R, Matlab, MySQL</p>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-header">
+                    <div>
+                        <span class="position">Senior Quantitative Analyst</span>
+                        <span class="company">Ambank Group</span>
+                    </div>
+                    <div class="date">Apr 2009 - Mar 2014</div>
+                </div>
+                <ul>
+                    <li>Developed benchmark pricing models for derivatives across FX, EQ, IR asset classes</li>
+                    <li>Created volatility surface generators and correlation modeling tools</li>
+                    <li>Mentored junior team members on quantitative techniques</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-header">
+                    <div>
+                        <span class="position">Risk Specialist for a Software Project</span>
+                        <span class="company">Pilot Multimedia (now disbanded)</span>
+                    </div>
+                    <div class="date">Jun 2007 - Jan 2008</div>
+                </div>
+                <ul>
+                    <li>Developed staging tools for reading XML based formulae into C# proprietary software for Credit Risk</li>
+                    <li>Implemented logistic regression based tools for PD</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-header">
+                    <div>
+                        <span class="position">Market Risk Analyst</span>
+                        <span class="company">Fortis Bank SA (now BNP Paribas Fortis)</span>
+                    </div>
+                    <div class="date">Aug 2006 - Jan 2007</div>
+                </div>
+                <ul>
+                    <li>Developed Asian Basket option pricing and greek models for the market risk department</li>
+                </ul>
+            </div>
+            
+            <div class="subsection">
+                <div class="subsection-header">
+                    <div>
+                        <span class="position">Contracts Analyst</span>
+                        <span class="company">Electrabel SA (now ENGIE)</span>
+                    </div>
+                    <div class="date">Aug 2000 - May 2006</div>
+                </div>
+                <ul>
+                    <li>Developed spark spread and crack spread pricers in VBA & C++ for the Middle Office</li>
+                    <li>Worked with Murex to incorporate Energy Derivatives into the risk engine</li>
+                    <li>Developed Winter method based hourly profiling tool in SAS to capture hourly power profiles</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Education & Certifications -->
+        <div class="section two-column-section">
+            <!-- Left Column: Education -->
+            <div>
+                <h2 class="section-title">Education</h2>
+                <div class="subsection">
+                    <div class="position">MBA, Global Management</div>
+                    <div class="company">Hochschule Bremen, Germany</div>
+                    <div class="date">Graduated: Sep 1999 | Grade: 1.0</div>
+                </div>
+                
+                <div class="subsection">
+                    <div class="position">BA, Business Administration</div>
+                    <div class="company">University of Hertfordshire, UK</div>
+                    <div class="date">Graduated: Mar 1998 | 2nd Upper Honours</div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Certifications -->
+            <div>
+                <h2 class="section-title">Certifications</h2>
+                <ul>
+                    <li><i class="fas fa-certificate"></i> AICB - Risk Management: Principles & Framework</li>
+                    <li><i class="fas fa-certificate"></i> AICB - Risk Models, Capital & ALM</li>
+                    <li><i class="fas fa-certificate"></i> Microsoft Visual Basic 6</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Technical Proficiencies - Horizontal Layout -->
+        <div class="section">
+            <h2 class="section-title">Technical Proficiencies</h2>
+            <div class="tech-proficiencies-container">
+                <div class="tech-skill-category">
+                    <h4><i class="fas fa-code"></i> Languages & Frameworks</h4>
+                    <ul>
+                        <li>Python (Pandas, NumPy, SciPy, Scikitlearn)</li>
+                        <li>VBA/Excel (Advanced)</li>
+                        <li>C++ (Boost)</li>
+                        <li>SQL (MySQL, T-SQL)</li>
+                        <li>R, MATLAB</li>
+                        <li>JavaScript/Node.js</li>
+                    </ul>
+                </div>
+                
+                <div class="tech-skill-category">
+                    <h4><i class="fas fa-tools"></i> Platforms & Tools</h4>
+                    <ul>
+                        <li>AxiomaRisk, RiskMetrics</li>
+                        <li>Murex, Algorithmics</li>
+                        <li>Front Arena, Bloomberg</li>
+                        <li>Microsoft Azure Cloud</li>
+                        <li>Git, Docker, REST APIs</li>
+                        <li>Jira, Salesforce, Postman</li>
+                    </ul>
+                </div>
+                
+                <div class="tech-skill-category">
+                    <h4><i class="fas fa-project-diagram"></i> Methodologies</h4>
+                    <ul>
+                        <li>Derivative Pricing Models</li>
+                        <li>Copula-based Risk Aggregation</li>
+                        <li>FFT Convolution Techniques</li>
+                        <li>Monte Carlo Simulation</li>
+                        <li>Machine Learning Basics</li>
+                        <li>Time Series Analysis</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hobby Projects & Linguistics -->
+        <div class="section two-column-section">
+            <!-- Left Column: Hobby Projects -->
+            <div>
+                <h2 class="section-title">Hobby Projects</h2>
+                <div class="hobby-projects">
+                    <div class="project-card">
+                        <h4><i class="fas fa-chart-line"></i> FunkyGraffy</h4>
+                        <p>Edutainment math visualization platform</p>
+                        <a href="https://funkygraffy.onrender.com" target="_blank" class="website-link">
+                            funkygraffy.onrender.com
+                        </a>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h4><i class="fas fa-calculator"></i> Convolve!</h4>
+                        <p>Empirical convolution tool for joint distribution modeling</p>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h4><i class="fas fa-chart-bar"></i> Fit_it!</h4>
+                        <p>Continuous distribution fitting engine</p>
+                    </div>
+                    
+                    <div class="project-card">
+                        <h4><i class="fas fa-book"></i> Technical Publications</h4>
+                        <a href="assets/FFT_Convolution_GB2020_Excerpt.pdf" target="_blank" class="website-link">
+                            FFT Convolution for PDFs and Option Pricing
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Linguistics -->
+            <div>
+                <h2 class="section-title">Linguistics</h2>
+                <div class="language-grid">
+                    <div class="language-item">
+                        <i class="fas fa-language"></i>
+                        <span class="language-level">English - Native</span>
+                    </div>
+                    <div class="language-item">
+                        <i class="fas fa-language"></i>
+                        <span class="language-level">Mandarin - Fluent</span>
+                    </div>
+                    <div class="language-item">
+                        <i class="fas fa-language"></i>
+                        <span class="language-level">German - Intermediate</span>
+                    </div>
+                    <div class="language-item">
+                        <i class="fas fa-language"></i>
+                        <span class="language-level">French - Basic</span>
+                    </div>
+                    <div class="language-item">
+                        <i class="fas fa-language"></i>
+                        <span class="language-level">Flemish - Basic</span>
+                    </div>
+                </div>
+                
+                <div class="project-card" style="margin-top: 20px;">
+                    <h4><i class="fas fa-globe"></i> Personal Portfolio</h4>
+                    <a href="https://geneboo.github.io/GBnfo/" target="_blank" class="website-link">
+                        geneboo.github.io/GBnfo
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Download Buttons -->
+        <div class="download-buttons">
+            <a href="#" class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Print CV
+            </a>
+        </div>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+</body>
+</html>
