@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CerminMataHo</title>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <style id="dynamic-styles">
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      gap: 15px;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: #0077cc;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .image-section img {
+      max-width: 100%;
+      height: auto;
+    }
+    .calendar {
+      margin-top: 20px;
+    }
+    .announcement {
+      background-color: #ffeb3b;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="content">Loading site...</div>
+
+  <script>
+    const EXCEL_URL = 'https://yourdomain.com/path/to/OptiStyle.xlsx'; // Replace with actual URL
+
+    async function fetchExcelData() {
+      try {
+        const response = await fetch(EXCEL_URL);
+        const data = await response.arrayBuffer();
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const content = XLSX.utils.sheet_to_json(workbook.Sheets['Content']);
+        const navigation = XLSX.utils.sheet_to_json(workbook.Sheets['Navigation']);
+        const products = XLSX.utils.sheet_to_json(workbook.Sheets['ProductsServices']);
+        const styles = XLSX.utils.sheet_to_json(workbook.Sheets['Styles']);
+        const images = XLSX.utils.sheet_to_json(workbook.Sheets['Images']);
+        const calendar = XLSX.utils.sheet_to_json(workbook.Sheets['Calendar']);
+        const announcements = XLSX.utils.sheet_to_json(workbook.Sheets['Announcements']);
+
+        renderSite(content, navigation, products, styles, images, calendar, announcements);
+      } catch (error) {
+        document.getElementById('content').innerHTML = '<p>Error loading site content.</p>';
+        console.error('Failed to load Excel:', error);
+      }
+    }
+
+    function renderSite(content, navigation, products, styles, images, calendar, announcements) {
+      const contentDiv = document.getElementById('content');
+      contentDiv.innerHTML = '';
+
+      // Apply styles
+      const styleTag = document.getElementById('dynamic-styles');
+      let css = '';
+      styles.forEach(({ Element, Property, Value }) => {
+        css += `.${Element} { ${Property}: ${Value}; }\n`;
+      });
+      styleTag.innerHTML += css;
+
+      // Announcements
+      const announcementsDiv = document.createElement('div');
+      announcementsDiv.className = 'announcements';
+      const announcementsHeader = document.createElement('h3');
+      announcementsHeader.innerText = 'Announcements';
+      announcementsDiv.appendChild(announcementsHeader);
+      announcements.forEach(({ Date, Announcement }) => {
+        const div = document.createElement('div');
+        div.className = 'announcement';
+        div.innerHTML = `<strong>${Date}</strong>: ${Announcement}`;
+        announcementsDiv.appendChild(div);
+      });
+      contentDiv.appendChild(announcementsDiv);
+
+      // Navigation
+      const nav = document.createElement('nav');
+      const ul = document.createElement('ul');
+      navigation.forEach(({ MenuItem, Link }) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = Link;
+        a.innerText = MenuItem;
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+      nav.appendChild(ul);
+      contentDiv.appendChild(nav);
+
+      // Content
+      content.forEach(({ Section, Text }) => {
+        const div = document.createElement('div');
+        div.className = `section ${Section}`;
+        div.innerText = Text;
+        contentDiv.appendChild(div);
+      });
+
+      // Products & Services
+      const psHeader = document.createElement('h3');
+      psHeader.innerText = 'Products & Services';
+      contentDiv.appendChild(psHeader);
+      products.forEach(({ ProductService, Description }) => {
+        const div = document.createElement('div');
+        div.className = `section ${ProductService}`;
+        div.innerHTML = `<strong>${ProductService}</strong>: ${Description}`;
+        contentDiv.appendChild(div);
+      });
+
+      // Images
+      images.forEach(({ Section, ImagePath }) => {
+        const div = document.createElement('div');
+        div.className = `image-section ${Section}`;
+        div.innerHTML = `<img src="${ImagePath}" alt="${Section} image">`;
+        contentDiv.appendChild(div);
+      });
+
+      // Calendar
+      const calendarDiv = document.createElement('div');
+      calendarDiv.className = 'calendar';
+      const calendarHeader = document.createElement('h3');
+      calendarHeader.innerText = 'Availability Calendar';
+      calendarDiv.appendChild(calendarHeader);
+      calendar.forEach(({ Date, Time, Availability }) => {
+        const div = document.createElement('div');
+        div.innerHTML = `<strong>${Date}</strong> (${Time}): ${Availability}`;
+        calendarDiv.appendChild(div);
+      });
+      contentDiv.appendChild(calendarDiv);
+    }
+
+    fetchExcelData();
+    setInterval(fetchExcelData, 3600000); // Refresh every hour
+  </script>
+</body>
+</html>
