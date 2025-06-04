@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Template Download</title>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #7f8c8d;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .hotkey-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .hotkey-button:hover {
+            background-color: #2980b9;
+        }
+
+        .download-button {
+            display: block;
+            width: 200px;
+            margin: 0 auto 40px;
+            padding: 12px 24px;
+            background-color: #2ecc71;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .download-button:hover {
+            background-color: #27ae60;
+        }
+
+        .hotkey-display {
+            text-align: center;
+            font-family: monospace;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .hotkey {
+            background-color: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+
+        .help-text {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Excel Template for Website Customization</h2>
+        
+        <p class="description">
+            Download the Excel template below to customize your website with your company details, 
+            products, services, and other content. The template contains all the information needed 
+            to generate a fully customized dynamic website.
+        </p>
+
+        <div class="hotkey-display">
+            <span class="hotkey">Ctrl</span> + 
+            <span class="hotkey">Alt</span> + 
+            <span class="hotkey">Shift</span> + 
+            <span class="hotkey">2</span>
+            <p class="help-text">This will download the Excel template. For faster access, use the download button below.</p>
+        </div>
+
+        <button class="hotkey-button" id="hotkeyButton">
+            Hotkey Download
+        </button>
+        
+        <button class="download-button" id="downloadButton">
+            Download Excel Template
+        </button>
+        
+        <p class="help-text">
+            The Excel template includes sections for:
+            <br>- Company information and branding
+            <br>- Product listings
+            <br>- Service offerings
+            <br>- Contact details
+            <br>- Content sections
+        </p>
+    </div>
+
+    <script>
+        // Function to generate the Excel template file
+        function generateExcelTemplate(fileFormat) {
+            try {
+                // Create a new workbook
+                const wb = XLSX.utils.book_new();
+                
+                // Add a Config sheet with website configuration
+                const configData = [
+                    { Category: 'Branding', 'Company Name': 'Your Company Name', 'Logo': '', 'Site Name': 'Your Website', 'Header Tagline': 'Your Tagline Here' },
+                    { Category: 'Colors', 'Primary Color': '#4f46e5', 'Secondary Color': '#ec4899', 'Accent Color': '#10b981', 'Text Color': '#334155', 'Background Color': '#f0f4f8' }
+                ];
+                const configSheet = XLSX.utils.json_to_sheet(configData);
+                XLSX.utils.book_append_sheet(wb, configSheet, 'Config');
+                
+                // Add a Content sheet with website content
+                const contentData = [
+                    { Category: 'Hero Section', 'Title': 'Main Website Title', 'Subtitle': 'Your website description goes here' },
+                    { Category: 'About Us', 'Title': 'About Us Section Title', 'Content': 'Your company information here.' },
+                    { Category: 'Footer', 'Title': 'Footer Title', 'Copyright': '© 2023 Your Company Name' }
+                ];
+                const contentSheet = XLSX.utils.json_to_sheet(contentData);
+                XLSX.utils.book_append_sheet(wb, contentSheet, 'Content');
+                
+                // Add a Navigation sheet with menu items
+                const navData = [
+                    { 'Menu Item': 'Home', 'Link': '#home' },
+                    { 'Menu Item': 'Products', 'Link': '#products' },
+                    { 'Menu Item': 'Services', 'Link': '#services' },
+                    { 'Menu Item': 'Contact', 'Link': '#contact' }
+                ];
+                const navSheet = XLSX.utils.json_to_sheet(navData);
+                XLSX.utils.book_append_sheet(wb, navSheet, 'Navigation');
+                
+                // Add a Products sheet
+                const productsData = [
+                    { 'Product Name': 'Product One', 'Description': 'Product description here', 'Price': '$99.99', 'Category': 'Category A' },
+                    { 'Product Name': 'Product Two', 'Description': 'Product description here', 'Price': '$149.99', 'Category': 'Category B' },
+                    { 'Product Name': 'Product Three', 'Description': 'Product description here', 'Price': '$199.99', 'Category': 'Category A' }
+                ];
+                const productsSheet = XLSX.utils.json_to_sheet(productsData);
+                XLSX.utils.book_append_sheet(wb, productsSheet, 'Products');
+                
+                // Add a Services sheet
+                const servicesData = [
+                    { 'Service Name': 'Service One', 'Description': 'Service description here', 'Price': '$49.99' },
+                    { 'Service Name': 'Service Two', 'Description': 'Service description here', 'Price': '$79.99' },
+                    { 'Service Name': 'Service Three', 'Description': 'Service description here', 'Price': '$129.99' }
+                ];
+                const servicesSheet = XLSX.utils.json_to_sheet(servicesData);
+                XLSX.utils.book_append_sheet(wb, servicesSheet, 'Services');
+                
+                // Add a Contact sheet
+                const contactData = [
+                    { Category: 'Contact Information', 'Address': 'Company Address Here', 'City': 'City Name', 'Country': 'Country Name', 'Phone': '+1234567890', 'Email': 'contact@company.com', 'Hours': 'Monday-Friday: 9am-5pm, Saturday: 10am-4pm' }
+                ];
+                const contactSheet = XLSX.utils.json_to_sheet(contactData);
+                XLSX.utils.book_append_sheet(wb, contactSheet, 'Contact');
+                
+                // Create the file name with timestamp if fileFormat is 'xlsx'
+                let fileName = 'Website_Template';
+                if (fileFormat && fileFormat === 'csv') {
+                    // Change file extension for CSV
+                    fileName += '.csv';
+                } else {
+                    // Default to XLSX
+                    fileName += '.xlsx';
+                }
+                
+                // Write the workbook to a file and trigger download
+                XLSX.writeFile(wb, fileName);
+                return true;
+            } catch(error) {
+                console.error('Error generating Excel template:', error);
+                alert('Failed to generate the Excel template: ' + error.message);
+                return false;
+            }
+        }
+
+        // Set up event listeners
+        document.getElementById('hotkeyButton').addEventListener('click', function() {
+            if (generateExcelTemplate()) {
+                alert('Excel template downloaded successfully!');
+            }
+        });
+
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            if (generateExcelTemplate()) {
+                alert('Excel template downloaded successfully!');
+            }
+        });
+
+        // Add Ctrl+Alt+Shift+2 hotkey
+        document.addEventListener('keydown', function(event) {
+            // Ctrl+Alt+Shift+2
+            if (event.ctrlKey && event.altKey && event.shiftKey && event.keyCode === 50) { // 50 is '2'
+                event.preventDefault();
+                generateExcelTemplate();
+            }
+        });
+    </script>
+</body>
+</html>
