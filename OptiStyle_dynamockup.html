@@ -454,6 +454,9 @@
     </footer>
 
     <script>
+		window.onerror = function(message, source, lineno, colno, error) {
+			  alert(`JavaScript error at ${source}:${lineno}:${colno}\n${message}`);
+			};
         // Hotkey detection
         document.addEventListener('keydown', function(event) {
             // Ctrl+Alt+Shift+2
@@ -476,34 +479,9 @@
             }
         });
 
-        // Download button handler
-        document.getElementById('download-button').addEventListener('click', function() {
-            if (generateExcelTemplate()) {
-                alert('Excel template downloaded successfully!');
-                console.log('Download button triggered Excel template generation');
-            } else {
-                alert('Failed to generate Excel template');
-            }
-        });
 
-        // Add a dynamic alert that shows up when a hotkey is pressed but download fails
-        let hotkeyPressCount = 0;
-
-        // Initialize the website but also set up the hotkey functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Website initialized. Press Ctrl+Alt+Shift+2 to download the template.');
-            
-            // Add a button in the body that can also trigger the download
-            const helpButton = document.createElement('button');
-            helpButton.textContent = 'Show Help: Press Ctrl+Alt+Shift+2 to download template';
-            helpButton.className = 'bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg font-medium m-4';
-            helpButton.onclick = function() {
-                alert('Press Ctrl+Alt+Shift+2 to download the Excel template. If it doesn\\'t work, try right-clicking and opening the Excel tab.');
-            };
-            document.body.appendChild(helpButton);
-        });
-
-        const EXCEL_URL = 'https://geneboo.github.io/GBnfo/OptiStyle.xlsx';
+        //const EXCEL_URL = 'https://geneboo.github.io/GBnfo/OptiStyle.xlsx';
+		const EXCEL_URL = 'OptiStyle.xlsx';
 		// Function to read Excel and update the page
         async function loadExcelData() {
             try {
