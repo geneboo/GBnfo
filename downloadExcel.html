@@ -134,82 +134,90 @@
 
     <script>
         // Function to generate the Excel template file
-        function generateExcelTemplate(fileFormat) {
-            try {
-                // Create a new workbook
-                const wb = XLSX.utils.book_new();
-                
-                // Add a Config sheet with website configuration
-                const configData = [
-                    { Category: 'Branding', 'Company Name': 'Your Company Name', 'Logo': '', 'Site Name': 'Your Website', 'Header Tagline': 'Your Tagline Here' },
-                    { Category: 'Colors', 'Primary Color': '#4f46e5', 'Secondary Color': '#ec4899', 'Accent Color': '#10b981', 'Text Color': '#334155', 'Background Color': '#f0f4f8' }
-                ];
-                const configSheet = XLSX.utils.json_to_sheet(configData);
-                XLSX.utils.book_append_sheet(wb, configSheet, 'Config');
-                
-                // Add a Content sheet with website content
-                const contentData = [
-                    { Category: 'Hero Section', 'Title': 'Main Website Title', 'Subtitle': 'Your website description goes here' },
-                    { Category: 'About Us', 'Title': 'About Us Section Title', 'Content': 'Your company information here.' },
-                    { Category: 'Footer', 'Title': 'Footer Title', 'Copyright': '© 2023 Your Company Name' }
-                ];
-                const contentSheet = XLSX.utils.json_to_sheet(contentData);
-                XLSX.utils.book_append_sheet(wb, contentSheet, 'Content');
-                
-                // Add a Navigation sheet with menu items
-                const navData = [
-                    { 'Menu Item': 'Home', 'Link': '#home' },
-                    { 'Menu Item': 'Products', 'Link': '#products' },
-                    { 'Menu Item': 'Services', 'Link': '#services' },
-                    { 'Menu Item': 'Contact', 'Link': '#contact' }
-                ];
-                const navSheet = XLSX.utils.json_to_sheet(navData);
-                XLSX.utils.book_append_sheet(wb, navSheet, 'Navigation');
-                
-                // Add a Products sheet
-                const productsData = [
-                    { 'Product Name': 'Product One', 'Description': 'Product description here', 'Price': '$99.99', 'Category': 'Category A' },
-                    { 'Product Name': 'Product Two', 'Description': 'Product description here', 'Price': '$149.99', 'Category': 'Category B' },
-                    { 'Product Name': 'Product Three', 'Description': 'Product description here', 'Price': '$199.99', 'Category': 'Category A' }
-                ];
-                const productsSheet = XLSX.utils.json_to_sheet(productsData);
-                XLSX.utils.book_append_sheet(wb, productsSheet, 'Products');
-                
-                // Add a Services sheet
-                const servicesData = [
-                    { 'Service Name': 'Service One', 'Description': 'Service description here', 'Price': '$49.99' },
-                    { 'Service Name': 'Service Two', 'Description': 'Service description here', 'Price': '$79.99' },
-                    { 'Service Name': 'Service Three', 'Description': 'Service description here', 'Price': '$129.99' }
-                ];
-                const servicesSheet = XLSX.utils.json_to_sheet(servicesData);
-                XLSX.utils.book_append_sheet(wb, servicesSheet, 'Services');
-                
-                // Add a Contact sheet
-                const contactData = [
-                    { Category: 'Contact Information', 'Address': 'Company Address Here', 'City': 'City Name', 'Country': 'Country Name', 'Phone': '+1234567890', 'Email': 'contact@company.com', 'Hours': 'Monday-Friday: 9am-5pm, Saturday: 10am-4pm' }
-                ];
-                const contactSheet = XLSX.utils.json_to_sheet(contactData);
-                XLSX.utils.book_append_sheet(wb, contactSheet, 'Contact');
-                
-                // Create the file name with timestamp if fileFormat is 'xlsx'
-                let fileName = 'Website_Template';
-                if (fileFormat && fileFormat === 'csv') {
-                    // Change file extension for CSV
-                    fileName += '.csv';
-                } else {
-                    // Default to XLSX
-                    fileName += '.xlsx';
-                }
-                
-                // Write the workbook to a file and trigger download
-                XLSX.writeFile(wb, fileName);
-                return true;
-            } catch(error) {
-                console.error('Error generating Excel template:', error);
-                alert('Failed to generate the Excel template: ' + error.message);
-                return false;
-            }
-        }
+		function generateExcelTemplate(fileFormat) {
+			try {
+				const wb = XLSX.utils.book_new();
+
+				// Theme sheet (used to style the page)
+				const themeData = [
+					{
+						BackgroundColor: '#f0f4f8',
+						TextColor: '#334155',
+						HeaderBackground: '#ffffff',
+						FooterBackground: '#1e293b'
+					}
+				];
+				const themeSheet = XLSX.utils.json_to_sheet(themeData);
+				XLSX.utils.book_append_sheet(wb, themeSheet, 'Theme');
+
+				// Content sheet (used for hero, footer, etc.)
+				const contentData = [
+					{ Section: 'HeroTitle', Text: 'See the World Clearly' },
+					{ Section: 'HeroSubtitle', Text: 'Premium eyewear and contact lenses for comfort and style.' },
+					{ Section: 'FooterTagline', Text: 'Your Vision Partner' }
+				];
+				const contentSheet = XLSX.utils.json_to_sheet(contentData);
+				XLSX.utils.book_append_sheet(wb, contentSheet, 'Content');
+
+				// Navigation
+				const navData = [
+					{ MenuItem: 'Home', Link: '#home' },
+					{ MenuItem: 'Products', Link: '#products' },
+					{ MenuItem: 'Services', Link: '#services' },
+					{ MenuItem: 'Contact', Link: '#contact' }
+				];
+				const navSheet = XLSX.utils.json_to_sheet(navData);
+				XLSX.utils.book_append_sheet(wb, navSheet, 'Navigation');
+
+				// Products
+				const productsData = [
+					{ ProductName: 'Classic Black Frames', Description: 'Timeless acetate frames with durable hinges.', Price: 129.99 },
+					{ ProductName: 'Air Light Titanium', Description: 'Ultra-lightweight titanium for all-day comfort.', Price: 189.99 },
+					{ ProductName: 'Blue Light Protection', Description: 'Reduces eye strain from digital screens.', Price: 159.99 }
+				];
+				const productsSheet = XLSX.utils.json_to_sheet(productsData);
+				XLSX.utils.book_append_sheet(wb, productsSheet, 'Products');
+
+				// Services
+				const servicesData = [
+					{ ServiceName: 'Eye Exam', Description: 'Comprehensive vision testing and diagnosis.', Price: 49.99 },
+					{ ServiceName: 'Lens Fitting', Description: 'Personalized contact lens fitting session.', Price: 79.99 },
+					{ ServiceName: 'Frame Styling', Description: 'Expert guidance to choose the perfect frame.', Price: 29.99 }
+				];
+				const servicesSheet = XLSX.utils.json_to_sheet(servicesData);
+				XLSX.utils.book_append_sheet(wb, servicesSheet, 'Services');
+
+				// Contact
+				const contactData = [
+					{
+						Address: '123 Main Street, Kuala Lumpur',
+						City: 'Kuala Lumpur',
+						Country: 'Malaysia',
+						Phone: '(+60) 3-2212 3456',
+						Email: 'info@cerminmataho.my',
+						Hours: 'Mon-Fri: 9AM–7PM, Sat-Sun: 10AM–6PM'
+					}
+				];
+				const contactSheet = XLSX.utils.json_to_sheet(contactData);
+				XLSX.utils.book_append_sheet(wb, contactSheet, 'Contact');
+
+				// Filename
+				let fileName = 'OptiStyle_Template';
+				if (fileFormat === 'csv') {
+					fileName += '.csv';
+				} else {
+					fileName += '.xlsx';
+				}
+
+				XLSX.writeFile(wb, fileName);
+				return true;
+			} catch (error) {
+				console.error('Error generating Excel template:', error);
+				alert('Failed to generate the Excel template: ' + error.message);
+				return false;
+			}
+		}
+
 
         // Set up event listeners
         document.getElementById('hotkeyButton').addEventListener('click', function() {
