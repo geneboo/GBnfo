@@ -41,7 +41,7 @@
   <div id="content">Loading site...</div>
 
   <script>
-    const EXCEL_URL = 'https://geneboo.github.io/GBnfo/OptiStyle.xlsx'; // Replace with actual URL
+    const EXCEL_URL = 'https://yourdomain.com/path/to/OptiStyle.xlsx'; // Replace with actual URL
 
     async function fetchExcelData() {
       try {
@@ -56,17 +56,25 @@
         const images = XLSX.utils.sheet_to_json(workbook.Sheets['Images']);
         const calendar = XLSX.utils.sheet_to_json(workbook.Sheets['Calendar']);
         const announcements = XLSX.utils.sheet_to_json(workbook.Sheets['Announcements']);
+        const theme = XLSX.utils.sheet_to_json(workbook.Sheets['Theme']);
 
-        renderSite(content, navigation, products, styles, images, calendar, announcements);
+        const currentTheme = theme.find(t => t.Theme === theme[0].CurrentTheme);
+
+        renderSite(content, navigation, products, styles, images, calendar, announcements, currentTheme);
       } catch (error) {
         document.getElementById('content').innerHTML = '<p>Error loading site content.</p>';
         console.error('Failed to load Excel:', error);
       }
     }
 
-    function renderSite(content, navigation, products, styles, images, calendar, announcements) {
+    function renderSite(content, navigation, products, styles, images, calendar, announcements, currentTheme) {
       const contentDiv = document.getElementById('content');
-      contentDiv.innerHTML = '';
+      contentDiv.innerHTML = `
+        <img src="${currentTheme.LogoURL}" alt="Logo" />
+        <h1>${currentTheme.GreetingMessage}</h1>
+      `;
+      document.body.style.backgroundColor = currentTheme.BackgroundColor || '';
+      document.body.style.backgroundImage = currentTheme.BackgroundImage ? `url(${currentTheme.BackgroundImage})` : '';
 
       // Apply styles
       const styleTag = document.getElementById('dynamic-styles');
@@ -79,13 +87,11 @@
       // Announcements
       const announcementsDiv = document.createElement('div');
       announcementsDiv.className = 'announcements';
-      const announcementsHeader = document.createElement('h3');
-      announcementsHeader.innerText = 'Announcements';
-      announcementsDiv.appendChild(announcementsHeader);
+      announcementsDiv.innerHTML = '<h3>Announcements</h3>';
       announcements.forEach(({ Date, Announcement }) => {
         const div = document.createElement('div');
         div.className = 'announcement';
-        div.innerHTML = `<strong>${Date}</strong>: ${Announcement}`;
+        div.innerHTML = `<strong>${formatDate(Date)}</strong>: ${Announcement}`;
         announcementsDiv.appendChild(div);
       });
       contentDiv.appendChild(announcementsDiv);
@@ -134,15 +140,18 @@
       // Calendar
       const calendarDiv = document.createElement('div');
       calendarDiv.className = 'calendar';
-      const calendarHeader = document.createElement('h3');
-      calendarHeader.innerText = 'Availability Calendar';
-      calendarDiv.appendChild(calendarHeader);
+      calendarDiv.innerHTML = '<h3>Availability Calendar</h3>';
       calendar.forEach(({ Date, Time, Availability }) => {
         const div = document.createElement('div');
-        div.innerHTML = `<strong>${Date}</strong> (${Time}): ${Availability}`;
+        div.innerHTML = `<strong>${formatDate(Date)}</strong> (${Time}): ${Availability}`;
         calendarDiv.appendChild(div);
       });
       contentDiv.appendChild(calendarDiv);
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     }
 
     fetchExcelData();
