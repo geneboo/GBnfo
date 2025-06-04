@@ -257,7 +257,7 @@
 
     <section id="hero" class="hero">
         <div class="container mx-auto px-4">
-            <h2 id="heroTitle" class="text-4xl md:text-5xl font-bold mb-6">Premium Eyewear & Contact Lenses</h2>
+            <h2 id="heroTitle" class="text-4xl md:text-5xl font-bold mb-4">Premium Eyewear & Contact Lenses</h2>
             <p id="heroSubtitle" class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-white">
                 Find the perfect vision solution tailored to your needs
             </p>
@@ -365,24 +365,7 @@
         </div>
     </section>
 
-    <!-- Excel Template Download Section -->
-    <section id="excel-section" class="section bg-yellow-50">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold mb-4">Excel Template</h2>
-            <p class="text-lg mb-6">The Excel template contains all the information needed to customize this website.</p>
-            
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button class="download-hotkey flex items-center gap-2">
-                    <span><Ctrl><\/span>+<span><Alt><\/span>+<span><Shift><\/span>+<span>2</span>
-                    <span>Download Template</span>
-                </button>
-                
-                <button id="download-button" class="bg-green-600 text-white px-6 py-3 rounded-full font-medium hover:bg-green-700 transition-colors">
-                    Download Excel Template
-                </button>
-            </div>
-        </div>
-    </section>
+
 
     <section id="contact" class="section">
         <div class="container mx-auto px-4">
@@ -471,64 +454,6 @@
     </footer>
 
     <script>
-        // Function to generate the Excel template file
-        function generateExcelTemplate() {
-            try {
-                // Create a new workbook
-                const wb = XLSX.utils.book_new();
-                
-                // Create a worksheet for configuration data
-                const configData = [
-                    { Section: 'Header', Text: 'Company Name' },
-                    { Section: 'NavItems', Text: '[{"MenuItem":"Home"},{"MenuItem":"Products"},{"MenuItem":"Services"},{"MenuItem":"Appointment"},{"MenuItem":"Contact"}]' },
-                    { Section: 'Main Title', Text: 'Website Title' },
-                    { Section: 'Description', Text: 'Website description' }
-                ];
-                
-                const configWs = XLSX.utils.json_to_sheet(configData);
-                XLSX.utils.book_append_sheet(wb, configWs, 'Config');
-                
-                // Create sheet for content sections
-                const contentData = [
-                    { Section: 'Subheader', Text: 'Welcome to our store' },
-                    { Section: 'Services Subtitle', Text: 'Professional eye care services' }
-                ];
-                
-                const contentWs = XLSX.utils.json_to_sheet(contentData);
-                XLSX.utils.book_append_sheet(wb, contentWs, 'Content');
-                
-                // Create sheet for products
-                const productsData = [
-                    { Name: 'Product Name', Description: 'Product description', Price: 99.99 },
-                    { Name: 'Another Product', Description: 'Product description', Price: 149.99 }
-                ];
-                
-                const productsWs = XLSX.utils.json_to_sheet(productsData);
-                XLSX.utils.book_append_sheet(wb, productsWs, 'Products');
-                
-                // Create sheet for navigation
-                const navData = [
-                    { MenuItem: 'Home', Link: '#home' },
-                    { MenuItem: 'Products', Link: '#products' },
-                    { MenuItem: 'Services', Link: '#services' }
-                ];
-                
-                const navWs = XLSX.utils.json_to_sheet(navData);
-                XLSX.utils.book_append_sheet(wb, navWs, 'Navigation');
-                
-                // Write the workbook to a binary file and trigger download
-                const today = new Date();
-                const dateStr = `${today.getMonth() + 1}-${today.getDate()}-${today.getFullYear()}`;
-                const fileName = `Website_Template_${dateStr}.xlsx`;
-                
-                XLSX.writeFile(wb, fileName);
-                return true;
-            } catch(error) {
-                console.error('Error generating Excel template:', error);
-                return false;
-            }
-        }
-
         // Hotkey detection
         document.addEventListener('keydown', function(event) {
             // Ctrl+Alt+Shift+2
@@ -577,6 +502,199 @@
             };
             document.body.appendChild(helpButton);
         });
-    </script>
+
+        const EXCEL_URL = 'https://geneboo.github.io/GBnfo/OptiStyle.xlsx';
+		// Function to read Excel and update the page
+        async function loadExcelData() {
+            try {
+                const response = await fetch(EXCEL_URL);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch Excel file');
+                }
+                
+                const data = await response.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Get data from each Excel sheet
+                const themeSheet = workbook.Sheets['Theme'];
+                const themeData = XLSX.utils.sheet_to_json(themeSheet);
+              
+                const contentSheet = workbook.Sheets['Content'];
+                const contentData = XLSX.utils.sheet_to_json(contentSheet);
+                
+                const navigationSheet = workbook.Sheets['Navigation'];
+                const navigationData = XLSX.utils.sheet_to_json(navigationSheet);
+                
+                const productsSheet = workbook.Sheets['Products'];
+                const productsData = XLSX.utils.sheet_to_json(productsSheet);
+				
+				const servicesSheet = workbook.Sheets['Services'];
+                const servicesData = XLSX.utils.sheet_to_json(servicesSheet);
+				
+				const contactSheet = workbook.Sheets['Contact'];
+                const contactData = XLSX.utils.sheet_to_json(contactSheet);
+                
+                // Apply theme changes
+                if (themeData && themeData.length > 0) {
+                    const theme = themeData[0];
+                    document.body.style.backgroundColor = theme.BackgroundColor || '#f0f4f8';
+                    document.body.style.color = theme.TextColor || '#334155';
+                    
+                    // Update header and footer styles
+                    document.querySelector('.header').style.backgroundColor = theme.HeaderBackground || 'white';
+                    document.querySelector('.footer').style.backgroundColor = theme.FooterBackground || '#1e293b';
+                }
+                
+                // Update with content data
+                if (contentData && contentData.length > 0) {
+                    // Update hero title and subtitle
+                    const heroTitle = contentData.find(item => item.Section === 'HeroTitle');
+                    if (heroTitle) document.getElementById('heroTitle').textContent = heroTitle.Text;
+                    
+                    const heroSubtitle = contentData.find(item => item.Section === 'HeroSubtitle');
+                    if (heroSubtitle) document.getElementById('heroSubtitle').textContent = heroSubtitle.Text;
+                    
+                    // Update business hours or other content as needed
+                }
+                
+                // Update navigation
+                if (navigationData && navigationData.length > 0) {
+                    const navContainer = document.querySelector('.header .nav');
+                    if (navContainer) {
+                        navContainer.innerHTML = ''; // Clear existing navigation
+                        
+                        navigationData.forEach(item => {
+                            if (item.MenuItem && item.Link) {
+                                const link = document.createElement('a');
+                                link.href = item.Link;
+                                link.textContent = item.MenuItem;
+                                link.className = 'font-medium hover:text-indigo-600 transition-colors';
+                                navContainer.appendChild(link);
+                            }
+                        });
+                    }
+                }
+                
+                // Update products
+                if (productsData && productsData.length > 0) {
+                    const productsContainer = document.querySelector('.products-grid');
+                    if (productsContainer) {
+                        productsContainer.innerHTML = ''; // Clear existing products
+                        
+                        productsData.forEach(product => {
+                            const productCard = document.createElement('div');
+                            productCard.className = 'product-card';
+                            
+                            // Create a placeholder color for demos with no images
+                            const colors = ['#4f46e5', '#7c3aed', '#ec4899', '#10b981'];
+                            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                            
+                            productCard.innerHTML = `
+                                <div class="product-image" style="background-color: ${randomColor}; color: white;">
+									<i class="${product.i_class || 'fas fa-glasses'}"></i>
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h3 class="font-bold text-lg">${product.ProductName || 'Product Name'}</h3>
+                                        <span class="font-bold text-indigo-600">$${(product.Price || '99999.99')}</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">${product.Description || 'Product description'}</p>
+                                </div>
+                            `;
+                            
+                            productsContainer.appendChild(productCard);
+                        });
+                    }
+                }
+                
+                console.log('Excel data loaded successfully');
+            } catch (error) {
+                console.error('Error loading Excel data:', error);
+                alert('Failed to load Excel data. Please try again or download the template to set up your data.');
+            }
+        }
+
+        // Generate Excel template file
+        function generateExcelTemplate() {
+            try {
+                // Create a new workbook
+                const wb = XLSX.utils.book_new();
+                
+                // Create worksheet for configuration
+                const themeData = [
+                    { Property: 'BackgroundColor', Value: '#f0f4f8' },
+                    { Property: 'TextColor', Value: '#334155' },
+                    { Property: 'HeaderBackground', Value: 'white' },
+                    { Property: 'FooterBackground', Value: '#1e293b' }
+                ];
+                
+                const themeSheet = XLSX.utils.json_to_sheet(themeData);
+                XLSX.utils.book_append_sheet(wb, themeSheet, 'Theme');
+                
+                // Create worksheet for content
+                const contentData = [
+                    { Section: 'HeroTitle', Text: 'Website Title' },
+                    { Section: 'HeroSubtitle', Text: 'Website Description' }
+                ];
+                
+                const contentSheet = XLSX.utils.json_to_sheet(contentData);
+                XLSX.utils.book_append_sheet(wb, contentSheet, 'Content');
+                
+                // Create worksheet for navigation
+                const navData = [
+                    { MenuItem: 'Home', Link: '#home' },
+                    { MenuItem: 'Products', Link: '#products' },
+                    { MenuItem: 'Services', Link: '#services' },
+                    { MenuItem: 'Contact', Link: '#contact' }
+                ];
+                
+                const navSheet = XLSX.utils.json_to_sheet(navData);
+                XLSX.utils.book_append_sheet(wb, navSheet, 'Navigation');
+                
+                // Create worksheet for products
+                const productData = [
+                    { ProductName: 'Product Name', Description: 'Product Description', Price: 99.99 }
+                ];
+                
+                const productSheet = XLSX.utils.json_to_sheet(productData);
+                XLSX.utils.book_append_sheet(wb, productSheet, 'Products');
+                
+                // Write the workbook to a file and trigger download
+                const today = new Date();
+                const dateStr = `${today.getMonth() + 1}-${today.getDate()}-${today.getFullYear()}`;
+                const fileName = `Website_Template_${dateStr}.xlsx`;
+                
+                XLSX.writeFile(wb, fileName);
+                return true;
+            } catch(error) {
+                console.error('Error generating Excel template:', error);
+                return false;
+            }
+        }
+
+        // Set up hotkey for Excel download
+        document.addEventListener('keydown', function(event) {
+            // Alt+Shift+2
+            if (event.altKey && event.shiftKey && event.keyCode === 50) { // 50 is '2'
+                event.preventDefault();
+                generateExcelTemplate();
+                alert('Excel template downloaded successfully!');
+            }
+        });
+
+        // Set up button click for Excel download
+        document.getElementById('download-button').addEventListener('click', function() {
+            generateExcelTemplate();
+            alert('Excel template downloaded successfully!');
+        });
+
+        // Load Excel data when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Website initialized. Loading Excel data...');
+            loadExcelData();
+        });
+    
+		setInterval(loadExcelData, 3600000); // Refresh every hour	
+	</script>
 </body>
 </html>
