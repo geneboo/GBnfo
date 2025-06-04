@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CerminMataHo - Dynamic Website</title>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #ec4899;
+            --accent-color: #10b981;
+            --text-color: #334155;
+            --background-color: #f0f4f8;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .section {
+            padding: 4rem 1rem;
+        }
+        
+        .header {
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .footer {
+            background-color: #1e293b;
+            color: white;
+            padding: 3rem 1rem;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 7rem 1rem;
+            text-align: center;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        
+        .product-image {
+            height: 180px;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4f46e5;
+            font-size: 3rem;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            color: #1e293b;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            margin-top: -2rem;
+            margin-bottom: 3rem;
+            font-size: 1.25rem;
+            color: #64748b;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .download-hotkey {
+            background: #4f46e5;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.8rem 1.2rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            transition: background 0.2s ease;
+        }
+        
+        .download-hotkey:hover {
+            background: #4338ca;
+        }
+        
+        .features-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .features-title i {
+            background: #4f46e5;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #4f46e5;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .contact-info i {
+            background: #4f46e5;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+        
+        .contact-method {
+            margin-bottom: 1.5rem;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #334155;
+            color: white;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        
+        .social-link:hover {
+            background: #4f46e5;
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #334155;
+        }
+        
+        .home-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            background: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .home-button i {
+            font-size: 0.8rem;
+        }
+        
+        .home-button:hover {
+            background: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center gap-2">
+                    <!-- Company Logo - Excel will provide URL or placeholder will be used -->
+                    <img id="logo" src="" alt="CerminMataHo" class="h-10">
+                    <h1 id="companyName" class="text-2xl font-bold text-indigo-600">CerminMataHo</h1>
+                </div>
+                
+                <nav class="hidden md:flex space-x-8">
+                    <!-- Navigation will be dynamically inserted here -->
+                </nav>
+                
+                <!-- Controls -->
+                <div>
+                    <button class="md:hidden">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="hero" class="hero">
+        <div class="container mx-auto px-4">
+            <h2 id="heroTitle" class="text-4xl md:text-5xl font-bold mb-6">Premium Eyewear & Contact Lenses</h2>
+            <p id="heroSubtitle" class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-white">
+                Find the perfect vision solution tailored to your needs
+            </p>
+            <button class="bg-white text-indigo-600 px-6 py-3 rounded-full font-medium hover:bg-indigo-50 transition-colors">
+                Learn More
+            </button>
+        </div>
+    </section>
+
+    <section id="features" class="section bg-white">
+        <div class="container mx-auto px-4">
+            <h3 class="section-title">Why Choose Us</h3>
+            <p class="section-subtitle">Discover why our customers come back time and again for their eyewear and contact lens needs</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <div class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center"><i class="fas fa-eye text-blue-600"></i></div>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">Expert Optometrists</h4>
+                    <p class="text-gray-600">Our team includes certified optometrists who provide thorough eye examinations and personalized recommendations.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <div class="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center"><i class="fas fa-box-open text-purple-600"></i></div>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">Premium Quality</h4>
+                    <p class="text-gray-600">We partner with top manufacturers to offer quality eyewear and contact lenses at competitive prices.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <div class="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center"><i class="fas fa-truck text-green-600"></i></div>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">Convenient Services</h4>
+                    <p class="text-gray-600">Schedule appointments online or request home delivery for your new eyewear.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="products" class="section">
+        <div class="container mx-auto px-4">
+            <h3 class="section-title">Featured Products</h3>
+            <p class="section-subtitle" id="productsSubtext">Discover our premium collection of eyewear and contact lenses</p>
+            
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-glasses text-blue-600"></i>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">Classic Black Frames</h3>
+                            <span class="font-bold text-indigo-600">$129.99</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Timeless metal frames with leatherette temples for all-day comfort.</p>
+                        <button class="w-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 py-2 rounded-lg">Learn More</button>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-glasses text-purple-600"></i>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">Air Light Titanium</h3>
+                            <span class="font-bold text-indigo-600">$189.99</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Ultra-lightweight titanium frames for maximum comfort during wear.</p>
+                        <button class="w-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 py-2 rounded-lg">Learn More</button>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-sunglasses text-green-600"></i>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">Blue Light Protection</h3>
+                            <span class="font-bold text-indigo-600">$159.99</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Special coating designed to reduce eye strain from digital devices.</p>
+                        <button class="w-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 py-2 rounded-lg">Learn More</button>
+                    </div>
+                </div>
+                
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-eye text-red-500"></i>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">Daily Contact Lenses</h3>
+                            <span class="font-bold text-indigo-600">$29.99</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Moisturizing daily disposable contacts for comfortable all-day wear.</p>
+                        <button class="w-full bg-indigo-100 text-indigo-700 hover:bg-indingo-200 py-2 rounded-lg">Learn More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Excel Template Download Section -->
+    <section id="excel-section" class="section bg-yellow-50">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">Excel Template</h2>
+            <p class="text-lg mb-6">The Excel template contains all the information needed to customize this website.</p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="download-hotkey flex items-center gap-2">
+                    <span><Ctrl><\/span>+<span><Alt><\/span>+<span><Shift><\/span>+<span>2</span>
+                    <span>Download Template</span>
+                </button>
+                
+                <button id="download-button" class="bg-green-600 text-white px-6 py-3 rounded-full font-medium hover:bg-green-700 transition-colors">
+                    Download Excel Template
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section">
+        <div class="container mx-auto px-4">
+            <h3 class="section-title text-center">Contact Us</h3>
+            <p class="section-subtitle text-center mb-8">We're here to answer any questions or assist with your vision needs</p>
+            
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="flex-1 bg-gray-50 p-8 rounded-xl">
+                    <div id="contact-map" class="h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-map-marker-alt text-4xl text-gray-400"></i>
+                    </div>
+                    <p class="mt-4 text-gray-600">123 Main Street, Kuala Lumpur<br>50000 Kuala Lumpur, Malaysia</p>
+                </div>
+                
+                <div class="flex-1 bg-white p-8 rounded-xl shadow-sm">
+                    <h4 class="font-bold text-xl mb-4">Get In Touch</h4>
+                    <div class="space-y-4">
+                        <div class="flex gap-3">
+                            <i class="fas fa-phone-alt text-indigo-600 text-xl"></i>
+                            <div>
+                                <p class="font-semibold">Phone</p>
+                                <p class="text-gray-600">(+60) 3-2212 3456</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <i class="fas fa-envelope text-indigo-600 text-xl"></i>
+                            <div>
+                                <p class="font-semibold">Email</p>
+                                <p class="text-gray-600">info@cerminmataho.my</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <i class="fas fa-clock text-indigo-600 text-xl"></i>
+                            <div>
+                                <p class="font-semibold">Hours</p>
+                                <p class="text-gray-600">Mon-Fri: 9AM-7PM, Sat-Sun: 10AM-6PM</p>
+                            </div>
+                        </div>
+                        
+                        <form id="contact-form" class="pt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Your Name</label>
+                                    <input type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-indigo-500" placeholder="John Smith">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Email</label>
+                                    <input type="email" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-indigo-500" placeholder="your@email.com">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium mb-1">Message</label>
+                                <textarea class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-indigo-500 h-24" placeholder="Your message here"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium mt-4 hover:bg-indigo-700">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-6 border-b border-gray-700">
+                <div>
+                    <img id="footer-logo" src="" alt="CerminMataHo" class="h-8">
+                </div>
+                <p id="footer-text" class="mb-4">© 2023 CerminMataHo. All rights reserved.</p>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <p>Your Vision Partner</p>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:text-indigo-300"><i class="fas fa-facebook-f"></i></a>
+                    <a href="#" class="hover:text-indigo-300"><i class="fas fa-instagram"></i></a>
+                    <a href="#" class="hover:text-indigo-300"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-indigo-300"><i class="fas fa-map-marker-alt"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Function to generate the Excel template file
+        function generateExcelTemplate() {
+            try {
+                // Create a new workbook
+                const wb = XLSX.utils.book_new();
+                
+                // Create a worksheet for configuration data
+                const configData = [
+                    { Section: 'Header', Text: 'Company Name' },
+                    { Section: 'NavItems', Text: '[{"MenuItem":"Home"},{"MenuItem":"Products"},{"MenuItem":"Services"},{"MenuItem":"Appointment"},{"MenuItem":"Contact"}]' },
+                    { Section: 'Main Title', Text: 'Website Title' },
+                    { Section: 'Description', Text: 'Website description' }
+                ];
+                
+                const configWs = XLSX.utils.json_to_sheet(configData);
+                XLSX.utils.book_append_sheet(wb, configWs, 'Config');
+                
+                // Create sheet for content sections
+                const contentData = [
+                    { Section: 'Subheader', Text: 'Welcome to our store' },
+                    { Section: 'Services Subtitle', Text: 'Professional eye care services' }
+                ];
+                
+                const contentWs = XLSX.utils.json_to_sheet(contentData);
+                XLSX.utils.book_append_sheet(wb, contentWs, 'Content');
+                
+                // Create sheet for products
+                const productsData = [
+                    { Name: 'Product Name', Description: 'Product description', Price: 99.99 },
+                    { Name: 'Another Product', Description: 'Product description', Price: 149.99 }
+                ];
+                
+                const productsWs = XLSX.utils.json_to_sheet(productsData);
+                XLSX.utils.book_append_sheet(wb, productsWs, 'Products');
+                
+                // Create sheet for navigation
+                const navData = [
+                    { MenuItem: 'Home', Link: '#home' },
+                    { MenuItem: 'Products', Link: '#products' },
+                    { MenuItem: 'Services', Link: '#services' }
+                ];
+                
+                const navWs = XLSX.utils.json_to_sheet(navData);
+                XLSX.utils.book_append_sheet(wb, navWs, 'Navigation');
+                
+                // Write the workbook to a binary file and trigger download
+                const today = new Date();
+                const dateStr = `${today.getMonth() + 1}-${today.getDate()}-${today.getFullYear()}`;
+                const fileName = `Website_Template_${dateStr}.xlsx`;
+                
+                XLSX.writeFile(wb, fileName);
+                return true;
+            } catch(error) {
+                console.error('Error generating Excel template:', error);
+                return false;
+            }
+        }
+
+        // Hotkey detection
+        document.addEventListener('keydown', function(event) {
+            // Ctrl+Alt+Shift+2
+            if (event.ctrlKey && event.altKey && event.shiftKey && event.keyCode === 50) { // 50 is '2'
+                event.preventDefault();
+                
+                // Generate and download the Excel template
+                if (generateExcelTemplate()) {
+                    console.log('Excel template downloaded successfully');
+                    alert('Excel template downloaded successfully!');
+                } else {
+                    alert('Failed to generate Excel template');
+                    console.error('Failed to generate Excel template:', new Error().stack);
+                }
+            }
+            
+            // Log all key presses for debugging
+            if (event.ctrlKey || event.altKey || event.shiftKey || event.key.length === 1) {
+                console.log('Key pressed:', event);
+            }
+        });
+
+        // Download button handler
+        document.getElementById('download-button').addEventListener('click', function() {
+            if (generateExcelTemplate()) {
+                alert('Excel template downloaded successfully!');
+                console.log('Download button triggered Excel template generation');
+            } else {
+                alert('Failed to generate Excel template');
+            }
+        });
+
+        // Add a dynamic alert that shows up when a hotkey is pressed but download fails
+        let hotkeyPressCount = 0;
+
+        // Initialize the website but also set up the hotkey functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Website initialized. Press Ctrl+Alt+Shift+2 to download the template.');
+            
+            // Add a button in the body that can also trigger the download
+            const helpButton = document.createElement('button');
+            helpButton.textContent = 'Show Help: Press Ctrl+Alt+Shift+2 to download template';
+            helpButton.className = 'bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg font-medium m-4';
+            helpButton.onclick = function() {
+                alert('Press Ctrl+Alt+Shift+2 to download the Excel template. If it doesn\\'t work, try right-clicking and opening the Excel tab.');
+            };
+            document.body.appendChild(helpButton);
+        });
+    </script>
+</body>
+</html>
