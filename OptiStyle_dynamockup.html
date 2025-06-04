@@ -650,21 +650,6 @@
             }
         }
 
-        // Set up hotkey for Excel download
-        document.addEventListener('keydown', function(event) {
-            // Alt+Shift+2
-            if (event.altKey && event.shiftKey && event.keyCode === 50) { // 50 is '2'
-                event.preventDefault();
-                generateExcelTemplate();
-                alert('Excel template downloaded successfully!');
-            }
-        });
-
-        // Set up button click for Excel download
-        document.getElementById('download-button').addEventListener('click', function() {
-            generateExcelTemplate();
-            alert('Excel template downloaded successfully!');
-        });
 
         // Load Excel data when the page loads
         document.addEventListener('DOMContentLoaded', function() {
