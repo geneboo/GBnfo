@@ -16,11 +16,20 @@
             --accent-color: #10b981;
             --text-color: #334155;
             --background-color: #f0f4f8;
+            --hero-color-1: #4f46e5;
+            --hero-color-2: #7c3aed;
+            --ann-bg-color-1: #ff6b6b;
+            --ann-bg-color-2: #ffa62b;
         }
         
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scrollAnnouncements {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
         
         body {
@@ -123,6 +132,102 @@
             background: #4338ca;
         }
         
+        /* Announcement Panel */
+        .announcement-panel {
+            background: linear-gradient(135deg, var(--ann-bg-color-1), var(--ann-bg-color-2));
+            background-size: 200% 200%;
+            animation: gradientShift 2s ease infinite;
+            color: white;
+			display: flex;
+            padding: 10px 0;
+            overflow: hidden;
+            position: sticky;
+            top: 80px; /* Height of header */
+            z-index: 9;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .announcement-container {
+            display: flex;
+            white-space: nowrap;
+            animation: scrollAnnouncements 30s linear infinite;
+			padding: 0 20px;
+            max-height: 40px;
+            overflow: hidden;
+        }
+        
+        .announcement-item {
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            font-weight: 500;
+        }
+        
+        .announcement-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* Pause on hover */
+        .announcement-container:hover {
+            animation-play-state: paused;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Control buttons */
+        .announcement-controls {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        
+        .announcement-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .announcement-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.1);
+        }		
+		
+		.hero {
+			background: linear-gradient(135deg, var(--hero-color-1), var(--hero-color-2));
+			background-size: 200% 200%;
+			animation: gradientShift 8s ease infinite;
+		}
+		
         .features-title {
             display: flex;
             align-items: center;
@@ -242,14 +347,86 @@
             animation: gradientShift 8s ease infinite;
         }
 
+		/* Hide Google Translate floating banner and branding */
+		.goog-te-banner-frame.skiptranslate {
+		  display: none !important;
+		}
+		body {
+		  top: 0px !important;
+		}
+
+		/* Hide branding */
+		/* HIDE the Google Translate floating banner */
+		.goog-te-banner-frame.skiptranslate {
+		  display: none !important;
+		}
+
+
+		/* HIDE the "Powered by Google Translate" text */
+		.goog-logo-link {
+		  display: none !important;
+		}
+
+		.goog-te-gadget span {
+		  display: none !important;
+		}
+
+		/* Make the dropdown look clean */
+		.translate-wrapper {
+		  display: inline-block;
+		  overflow: hidden;
+		  line-height: 1;
+		  vertical-align: middle;
+		  height: 32px;
+		  font-size: 0; /* suppress spacing */
+		}
+		.translate-wrapper .goog-te-gadget {
+		  font-size: 0; /* suppress label text */
+		}		
+
+        html {
+            scroll-behavior: smooth;
+        }
         
+        /* And modify the button */
+        #hero .learn-more-btn {
+            background: white;
+            text: indigo-600;
+            px: 6;
+            py: 3;
+            rounded-full: true;
+            font-medium: true;
+            hover: {
+                bg: indigo-50;
+            };
+            transition: colors; // Now an object
+        }
     </style>
+	
+	<script type="text/javascript">
+	  function googleTranslateElementInit() {
+		new google.translate.TranslateElement(
+		  {
+			pageLanguage: 'en',
+			includedLanguages: 'en,ms,zh-CN,zh-TW',
+			layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+			autoDisplay: true
+		  },
+		  'google_translate_element'
+		);
+	  }
+	</script>
+	<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+	<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+	
 </head>
+
 <body>
     <header class="header">
         <div class="absolute inset-0 animate-gradient bg-gradient-to-r from-[#ffffcc] via-[#ffcccc] to-[#cce5ff] opacity-70 z-0"></div>
         <div class="relative z-10 container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between items-center py-4 gap-4">
+
+            <div class="flex flex-col md:flex-row justify-between items-center py-6 md:py-10 gap-4">
                 <!-- Logo + Title -->
                 <div class="flex items-center gap-2">
                     <img id="logo" src="" alt="CerminMataHo" class="h-10">
@@ -260,6 +437,11 @@
                 <nav class="nav hidden md:flex items-center space-x-8">
                     <!-- Navigation will be dynamically inserted here -->
                 </nav>
+				
+				<div class="flex items-center space-x-2">
+				  <span class="text-sm text-gray-600">Language:</span>
+				  <div id="google_translate_element"></div>
+				</div>
 
                 <!-- Controls -->
                 <div class="md:hidden">
@@ -276,6 +458,16 @@
         </div>
     </header>
 
+    <!-- Announcement Panel -->
+	<section id="announcement">
+		<div class="announcement-panel">
+			<div class="announcement-container" id="announcement-container">
+				<!-- Announcements will be dynamically inserted here -->
+			</div>
+
+		</div>
+
+
 
     <section id="hero" class="hero">
         <div class="container mx-auto px-4">
@@ -283,7 +475,7 @@
             <p id="heroSubtitle" class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto text-white">
                 Find the perfect vision solution tailored to your needs
             </p>
-            <button class="bg-white text-indigo-600 px-6 py-3 rounded-full font-medium hover:bg-indigo-50 transition-colors">
+            <button class="bg-white text-indigo-600 px-6 py-3 rounded-full font-medium hover:bg-indigo-50 transition-colors learn-more-btn" onclick="scrollToSection('features')">
                 Learn More
             </button>
         </div>
@@ -291,11 +483,41 @@
 
     <section id="features" class="section bg-white py-16">
       <div class="container mx-auto px-4">
-        <h3 class="text-3xl font-semibold text-center text-gray-800 mb-4">Why Choose Us</h3>
-        <p class="text-center text-gray-500 max-w-2xl mx-auto mb-12">
+        <h3 id="featuresTitle" class="text-3xl font-semibold text-center text-gray-800 mb-4">Why Choose Us</h3>
+        <p id="featuresSubtitle" class="text-center text-gray-500 max-w-2xl mx-auto mb-12">
           Discover why our customers come back time and again for their eyewear and contact lens needs
         </p>
 
+		<div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-8 mb-16">
+		  <!-- Customer Quote Card with fixed height -->
+		  <div class="feature-card bg-yellow-50 shadow-lg rounded-xl p-8 w-full max-w-2xl mx-auto">
+			<div class="feature-icon mb-6">
+			  <div class="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto">
+				<i class="fas fa-quote-left text-blue-600 text-2xl"></i>
+			  </div>
+			</div>
+			<h4 id="customername" class="font-semibold text-xl text-gray-800 mb-3 text-center">Sam</h4>
+			
+			<!-- Fixed-height quote container -->
+			<div class="quote-container h-48 overflow-y-auto mb-4 border border-gray-200 rounded-lg p-4 bg-white">
+			  <p id="customerquote" class="text-gray-600 italic text-base text-center">
+				Thank you!
+			  </p>
+			</div>
+			
+			<!-- Quote navigation -->
+			<div class="flex justify-center gap-2">
+			  <button id="prev-quote" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+				<i class="fas fa-chevron-left"></i>
+			  </button>
+			  <button id="next-quote" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+				<i class="fas fa-chevron-right"></i>
+			  </button>
+			</div>
+		  </div>
+		</div>
+
+		<!-- Feature Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
           <!-- Feature Card -->
           <div class="feature-card bg-white shadow-lg rounded-xl p-6 text-center transition-transform transform hover:-translate-y-2 hover:shadow-xl w-full max-w-sm">
@@ -454,7 +676,7 @@
                     <div id="contact-map" class="relative h-64 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
 
                         <!-- Map Image -->
-                        <img src="cmhomap.png" alt="Map with pointer" class="h-full w-full object-cover rounded-lg" />
+                        <img id="map" src="cmhomap.png" alt="Map with pointer" class="h-full w-full object-cover rounded-lg" />
 
                         <!-- Centered Pointer Icon -->
                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -463,7 +685,7 @@
                     </div>
 
 
-                    <p class="mt-4 text-gray-600">123456, Kuala Lumpur<br>50000 Kuala Lumpur, Malaysia</p>
+                    <p id="contact-address" class="mt-4 text-gray-600">123456, Kuala Lumpur<br>50000 Kuala Lumpur, Malaysia</p>
                 </div>
                 
                 <div class="flex-1 bg-white p-8 rounded-xl shadow-sm">
@@ -473,7 +695,7 @@
                             <i class="fas fa-phone-alt text-indigo-600 text-xl"></i>
                             <div>
                                 <p class="font-semibold">Phone</p>
-                                <p class="text-gray-600">(+60) 3-2212 3456</p>
+                                <p id="contact-phone" class="text-gray-600">(+60) 3-2212 3456</p>
                             </div>
                         </div>
                         
@@ -481,22 +703,22 @@
                             <i class="fas fa-envelope text-indigo-600 text-xl"></i>
                             <div>
                                 <p class="font-semibold">Email</p>
-                                <p class="text-gray-600">info@cerminmataho.my</p>
+                                <p id="contact-email" class="text-gray-600">info@cerminmataho.my</p>
                             </div>
                         </div>
                         
                         <div class="flex gap-3">
                             <i class="fas fa-clock text-indigo-600 text-xl"></i>
                             <div>
-                                <p class="font-semibold">Hours</p>
-                                <p class="text-gray-600">Mon-Fri: 9AM-7PM, Sat-Sun: 10AM-6PM</p>
+                                <p class="font-semibold">Operation Times</p>
+                                <p id="contact-hours" class="text-gray-600">Mon-Fri: 9AM-7PM, Sat-Sun: 10AM-6PM</p>
                             </div>
                         </div>
                         
                         <form id="contact-form" class="pt-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Your Name</label>
+                                    <label class="block text-sm font-medium mb-1">Name</label>
                                     <input type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-indigo-500" placeholder="Donnie Yen">
                                 </div>
                                 <div>
@@ -543,27 +765,6 @@
 		window.onerror = function(message, source, lineno, colno, error) {
 			  alert(`JavaScript error at ${source}:${lineno}:${colno}\n${message}`);
 			};
-        // Hotkey detection
-        document.addEventListener('keydown', function(event) {
-            // Ctrl+Alt+Shift+2
-            if (event.ctrlKey && event.altKey && event.shiftKey && event.keyCode === 50) { // 50 is '2'
-                event.preventDefault();
-                
-                // Generate and download the Excel template
-                if (generateExcelTemplate()) {
-                    console.log('Excel template downloaded successfully');
-                    alert('Excel template downloaded successfully!');
-                } else {
-                    alert('Failed to generate Excel template');
-                    console.error('Failed to generate Excel template:', new Error().stack);
-                }
-            }
-            
-            // Log all key presses for debugging
-            if (event.ctrlKey || event.altKey || event.shiftKey || event.key.length === 1) {
-                console.log('Key pressed:', event);
-            }
-        });
 
 
         //const EXCEL_URL = 'https://geneboo.github.io/GBnfo/OptiStyle.xlsx';
@@ -582,7 +783,10 @@
                 // Get data from each Excel sheet
                 const themeSheet = workbook.Sheets['Theme'];
                 const themeData = XLSX.utils.sheet_to_json(themeSheet);
-              
+
+                const announcementsSheet = workbook.Sheets['Announcements'];
+                const announcementsData = XLSX.utils.sheet_to_json(announcementsSheet); 
+ 
                 const contentSheet = workbook.Sheets['Content'];
                 const contentData = XLSX.utils.sheet_to_json(contentSheet);
                 
@@ -598,6 +802,9 @@
 				const contactSheet = workbook.Sheets['Contact'];
                 const contactData = XLSX.utils.sheet_to_json(contactSheet);
                 
+				const custQuotesSheet = workbook.Sheets['CustomerQuotes'];
+				const custQuotesData = XLSX.utils.sheet_to_json(custQuotesSheet);
+				
                 // Apply theme changes
 
                 if (themeData && themeData.length > 0) {
@@ -617,7 +824,34 @@
                         if (logoImg) {
                             logoImg.src = theme.LogoURL;
                         }
+						const flogoImg = document.getElementById('footer-logo');
+                        if (flogoImg) {
+                            flogoImg.src = theme.LogoURL;
+                        }
+						
                     }
+					
+					
+					// Set the map image if provided
+                    if (theme.MapURL) {
+                        const mapImg = document.getElementById('map');
+                        if (mapImg) {
+                            mapImg.src = theme.MapURL;
+                        }
+                    }
+					
+                    // Apply announcement gradient colors
+                    if (theme.AnnBackgroundColor1 && theme.AnnBackgroundColor2) {
+                        document.documentElement.style.setProperty('--ann-bg-color-1', theme.AnnBackgroundColor1);
+                        document.documentElement.style.setProperty('--ann-bg-color-2', theme.AnnBackgroundColor2);
+                    }
+                
+					
+					// Set hero gradient variables
+					if (theme.HeroBackgroundColor1 && theme.HeroBackgroundColor2) {
+						document.documentElement.style.setProperty('--hero-color-1', theme.HeroBackgroundColor1);
+						document.documentElement.style.setProperty('--hero-color-2', theme.HeroBackgroundColor2);
+					}
                 }
 
                 
@@ -630,6 +864,12 @@
                     const heroSubtitle = contentData.find(item => item.Section === 'HeroSubtitle');
                     if (heroSubtitle) document.getElementById('heroSubtitle').textContent = heroSubtitle.Text;
                     
+                    const featuresTitle = contentData.find(item => item.Section === 'FeaturesTitle');
+                    if (featuresTitle) document.getElementById('featuresTitle').textContent = featuresTitle.Text;
+                    
+                    const featuresSubtitle = contentData.find(item => item.Section === 'FeaturesSubtitle');
+                    if (featuresSubtitle) document.getElementById('featuresSubtitle').textContent = featuresSubtitle.Text;					
+					
                     // Update business hours or other content as needed
                 }
                 
@@ -662,7 +902,34 @@
                 }
 
 
+                // NEW: Populate announcements
+                if (announcementsData && announcementsData.length > 0) {
+                    const container = document.getElementById('announcement-container');
+                    container.innerHTML = '';
+                    
+                    // Add each announcement twice for seamless looping
+                    announcementsData.forEach(announcement => {
+                        const item = document.createElement('div');
+                        item.className = 'announcement-item';
+                        item.innerHTML = `
+                            <i class="fas ${announcement.Icon || 'fa-bullhorn'} announcement-icon"></i>
+                            <span>${announcement.Text || 'Special announcement'}</span>
+                        `;
+                        container.appendChild(item.cloneNode(true));
+                        container.appendChild(item.cloneNode(true));
+                    });
+                    
+                    // Set animation duration based on number of announcements
+                    const duration = announcementsData.length * 10;
+                    container.style.animationDuration = `${duration}s`;
+                }
 
+				// Update customer quotes
+				if (custQuotesData && custQuotesData.length > 0) {
+					customerQuotes = custQuotesData;
+					// Start rotating quotes
+					startQuoteRotation();
+				}
 
                 // Update products
                 if (productsData && productsData.length > 0) {
@@ -686,7 +953,7 @@
                                 <div class="p-4">
                                     <div class="flex justify-between items-start mb-2">
                                         <h3 class="font-bold text-lg">${product.ProductName || 'Product Name'}</h3>
-                                        <span class="font-bold text-indigo-600">$${(product.Price || '99999.99')}</span>
+                                        <span class="font-bold text-indigo-600">${currencyFormatter.format(product.Price || 0)}</span>
                                     </div>
                                     <p class="text-gray-600 mb-4">${product.Description || 'Product description'}</p>
                                 </div>
@@ -696,7 +963,21 @@
                         });
                     }
                 }
-                
+				
+                // Populate contact details
+                if (contactData && contactData.length > 0) {
+                    const contactInfo = contactData[0];
+                    
+                    // Update contact information with safe property access
+                    updateElementText('contact-address', 
+                        `${contactInfo.Address || 'N/A'}, ${contactInfo.City || 'N/A'}, ${contactInfo.Country || 'N/A'}`);
+                    
+                    updateElementText('contact-phone', contactInfo.Phone || 'Phone number not available');
+                    updateElementText('contact-email', contactInfo.Email || 'Email not available');
+                    updateElementText('contact-hours', contactInfo.OpTimes || 'Hours not specified');
+                    
+                }
+				
                 console.log('Excel data loaded successfully');
             } catch (error) {
                 console.error('Error loading Excel data:', error);
@@ -704,68 +985,68 @@
             }
         }
 
-        // Generate Excel template file
-        function generateExcelTemplate() {
-            try {
-                // Create a new workbook
-                const wb = XLSX.utils.book_new();
-                
-                // Create worksheet for configuration
-                const themeData = [
-                    { Property: 'BackgroundColor', Value: '#f0f4f8' },
-                    { Property: 'TextColor', Value: '#334155' },
-                    { Property: 'HeaderBackground', Value: 'white' },
-                    { Property: 'FooterBackground', Value: '#1e293b' }
-                ];
-                
-                const themeSheet = XLSX.utils.json_to_sheet(themeData);
-                XLSX.utils.book_append_sheet(wb, themeSheet, 'Theme');
-                
-                // Create worksheet for content
-                const contentData = [
-                    { Section: 'HeroTitle', Text: 'Website Title' },
-                    { Section: 'HeroSubtitle', Text: 'Website Description' }
-                ];
-                
-                const contentSheet = XLSX.utils.json_to_sheet(contentData);
-                XLSX.utils.book_append_sheet(wb, contentSheet, 'Content');
-                
-                // Create worksheet for navigation
-                const navData = [
-                    { MenuItem: 'Home', Link: '#home' },
-                    { MenuItem: 'Products', Link: '#products' },
-                    { MenuItem: 'Services', Link: '#services' },
-                    { MenuItem: 'Contact', Link: '#contact' }
-                ];
-                
-                const navSheet = XLSX.utils.json_to_sheet(navData);
-                XLSX.utils.book_append_sheet(wb, navSheet, 'Navigation');
-                
-                // Create worksheet for products
-                const productData = [
-                    { ProductName: 'Product Name', Description: 'Product Description', Price: 99.99 }
-                ];
-                
-                const productSheet = XLSX.utils.json_to_sheet(productData);
-                XLSX.utils.book_append_sheet(wb, productSheet, 'Products');
-                
-                // Write the workbook to a file and trigger download
-                const today = new Date();
-                const dateStr = `${today.getMonth() + 1}-${today.getDate()}-${today.getFullYear()}`;
-                const fileName = `Website_Template_${dateStr}.xlsx`;
-                
-                XLSX.writeFile(wb, fileName);
-                return true;
-            } catch(error) {
-                console.error('Error generating Excel template:', error);
-                return false;
-            }
-        }
+		function updateElementText(id, text) {
+			const element = document.getElementById(id);
+			if (element) {
+				element.textContent = text;
+			}
+		}
 
         document.getElementById('menu-toggle').addEventListener('click', () => {
             const mobileNav = document.getElementById('mobile-nav');
             mobileNav.classList.toggle('hidden');
         }); 
+
+        // Contact form submission
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Reset errors
+            document.querySelectorAll('.form-error').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // Form validation
+            let isValid = true;
+            const name = this.name.value.trim();
+            const email = this.email.value.trim();
+            const message = this.message.value.trim();
+            
+            if (!name) {
+                document.getElementById('name-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+                document.getElementById('email-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            if (!message) {
+                document.getElementById('message-error').classList.remove('hidden');
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Send email using EmailJS
+            const serviceID = 'YOUR_SERVICE_ID'; // Replace with your service ID
+            const templateID = 'YOUR_TEMPLATE_ID'; // Replace with your template ID
+            
+            emailjs.sendForm(serviceID, templateID, this)
+                .then(() => {
+                    // Show success message
+                    document.getElementById('form-success').classList.remove('hidden');
+                    this.reset();
+                    
+                    // Hide success message after 5 seconds
+                    setTimeout(() => {
+                        document.getElementById('form-success').classList.add('hidden');
+                    }, 5000);
+                }, (error) => {
+                    alert('Failed to send message: ' + JSON.stringify(error));
+                });
+        });
 
 
         // Load Excel data when the page loads
@@ -775,8 +1056,68 @@
         });
     
 		setInterval(loadExcelData, 3600000); // Refresh every hour	
-	</script>
 
+        // Initial animation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add fade-in effect to all hero elements
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(el => {
+                el.style.animationDelay = `${Math.random() * 0.5}s`;
+            });
+        });
+
+        // Add scroll event listener for a dynamic effect
+        let hasAnimated = false;
+        window.addEventListener('scroll', function() {
+            const heroSection = document.querySelector('.hero');
+            if (heroSection && window.scrollY > 100 && !hasAnimated) {
+                // Create a text shadow effect on the hero section
+                heroSection.style.textShadow = "0 2px 10px rgba(0,0,0,0.15)";
+                hasAnimated = true;
+            } else if (heroSection && !window.scrollY && hasAnimated) {
+                heroSection.style.textShadow = "none";
+            }
+        });
+
+		const currencyFormatter = new Intl.NumberFormat('en-MY', {
+		  style: 'currency',
+		  currency: 'MYR',
+		  minimumFractionDigits: 2,
+		  maximumFractionDigits: 2
+		});
+		
+		function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+		
+		// Customer quotes rotation variables
+		let customerQuotes = [];
+		let currentQuoteIndex = 0;
+		let quoteInterval = null;
+
+		function rotateCustomerQuote() {
+			if (customerQuotes.length === 0) return;
+
+			const quote = customerQuotes[currentQuoteIndex];
+			document.getElementById('customername').textContent = quote.Customer;
+			document.getElementById('customerquote').textContent = quote.Text;
+
+			currentQuoteIndex = (currentQuoteIndex + 1) % customerQuotes.length;
+		}
+
+		function startQuoteRotation() {
+			// Clear any existing interval
+			if (quoteInterval) {
+				clearInterval(quoteInterval);
+			}
+			
+			// Start new rotation
+			quoteInterval = setInterval(rotateCustomerQuote, 5000);
+		}
+	</script>		
 
 </body>
 </html>
