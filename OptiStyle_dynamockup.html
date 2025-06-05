@@ -42,6 +42,7 @@
             background-color: white;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             position: sticky;
+            backdrop-filter: blur(10px);
             top: 0;
             z-index: 10;
         }
@@ -229,31 +230,52 @@
         .home-button:hover {
             background: #f1f5f9;
         }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        
     </style>
 </head>
 <body>
     <header class="header">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
+        <div class="absolute inset-0 animate-gradient bg-gradient-to-r from-[#ffffcc] via-[#ffcccc] to-[#cce5ff] opacity-70 z-0"></div>
+        <div class="relative z-10 container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center py-4 gap-4">
+                <!-- Logo + Title -->
                 <div class="flex items-center gap-2">
-                    <!-- Company Logo - Excel will provide URL or placeholder will be used -->
                     <img id="logo" src="" alt="CerminMataHo" class="h-10">
-                    <h1 id="companyName" class="text-2xl font-bold text-indigo-600">CerminMataHo</h1>
+                    <h1 id="companyName" class="text-2xl font-bold text-indigo-600">CMHo</h1>
                 </div>
-                
-                <nav class="hidden md:flex space-x-8">
+
+                <!-- Navigation -->
+                <nav class="nav hidden md:flex items-center space-x-8">
                     <!-- Navigation will be dynamically inserted here -->
                 </nav>
-                
+
                 <!-- Controls -->
-                <div>
-                    <button class="md:hidden">
-                        <i class="fas fa-bars text-xl"></i>
+                <div class="md:hidden">
+                    <button id="menu-toggle">
+                        <i class="fas fa-bars text-xl text-white"></i>
                     </button>
                 </div>
             </div>
+
+            <!-- Mobile Navigation -->
+            <nav id="mobile-nav" class="nav flex-col space-y-2 mt-4 hidden md:hidden">
+                <!-- Navigation will be dynamically inserted here too -->
+            </nav>
         </div>
     </header>
+
 
     <section id="hero" class="hero">
         <div class="container mx-auto px-4">
@@ -267,38 +289,50 @@
         </div>
     </section>
 
-    <section id="features" class="section bg-white">
-        <div class="container mx-auto px-4">
-            <h3 class="section-title">Why Choose Us</h3>
-            <p class="section-subtitle">Discover why our customers come back time and again for their eyewear and contact lens needs</p>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <div class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center"><i class="fas fa-eye text-blue-600"></i></div>
-                    </div>
-                    <h4 class="font-bold text-lg mb-2">Expert Optometrists</h4>
-                    <p class="text-gray-600">Our team includes certified optometrists who provide thorough eye examinations and personalized recommendations.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <div class="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center"><i class="fas fa-box-open text-purple-600"></i></div>
-                    </div>
-                    <h4 class="font-bold text-lg mb-2">Premium Quality</h4>
-                    <p class="text-gray-600">We partner with top manufacturers to offer quality eyewear and contact lenses at competitive prices.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <div class="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center"><i class="fas fa-truck text-green-600"></i></div>
-                    </div>
-                    <h4 class="font-bold text-lg mb-2">Convenient Services</h4>
-                    <p class="text-gray-600">Schedule appointments online or request home delivery for your new eyewear.</p>
-                </div>
+    <section id="features" class="section bg-white py-16">
+      <div class="container mx-auto px-4">
+        <h3 class="text-3xl font-semibold text-center text-gray-800 mb-4">Why Choose Us</h3>
+        <p class="text-center text-gray-500 max-w-2xl mx-auto mb-12">
+          Discover why our customers come back time and again for their eyewear and contact lens needs
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+          <!-- Feature Card -->
+          <div class="feature-card bg-white shadow-lg rounded-xl p-6 text-center transition-transform transform hover:-translate-y-2 hover:shadow-xl w-full max-w-sm">
+            <div class="feature-icon mb-4">
+              <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto">
+                <i class="fas fa-eye text-blue-600 text-xl"></i>
+              </div>
             </div>
+            <h4 class="font-semibold text-lg text-gray-800 mb-2">Expert Optometrists</h4>
+            <p class="text-gray-500">Certified professionals providing thorough eye exams and personalized care.</p>
+          </div>
+
+          <!-- Feature Card -->
+          <div class="feature-card bg-white shadow-lg rounded-xl p-6 text-center transition-transform transform hover:-translate-y-2 hover:shadow-xl w-full max-w-sm">
+            <div class="feature-icon mb-4">
+              <div class="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center mx-auto">
+                <i class="fas fa-box-open text-purple-600 text-xl"></i>
+              </div>
+            </div>
+            <h4 class="font-semibold text-lg text-gray-800 mb-2">Premium Quality</h4>
+            <p class="text-gray-500">Top-tier eyewear and lenses from trusted manufacturers at great prices.</p>
+          </div>
+
+          <!-- Feature Card -->
+          <div class="feature-card bg-white shadow-lg rounded-xl p-6 text-center transition-transform transform hover:-translate-y-2 hover:shadow-xl w-full max-w-sm">
+            <div class="feature-icon mb-4">
+              <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+                <i class="fas fa-truck text-green-600 text-xl"></i>
+              </div>
+            </div>
+            <h4 class="font-semibold text-lg text-gray-800 mb-2">Convenient Services</h4>
+            <p class="text-gray-500">Book online or enjoy home delivery for your eyewear needs.</p>
+          </div>
         </div>
+      </div>
     </section>
+
 
     <section id="products" class="section">
         <div class="container mx-auto px-4">
@@ -365,7 +399,49 @@
         </div>
     </section>
 
-
+    <!-- Services Section -->
+    <section id="services" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12 fade-in">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Our Services</h2>
+                <p class="max-w-2xl mx-auto text-gray-600">Comprehensive eye care to meet all your vision needs</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                    <div class="text-indigo-600 text-4xl mb-4">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Comprehensive Eye Exams</h3>
+                    <p class="text-gray-600">Detailed vision assessment using state-of-the-art diagnostic equipment</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                    <div class="text-indigo-600 text-4xl mb-4">
+                        <i class="fas fa-glasses"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Frame Selection</h3>
+                    <p class="text-gray-600">Stylist-guided selection for frames that complement your features</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                    <div class="text-indigo-600 text-4xl mb-4">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Express Lens Services</h3>
+                    <p class="text-gray-600">Same-day lens replacement and adjustment services</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                    <div class="text-indigo-600 text-4xl mb-4">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Contact Lens Fittings</h3>
+                    <p class="text-gray-600">Specialized fittings for comfort and optimal vision correction</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <section id="contact" class="section">
         <div class="container mx-auto px-4">
@@ -374,10 +450,20 @@
             
             <div class="flex flex-col md:flex-row gap-8">
                 <div class="flex-1 bg-gray-50 p-8 rounded-xl">
-                    <div id="contact-map" class="h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-map-marker-alt text-4xl text-gray-400"></i>
+                    
+                    <div id="contact-map" class="relative h-64 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+
+                        <!-- Map Image -->
+                        <img src="cmhomap.png" alt="Map with pointer" class="h-full w-full object-cover rounded-lg" />
+
+                        <!-- Centered Pointer Icon -->
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <i class="fas fa-map-marker-alt text-red-600 text-4xl drop-shadow-lg"></i>
+                        </div>
                     </div>
-                    <p class="mt-4 text-gray-600">123 Main Street, Kuala Lumpur<br>50000 Kuala Lumpur, Malaysia</p>
+
+
+                    <p class="mt-4 text-gray-600">123456, Kuala Lumpur<br>50000 Kuala Lumpur, Malaysia</p>
                 </div>
                 
                 <div class="flex-1 bg-white p-8 rounded-xl shadow-sm">
@@ -411,7 +497,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Your Name</label>
-                                    <input type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-indigo-500" placeholder="John Smith">
+                                    <input type="text" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:border-indigo-500" placeholder="Donnie Yen">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Email</label>
@@ -438,7 +524,7 @@
                 <div>
                     <img id="footer-logo" src="" alt="CerminMataHo" class="h-8">
                 </div>
-                <p id="footer-text" class="mb-4">© 2023 CerminMataHo. All rights reserved.</p>
+                <p id="footer-text" class="mb-4">© 2025 CerminMataHo. All rights reserved.</p>
             </div>
             
             <div class="flex justify-between items-center">
@@ -513,15 +599,27 @@
                 const contactData = XLSX.utils.sheet_to_json(contactSheet);
                 
                 // Apply theme changes
+
                 if (themeData && themeData.length > 0) {
                     const theme = themeData[0];
+
+                    // Apply background and text colors
                     document.body.style.backgroundColor = theme.BackgroundColor || '#f0f4f8';
                     document.body.style.color = theme.TextColor || '#334155';
-                    
+
                     // Update header and footer styles
                     document.querySelector('.header').style.backgroundColor = theme.HeaderBackground || 'white';
                     document.querySelector('.footer').style.backgroundColor = theme.FooterBackground || '#1e293b';
+
+                    // Set the logo image if provided
+                    if (theme.LogoURL) {
+                        const logoImg = document.getElementById('logo');
+                        if (logoImg) {
+                            logoImg.src = theme.LogoURL;
+                        }
+                    }
                 }
+
                 
                 // Update with content data
                 if (contentData && contentData.length > 0) {
@@ -537,22 +635,35 @@
                 
                 // Update navigation
                 if (navigationData && navigationData.length > 0) {
-                    const navContainer = document.querySelector('.header .nav');
-                    if (navContainer) {
+                    const navContainers = document.querySelectorAll('.nav');
+
+                    navContainers.forEach(navContainer => {
                         navContainer.innerHTML = ''; // Clear existing navigation
-                        
-                        navigationData.forEach(item => {
+
+                        navigationData.forEach((item, index) => {
                             if (item.MenuItem && item.Link) {
                                 const link = document.createElement('a');
                                 link.href = item.Link;
                                 link.textContent = item.MenuItem;
                                 link.className = 'font-medium hover:text-indigo-600 transition-colors';
+
                                 navContainer.appendChild(link);
+
+                                // Add separator if not the last item
+                                if (index < navigationData.length - 1) {
+                                    const separator = document.createElement('span');
+                                    separator.textContent = ' | ';
+                                    separator.className = 'text-gray-400';
+                                    navContainer.appendChild(separator);
+                                }
                             }
                         });
-                    }
+                    });
                 }
-                
+
+
+
+
                 // Update products
                 if (productsData && productsData.length > 0) {
                     const productsContainer = document.querySelector('.products-grid');
@@ -570,6 +681,7 @@
                             productCard.innerHTML = `
                                 <div class="product-image" style="background-color: ${randomColor}; color: white;">
 									<i class="${product.i_class || 'fas fa-glasses'}"></i>
+                                    <img src="${product.img_src}" alt="Product Image" class="w-full h-full object-fill" />
                                 </div>
                                 <div class="p-4">
                                     <div class="flex justify-between items-start mb-2">
@@ -650,6 +762,11 @@
             }
         }
 
+        document.getElementById('menu-toggle').addEventListener('click', () => {
+            const mobileNav = document.getElementById('mobile-nav');
+            mobileNav.classList.toggle('hidden');
+        }); 
+
 
         // Load Excel data when the page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -659,5 +776,7 @@
     
 		setInterval(loadExcelData, 3600000); // Refresh every hour	
 	</script>
+
+
 </body>
 </html>
