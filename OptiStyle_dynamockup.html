@@ -180,7 +180,7 @@
         .announcement-container {
             display: flex;
             white-space: nowrap;
-            animation: scrollAnnouncements 30s linear infinite;
+            animation: none !important;
 			padding: 0 20px;
             max-height: 40px;
             overflow: hidden;
@@ -940,26 +940,7 @@
 
                 // NEW: Populate announcements
                 if (announcementsData && announcementsData.length > 0) {
-                    const container = document.getElementById('announcement-container');
-                    container.innerHTML = '';
-                    
-                    // Add each announcement twice for seamless looping
-                    announcementsData.forEach(announcement => {
-                        for (let i = 0; i < 1; i++) {
-                            const item = document.createElement('div');
-                            item.className = 'announcement-item';
-                            item.innerHTML = `
-                                <i class="fas ${announcement.Icon || 'fa-bullhorn'} announcement-icon"></i>
-                                <span>${announcement.Text || 'Special announcement'}</span>
-                            `;
-                            container.appendChild(item);
-                        }
-                    });
-
-                    
-                    // Set animation duration based on number of announcements
-                    const duration = announcementsData.length * 3 * 5;  // 5s per item, 3x repeats
-                    container.style.animationDuration = `${duration}s`;
+                    setupInfiniteScroll(announcementsData);
                 }
 
 				// Update customer quotes
@@ -1251,6 +1232,55 @@
 			// Start new rotation
 			quoteInterval = setInterval(rotateCustomerQuote, 5000);
 		}
+
+    function setupInfiniteScroll(announcementsData) {
+        const container = document.getElementById('announcement-container');
+        container.innerHTML = '';
+        container.style.overflow = 'hidden';
+        container.style.whiteSpace = 'nowrap';
+        container.style.position = 'relative';
+
+        // Create a wrapper that will scroll
+        const scrollWrapper = document.createElement('div');
+        scrollWrapper.style.display = 'inline-flex';
+        scrollWrapper.style.whiteSpace = 'nowrap';
+        scrollWrapper.style.gap = '40px';
+        scrollWrapper.style.willChange = 'transform';
+
+        // Add announcements twice for seamless loop
+        for (let i = 0; i < 2; i++) {
+            announcementsData.forEach(announcement => {
+                const item = document.createElement('div');
+                item.className = 'announcement-item';
+                item.style.flex = '0 0 auto';
+                item.style.padding = '0 30px';
+                item.innerHTML = `
+                    <i class="fas ${announcement.Icon || 'fa-bullhorn'} announcement-icon"></i>
+                    <span>${announcement.Text || 'Special announcement'}</span>
+                `;
+                scrollWrapper.appendChild(item);
+            });
+        }
+
+        container.appendChild(scrollWrapper);
+
+        // Scroll logic
+        let scrollX = 0;
+        const scrollSpeed = 0.5; // Adjust for speed
+
+        function animateScroll() {
+            scrollX += scrollSpeed;
+            if (scrollX >= scrollWrapper.scrollWidth / 2) {
+                scrollX = 0;
+            }
+            scrollWrapper.style.transform = `translateX(-${scrollX}px)`;
+            requestAnimationFrame(animateScroll);
+        }
+
+        requestAnimationFrame(animateScroll);
+    }
+
+
 	</script>		
 
 </body>
