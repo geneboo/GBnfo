@@ -97,6 +97,36 @@
             color: #4f46e5;
             font-size: 3rem;
         }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        
+        .service-image {
+            height: 180px;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4f46e5;
+            font-size: 3rem;
+        }
+
         
         .section-title {
             text-align: center;
@@ -137,7 +167,7 @@
             background: linear-gradient(135deg, var(--ann-bg-color-1), var(--ann-bg-color-2));
             background-size: 200% 200%;
             animation: gradientShift 2s ease infinite;
-            color: white;
+            color: var(--ann-text-color-1);
 			display: flex;
             padding: 10px 0;
             overflow: hidden;
@@ -159,6 +189,7 @@
         .announcement-item {
             display: flex;
             align-items: center;
+            min-width: 300px
             padding: 0 30px;
             font-weight: 500;
         }
@@ -423,7 +454,8 @@
 
 <body>
     <header class="header">
-        <div class="absolute inset-0 animate-gradient bg-gradient-to-r from-[#ffffcc] via-[#ffcccc] to-[#cce5ff] opacity-70 z-0"></div>
+        <div id="headerGradientOverlay" class="absolute inset-0 opacity-70 z-0"></div>
+
         <div class="relative z-10 container mx-auto px-4">
 
             <div class="flex flex-col md:flex-row justify-between items-center py-6 md:py-10 gap-4">
@@ -560,8 +592,16 @@
         <div class="container mx-auto px-4">
             <h3 class="section-title">Featured Products</h3>
             <p class="section-subtitle" id="productsSubtext">Discover our premium collection of eyewear and contact lenses</p>
+        
+            <!-- Dynamic Filter Buttons -->
+            <div class="flex justify-center mt-8 space-x-2" id="productFilters">
+                <!-- Filter buttons will be dynamically inserted here -->
+            </div>
+
             
-            <div class="products-grid">
+            <!-- Dynamic Product Cards -->
+            <div id="productsContainer" class="products-grid">
+
                 <div class="product-card">
                     <div class="product-image">
                         <i class="fas fa-glasses text-blue-600"></i>
@@ -629,39 +669,23 @@
                 <p class="max-w-2xl mx-auto text-gray-600">Comprehensive eye care to meet all your vision needs</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="bg-white rounded-xl p-6 shadow-md text-center">
-                    <div class="text-indigo-600 text-4xl mb-4">
-                        <i class="fas fa-eye"></i>
+           <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-image">
+                        <i class="fas fa-glasses text-blue-600"></i>
                     </div>
-                    <h3 class="font-bold text-xl mb-2">Comprehensive Eye Exams</h3>
-                    <p class="text-gray-600">Detailed vision assessment using state-of-the-art diagnostic equipment</p>
-                </div>
-                
-                <div class="bg-white rounded-xl p-6 shadow-md text-center">
-                    <div class="text-indigo-600 text-4xl mb-4">
-                        <i class="fas fa-glasses"></i>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">Comprehensive Eye Exams</h3>
+                            <span class="font-bold text-indigo-600">$129.99</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">Detailed vision assessment using state-of-the-art diagnostic equipment.</p>
+                        <button class="w-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 py-2 rounded-lg">Learn More</button>
                     </div>
-                    <h3 class="font-bold text-xl mb-2">Frame Selection</h3>
-                    <p class="text-gray-600">Stylist-guided selection for frames that complement your features</p>
-                </div>
-                
-                <div class="bg-white rounded-xl p-6 shadow-md text-center">
-                    <div class="text-indigo-600 text-4xl mb-4">
-                        <i class="fas fa-hourglass-half"></i>
-                    </div>
-                    <h3 class="font-bold text-xl mb-2">Express Lens Services</h3>
-                    <p class="text-gray-600">Same-day lens replacement and adjustment services</p>
-                </div>
-                
-                <div class="bg-white rounded-xl p-6 shadow-md text-center">
-                    <div class="text-indigo-600 text-4xl mb-4">
-                        <i class="fas fa-hand-holding-heart"></i>
-                    </div>
-                    <h3 class="font-bold text-xl mb-2">Contact Lens Fittings</h3>
-                    <p class="text-gray-600">Specialized fittings for comfort and optimal vision correction</p>
                 </div>
             </div>
+
+
         </div>
     </section>
 
@@ -840,13 +864,25 @@
                         }
                     }
 					
-                    // Apply announcement gradient colors
+                    // Set header gradient background using 3 colors
+                    if (theme.HeaderBackgroundColor1 && theme.HeaderBackgroundColor2 && theme.HeaderBackgroundColor3) {
+                        const headerOverlay = document.getElementById('headerGradientOverlay');
+                        if (headerOverlay) {
+                            headerOverlay.style.background = `linear-gradient(to right, ${theme.HeaderBackgroundColor1}, ${theme.HeaderBackgroundColor2}, ${theme.HeaderBackgroundColor3})`;
+                        }
+                    }
+                    
+                     // Apply announcement gradient colors
                     if (theme.AnnBackgroundColor1 && theme.AnnBackgroundColor2) {
                         document.documentElement.style.setProperty('--ann-bg-color-1', theme.AnnBackgroundColor1);
                         document.documentElement.style.setProperty('--ann-bg-color-2', theme.AnnBackgroundColor2);
                     }
-                
-					
+                    
+                    // Apply announcement text color
+					if (theme.AnnText) {
+                        document.documentElement.style.setProperty('--ann-text-color-1', theme.AnnText);
+                    }
+                    
 					// Set hero gradient variables
 					if (theme.HeroBackgroundColor1 && theme.HeroBackgroundColor2) {
 						document.documentElement.style.setProperty('--hero-color-1', theme.HeroBackgroundColor1);
@@ -909,18 +945,20 @@
                     
                     // Add each announcement twice for seamless looping
                     announcementsData.forEach(announcement => {
-                        const item = document.createElement('div');
-                        item.className = 'announcement-item';
-                        item.innerHTML = `
-                            <i class="fas ${announcement.Icon || 'fa-bullhorn'} announcement-icon"></i>
-                            <span>${announcement.Text || 'Special announcement'}</span>
-                        `;
-                        container.appendChild(item.cloneNode(true));
-                        container.appendChild(item.cloneNode(true));
+                        for (let i = 0; i < 3; i++) {
+                            const item = document.createElement('div');
+                            item.className = 'announcement-item';
+                            item.innerHTML = `
+                                <i class="fas ${announcement.Icon || 'fa-bullhorn'} announcement-icon"></i>
+                                <span>${announcement.Text || 'Special announcement'}</span>
+                            `;
+                            container.appendChild(item);
+                        }
                     });
+
                     
                     // Set animation duration based on number of announcements
-                    const duration = announcementsData.length * 10;
+                    const duration = announcementsData.length * 3 * 5;  // 5s per item, 3x repeats
                     container.style.animationDuration = `${duration}s`;
                 }
 
@@ -931,35 +969,46 @@
 					startQuoteRotation();
 				}
 
-                // Update products
-                if (productsData && productsData.length > 0) {
-                    const productsContainer = document.querySelector('.products-grid');
-                    if (productsContainer) {
-                        productsContainer.innerHTML = ''; // Clear existing products
+                // Update category and products
+                renderProductFiltersAndCards(productsData);
+
+                // Update services
+                if (servicesData && servicesData.length > 0) {
+                    const servicesContainer = document.querySelector('.services-grid');
+                    if (servicesContainer) {
+                        servicesContainer.innerHTML = ''; // Clear existing services
                         
-                        productsData.forEach(product => {
-                            const productCard = document.createElement('div');
-                            productCard.className = 'product-card';
+                        servicesData.forEach(service => {
+                            const serviceCard = document.createElement('div');
+                            serviceCard.className = 'service-card';
                             
                             // Create a placeholder color for demos with no images
-                            const colors = ['#4f46e5', '#7c3aed', '#ec4899', '#10b981'];
+                            const colors = [
+                                  '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
+                                  '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+                                  '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+                                  '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+                                  '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+                                  '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399'
+                                ];
+
                             const randomColor = colors[Math.floor(Math.random() * colors.length)];
                             
-                            productCard.innerHTML = `
-                                <div class="product-image" style="background-color: ${randomColor}; color: white;">
-									<i class="${product.i_class || 'fas fa-glasses'}"></i>
-                                    <img src="${product.img_src}" alt="Product Image" class="w-full h-full object-fill" />
+                            serviceCard.innerHTML = `
+                                <div class="service-image" style="background-color: ${randomColor}; color: white;">
+									<i class="${service.i_class || 'fas fa-glasses'}"></i>
+                                    <img src="${service.img_src}" alt="Service Image" class="w-full h-full object-fill" />
                                 </div>
                                 <div class="p-4">
                                     <div class="flex justify-between items-start mb-2">
-                                        <h3 class="font-bold text-lg">${product.ProductName || 'Product Name'}</h3>
-                                        <span class="font-bold text-indigo-600">${currencyFormatter.format(product.Price || 0)}</span>
+                                        <h3 class="font-bold text-lg">${service.ServiceName || 'Service Name'}</h3>
+                                        <span class="font-bold text-indigo-600">${currencyFormatter.format(service.Price || 0)}</span>
                                     </div>
-                                    <p class="text-gray-600 mb-4">${product.Description || 'Product description'}</p>
+                                    <p class="text-gray-600 mb-4">${service.Description || 'Service description'}</p>
                                 </div>
                             `;
                             
-                            productsContainer.appendChild(productCard);
+                            servicesContainer.appendChild(serviceCard);
                         });
                     }
                 }
@@ -984,6 +1033,91 @@
                 alert('Failed to load Excel data. Please try again or download the template to set up your data.');
             }
         }
+
+        // Handle categorized products
+        function renderProductFiltersAndCards(productsData) {
+            const categories = [...new Set(productsData.map(p => p.Category).filter(Boolean))];
+            const filterContainer = document.getElementById('productFilters');
+            const productsContainer = document.getElementById('productsContainer');
+
+            // Clear existing
+            filterContainer.innerHTML = '';
+            productsContainer.innerHTML = '';
+
+            // Create "All Products" button
+            const allBtn = document.createElement('button');
+            allBtn.className = 'filter-btn active';
+            allBtn.dataset.filter = 'all';
+            allBtn.textContent = 'All Products';
+            filterContainer.appendChild(allBtn);
+
+            // Loop through categories and create buttons with separators
+            categories.forEach((category, index) => {
+                if (index >= 0) {
+                    const separator = document.createElement('span');
+                    separator.textContent = '|';
+                    separator.className = 'text-gray-400 px-2';
+                    filterContainer.appendChild(separator);
+                }
+
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn hover:bg-indigo-100 transition';
+                btn.dataset.filter = category === 'All Products' ? 'all' : category.toLowerCase().replace(/\s+/g, '-');
+                btn.textContent = category;
+                if (index === 0) btn.classList.add('active');
+                filterContainer.appendChild(btn);
+            });
+
+            // Create product cards
+            productsData.forEach(product => {
+                const categoryClass = product.Category.toLowerCase().replace(/\s+/g, '-');
+                const card = document.createElement('div');
+                
+                // Create a placeholder color for demos with no images
+                const colors = [
+                                  '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
+                                  '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+                                  '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+                                  '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+                                  '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+                                  '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399'
+                                ];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                            
+                card.className = `product-card ${categoryClass}`;
+                card.innerHTML = `
+                    <div class="product-image" style="background-color: ${randomColor}; color: white;">
+                        <i class="${product.i_class || 'fas fa-glasses'}"></i>
+                        <img src="${product.img_src}" alt="Product Image" class="w-full h-full object-fill" />
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">${product.ProductName || 'Product Name'}</h3>
+                            <span class="font-bold text-indigo-600">${currencyFormatter.format(product.Price || 0)}</span>
+                        </div>
+                        <p class="text-gray-600 mb-4">${product.Description || 'Product description'}</p>
+                    </div>
+                `;
+                productsContainer.appendChild(card);
+            });
+
+            // Add filter logic
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const filter = btn.dataset.filter;
+                    document.querySelectorAll('.product-card').forEach(card => {
+                        if (filter === 'all' || card.classList.contains(filter)) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        }
+
 
 		function updateElementText(id, text) {
 			const element = document.getElementById(id);
@@ -1055,7 +1189,7 @@
             loadExcelData();
         });
     
-		setInterval(loadExcelData, 3600000); // Refresh every hour	
+		setInterval(loadExcelData, 3600000); // Refresh every hour	3600000
 
         // Initial animation on page load
         document.addEventListener('DOMContentLoaded', function() {
