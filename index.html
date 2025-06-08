@@ -10,6 +10,7 @@
         />
         <link rel="stylesheet" href="css/styles.css" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        <script src="https://unpkg.com/@motionone/dom/dist/motion.global.min.js"></script>
     </head>
     <body>
         <header>
@@ -236,90 +237,63 @@
                 </p>
             </section>
 
-            <section id="projects" class="tab-content">
-                <h2>Projects</h2>
-                <ul>
-                    <li>
-                        <a
-                            href="https://funkygraffy.onrender.com/"
-                            target="_blank"
-                            >Funkygraffy! (render cloud)</a
-                        >
-                        <a
-                            href="https://my-cloud-run-service-324349391188.asia-southeast1.run.app/"
-                            target="_blank"
-                            >Funkygraffy! (google cloud)</a
-                        >
-                        This is a math function graphing website as well as an
-                        ever-growing library of interesting functions that I
-                        hope can serve as an educational toy to try to make math
-                        more intuitive. The site is colourful and contains
-                        hidden easter eggs!
-                    </li>
-                    <br />
-                    <li>
-                        <strong>Convolve! - Coming Soon:</strong> Empirical
-                        convolution online tool - this can help combine any
-                        shape - to get like joint distributions or other
-                        intercepting functions!
-                    </li>
-                    <br />
-                    <li>
-                        <a
-                            href="https://geneboo.github.io/GBnfo/OptiStyle.html"
-                            target="_blank"
-                            >Cermin Mata Ho</a
-                        >
-                        This prototype is a standard client-side mom & pop small shop business site. I
-                        put it together for a friend for free. I essentially coded up using JS
-                        and CSS, a no-code update-able website whose content, graphics and
-                        schematics can be updated solely using an Excel spreadsheet. I spent
-                        a good 3 days on it and am pretty proud of its results, plus it helps
-                        as a marketing tool for those who require a web presence but have not
-                        the means to upkeep it. I will likely be reusing the project's idea
-                        as a basis for many future ones to come.
-                    </li>
-                    <br />                    
-                    <li>
-                        <strong>Fit it! - Coming Soon:</strong> Continuous
-                        distribution fitting tool - you provide the data, and my
-                        tool will run a bunch of continuous distributions and
-                        give you a list of best fitting ones!
-                    </li>
-                    <br />
-                    <li>
-                        <strong
-                            >SVG Fourier Epicycle Rendering - Coming
-                            Soon:</strong
-                        >
-                        You can save your pictures as SVG and use my tool to
-                        generate Fourier series coefficients of your silhouette
-                        to regenerate in a graph!
-                    </li>
-                    <br />
-                </ul>
-                <h2>Written Works</h2>
-                <ul>
-                    <li>
-                        <a
-                            href="assets/FFT_Convolution_GB2020_Excerpt.pdf"
-                            target="_blank"
-                            download="FFT_Convolution_GB2020_Excerpt.pdf"
-                            >Download PDF Excerpt: </a
-                        ><strong
-                            >Fast Fourier Transform as an Engine for the
-                            Convolution of PDFs and Black-Scholes Option Pricing
-                            Using Python - Gene Boo, 2020</strong
-                        >
-                        An informative essay for enthusiasts and practitioners
-                        on use of Fast Fourier Transform in Statistics and
-                        Finance
-                    </li>
-                </ul>
+            <section id="projects" class="px-6 py-10 bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white">
+              <h2 class="text-4xl font-bold text-center mb-10 animate-fade-in">✨ Projects</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Funkygraffy -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow motion-safe:hover:scale-[1.03]" data-motion>
+                  <h3 class="text-2xl font-semibold text-pink-400 mb-2">Funkygraffy! 🎨</h3>
+                  <p class="text-sm mb-4">An educational toy for visualizing math functions with color, interactivity, and easter eggs.</p>
+                  <div class="flex flex-col space-y-2">
+                    <a href="https://funkygraffy.onrender.com/" class="text-blue-400 hover:underline" target="_blank">🌐 Render Cloud</a>
+                    <a href="https://my-cloud-run-service-324349391188.asia-southeast1.run.app/" class="text-blue-400 hover:underline" target="_blank">☁️ Google Cloud</a>
+                  </div>
+                </div>
+            
+                <!-- Convolve -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow" data-motion>
+                  <h3 class="text-2xl font-semibold text-green-400 mb-2">Convolve! 🔁 <span class="italic text-sm text-yellow-300">Coming Soon</span></h3>
+                  <p class="text-sm">Combine any shape, PDF, or function empirically. Useful for joint distributions and intersections!</p>
+                </div>
+            
+                <!-- Cermin Mata Ho -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow" data-motion>
+                  <h3 class="text-2xl font-semibold text-purple-400 mb-2">Cermin Mata Ho 🕶️</h3>
+                  <p class="text-sm mb-4">Client-side business site editable via Excel! Great for small shops needing no-code updates.</p>
+                  <a href="https://geneboo.github.io/GBnfo/OptiStyle.html" class="text-blue-400 hover:underline" target="_blank">🔗 View Site</a>
+                </div>
+            
+                <!-- Fit it -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow" data-motion>
+                  <h3 class="text-2xl font-semibold text-orange-300 mb-2">Fit it! 📊 <span class="italic text-sm text-yellow-300">Coming Soon</span></h3>
+                  <p class="text-sm">Upload data, and this tool will rank best-fit continuous distributions. Stats nerds rejoice!</p>
+                </div>
+            
+                <!-- SVG Fourier -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow" data-motion>
+                  <h3 class="text-2xl font-semibold text-sky-400 mb-2">SVG Fourier Epicycle 🎵 <span class="italic text-sm text-yellow-300">Coming Soon</span></h3>
+                  <p class="text-sm">Upload SVGs and generate animated Fourier approximations of your drawings. Art meets math!</p>
+                </div>
+            
+              </div>
+            
+              <h2 class="text-4xl font-bold text-center mt-16 mb-6 animate-fade-in">📝 Written Works</h2>
+              <div class="max-w-3xl mx-auto p-6 bg-gray-800 rounded-2xl shadow-xl" data-motion>
+                <h3 class="text-2xl font-semibold text-indigo-300 mb-2">FFT Convolution + Option Pricing 📘</h3>
+                <p class="text-sm mb-4">An informative piece for math and finance enthusiasts on using FFT in Statistics and the Black-Scholes model.</p>
+                <a href="assets/FFT_Convolution_GB2020_Excerpt.pdf" download class="text-blue-400 hover:underline" target="_blank">📥 Download PDF</a>
+              </div>
             </section>
+
         </div>
 
         <script src="js/scripts.js"></script>
-        
+        <!-- Animation Script -->
+        <script>
+          document.querySelectorAll('[data-motion]').forEach((el, i) => {
+            motion.animate(el, { opacity: [0, 1], y: [30, 0] }, { delay: i * 0.15, duration: 0.6, easing: "ease-out" });
+          });
+        </script>        
     </body>
 </html>
