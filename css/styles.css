@@ -1,0 +1,476 @@
+/* CSS styles inserted from prior response (trimmed for space) */
+body { background-image: url('../assets/5109267.jpg'); }
+/* Add all necessary style rules here */
+:root {
+  --background-color: #1b1b1b;
+  --header-background-color: #2e2e2e;
+  --header-text-color: #ffffff;
+  --profile-border-color: #ffffff;
+  --nav-link-color: #cccccc;
+  --nav-link-hover-background-color: #444;
+  --nav-link-hover-color: #ffffff;
+  --container-background-color: rgba(30, 30, 30, 0.9);
+  --section-title-color: #ffffff;
+  --button-background-color: #555;
+  --button-text-color: #ffffff;
+  --dot-color: #cccccc; /* Default dot color */
+  
+  /* Tailwind utility replacements */
+  --border-radius-sm: 0.375rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1rem;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-image: url('../assets/5109267.jpg');
+  background-size: cover;
+  color: var(--section-title-color);
+  overflow-x: hidden;
+  position: relative;
+}
+
+.container {
+  max-width: 920px;
+  width: 90%;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: var(--container-background-color);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 2;
+}
+
+header {
+  background-color: var(--header-background-color);
+  color: var(--header-text-color);
+  text-align: center;
+  padding: 20px;
+  position: relative;
+  z-index: 3;
+}
+
+.profile-img {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid var(--profile-border-color);
+  object-fit: cover;
+}
+
+nav {
+  text-align: center;
+  padding: 15px 0;
+  position: relative;
+  z-index: 3;
+}
+
+nav button {
+  background: none;
+  border: none;
+  color: var(--nav-link-color);
+  padding: 10px 20px;
+  margin: 0 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+nav button:hover {
+  background-color: var(--nav-link-hover-background-color);
+  color: var(--nav-link-hover-color);
+  border-radius: 5px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  animation: pulse 4s ease-in-out infinite alternate; /* 'infinite alternate' for continuous pulsing */
+  background-color: var(--dot-color); /* Use the CSS variable */
+  /* position and z-index already there from your css */
+}
+
+.theme-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 4;
+}
+
+#theme-select {
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
+  border: none;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.layout-toggle {
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+section h2 {
+  font-size: 24px;
+  color: var(--section-title-color);
+  margin-bottom: 15px;
+}
+
+.pdf-container iframe {
+  width: 100%;
+  height: 600px;
+  border: none;
+}
+
+/* Background animation for stars and shapes */
+.dot, .shape {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  animation: pulse 4s ease-in-out infinite alternate;
+}
+
+.shape {
+  width: 30px;
+  height: 30px;
+  opacity: 0;
+  animation: fadeShape 6s ease-in-out infinite;
+}
+
+.cube {
+  background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+  transform: rotate(45deg);
+}
+
+.pyramid {
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 30px solid #c1c1c1;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes fadeShape {
+  0%, 100% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.8);
+  }
+  30% {
+    opacity: 0.6;
+	transform: rotate(90deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(180deg) scale(0.7);
+  }
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+  }
+  .profile-img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .theme-controls {
+    flex-direction: column;
+    top: auto;
+    right: 10px;
+    bottom: 10px;
+  }
+}
+
+nav button.active,
+.sub-nav button.active {
+  /* Using existing hover styles for active state, or define new ones */
+  background-color: var(--nav-link-hover-background-color);
+  color: var(--nav-link-hover-color);
+  font-weight: bold; /* Make active tab bold */
+  border-radius: 5px;
+}
+
+.tab-content {
+  display: none; /* Ensure only active tab content is shown */
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Resume Sub-tabs specific styles */
+.sub-nav {
+  text-align: left; /* Or center, as you prefer */
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--nav-link-color); /* Optional separator */
+}
+
+.sub-nav button {
+  background: none;
+  border: 1px solid var(--nav-link-color); /* Give sub-tab buttons a border */
+  color: var(--nav-link-color);
+  padding: 8px 15px;
+  margin-right: 10px; /* Space between sub-tab buttons */
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.sub-nav button:hover {
+  background-color: var(--nav-link-hover-background-color);
+  color: var(--nav-link-hover-color);
+}
+
+.resume-sub-content {
+  display: none; /* Hide sub-content by default */
+}
+
+.resume-sub-content.active-sub-content {
+  display: block; /* Show active sub-content */
+}
+
+.resume-sub-content h3 {
+    margin-top: 0;
+    color: var(--section-title-color);
+}
+
+/* Styles for the layout toggle (Example - customize as needed) */
+/*
+body.layout-alternative .container {
+  max-width: 1200px; // Example: Wider container
+  background-color: lightblue; // Example: Different background
+}
+
+body.layout-alternative header {
+  background-color: darkslateblue; // Example
+}
+*/
+
+/* More specific project card styling */
+section[id="projects"] .p-6 {
+  box-sizing: border-box;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+section[id="projects"] .bg-gray-800 {
+  background-color: #1f2937;
+}
+
+
+/* Ensure iframes in PDF containers behave well */
+.pdf-container iframe {
+  width: 100%;
+  height: 500px; /* Adjust as needed, was 600px */
+  border: 1px solid var(--nav-link-color); /* Optional border for iframe */
+  border-radius: 4px;
+}
+
+
+/* 1. LAYOUT: WIDE CONTENT */
+body.layout-wide-content .container {
+  max-width: 1100px; /* Wider than default (e.g., 920px) */
+}
+
+body.layout-wide-content header {
+  /* Optional: Subtle change, e.g., slightly less padding if desired */
+  padding-top: 25px;
+  padding-bottom: 25px;
+}
+
+body.layout-wide-content nav {
+  /* Optional: Could center nav buttons more explicitly if container is much wider */
+}
+
+/* 2. LAYOUT: CLASSIC TOP */
+body.layout-classic-top header,
+body.layout-classic-top nav {
+  position: sticky; /* Keep header and nav at the top on scroll */
+  top: 0;
+  z-index: 100; /* Ensure they are above other scrolled content */
+  background-color: var(--header-background-color); /* Match header or a distinct nav bg */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow for separation */
+}
+
+body.layout-classic-top nav {
+  top: auto; /* Reset top sticky position if header is also sticky */
+  /* Adjust top based on header height if header is fixed/sticky too */
+  /* If header is, e.g., 100px tall: top: 100px; */
+  /* For simplicity, let's assume header is part of the scroll or also sticky */
+  /* If you make header sticky: */
+  /* top: 0; (for header) */
+  /* top: [height of header]; (for nav) */
+  /* This example makes both sticky independently, which can work fine */
+}
+body.layout-classic-top header {
+    position: sticky;
+    top: 0;
+    z-index: 101; /* Header above nav if both sticky and overlapping in logic */
+}
+body.layout-classic-top nav {
+    position: sticky;
+    /* Dynamically calculate or set a fixed value based on header height */
+    /* For now, let's assume they stack correctly or you give nav a different bg */
+    top: 90px; /* ESTIMATE - Adjust based on your actual header height */
+    z-index: 100;
+    background-color: var(--nav-link-hover-background-color); /* Differentiate nav bg */
+}
+
+
+body.layout-classic-top .container {
+  margin-top: 150px; /* Your existing margin-top, adjust as needed */
+  /* max-width: 1100px; */ /* OPTION A: Make it wider like layout-wide-content */
+  /* OR */
+  max-width: none; /* OPTION B: Allow it to use more available width, constrained by body margins/paddings */
+  width: 90%;      /* (if using max-width: none) Still keep some side margins */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Ensure PDF container and iframe can use the width */
+body.layout-classic-top .pdf-container,
+body.layout-classic-top .pdf-container iframe {
+    width: 100%; /* Ensure they take full width of their parent */
+}
+
+body.layout-classic-top .profile-img {
+  /* Keep profile image within the sticky header */
+  position: absolute; /* Adjust if it breaks due to sticky parent */
+  top: 15px;
+  left: 15px;
+}
+
+/* Adjust theme controls if they clash with sticky header */
+body.layout-classic-top .theme-controls {
+    position: absolute; /* Relative to header */
+    top: 20px;
+    right: 20px;
+}
+
+.pdf-container {
+    max-height: 600px; /* or whatever fits your layout */
+	scroll-behavior: smooth;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Smaller max-height on small screen */
+@media (max-width: 768px) {
+  body {
+  overflow-x: hidden;
+  }
+  
+  
+  body.layout-sidebar-right {
+    padding-right: 0; /* Remove sidebar space */
+  }
+  body.layout-sidebar-right nav {
+    position: static; /* No longer fixed */
+    width: 100%;
+    height: auto;
+    flex-direction: row; /* Maybe buttons go horizontal */
+    flex-wrap: wrap;
+    justify-content: center;
+    box-shadow: none;
+    border-left: none;
+    border-bottom: 1px solid var(--profile-border-color);
+    padding:10px;
+  }
+  body.layout-sidebar-right nav button { width: auto; margin: 5px;}
+  body.layout-sidebar-right .profile-img { /* Re-center in header or hide */
+     position: absolute; top:15px; left:15px; transform:none;
+  }
+  body.layout-sidebar-right header > h1,
+  body.layout-sidebar-right header > p {
+      margin-right: 0;
+  }
+  body.layout-sidebar-right .theme-controls {
+      position: absolute; /* Back to header default */
+      top: 20px; right: 20px;
+      bottom: auto; left: auto;
+      flex-direction: row; /* Back to row */
+      gap: 10px;
+      align-items: center;
+	  width: auto; /* Reset width */
+      margin-top: 0; /* Reset margin-top */
+  }
+  body.layout-sidebar-right #theme-select,
+  body.layout-sidebar-right .layout-toggle {
+      width: auto;
+  }
+  .pdf-container {
+	max-height: 400px;
+	}
+  
+  nav button {
+  padding: 10px 16px;
+  font-size: 1rem;
+  }
+
+/* Button styles (more specific) */
+section[id="projects"] button {
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
+  border: none;
+  padding: 8px 12px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+}
+
+section[id="projects"] button:hover {
+  background-color: #666;
+}
+}
