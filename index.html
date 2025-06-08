@@ -19,6 +19,7 @@
                 /*background-color: rgba(46, 46, 46, 0.85);  Reduced opacity */
                 background-color: var(--header-background-color); /* Keep theme functionality */
                 background: rgba(var(--hex--header-background-color), 0.9); /* Reduced opacity */
+                color: var(--header-text-color);
                 position: sticky;
                 top: 0;
                 z-index: 1000;
@@ -37,12 +38,24 @@
             nav {
                 padding: 10px;
                 position: sticky;
-                top: 60px; /* Height of header + some margin */
+                top: 65px; /* Height of header + some margin */
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
                 border-bottom: 1px solid rgba(255, 255, 255, 0.05);
                 transition: all 0.3s ease;
                 z-index: 999;
             }            
+
+            .container {
+                max-width: 920px;
+                width: 90%;
+                margin: 40px auto;
+                padding: 25px;
+                background-color: var(--container-background-color);
+                border-radius: 12px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+                position: relative;
+                z-index: 2;
+            }
             
             /* Updated About section for modern look */
             #about.section-projects {
