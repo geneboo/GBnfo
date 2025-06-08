@@ -37,6 +37,15 @@ header::before {
     animation: gradientMove 3s linear infinite;
 }
 
+header {
+  background-color: var(--header-background-color);
+  color: var(--header-text-color);
+  text-align: center;
+  padding: 20px;
+  position: relative;
+  z-index: 3;
+}
+
 .profile-img {
     position: relative;
     width: 120px;
@@ -63,11 +72,31 @@ header h1 {
   letter-spacing: 2px;
   margin-bottom: 0.5rem; /* More space before subtitle */
   background: linear-gradient(90deg, var(--text-gradient-from), var(--text-gradient-to)); /* Gradient text effect */
+  color: white !important;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   animation: textPulse 3s ease-in-out infinite;	
 }
+
+        header h1:before,
+        header h1:after {
+            content: 'Gene Boo';
+            position: absolute;
+            top: 0;
+            width: 100%;
+            opacity: .3;
+        }
+
+        header h1:before {
+            left: -100px;
+            animation: slide 2s infinite;
+        }
+
+        header h1:after {
+            right: -100px;
+            animation: slide 2s infinite reverse;
+        }
 
 header p {
   font-size: 1.2rem; /* Increased from default */
@@ -76,6 +105,19 @@ header p {
   background: linear-gradient(to right, #2563eb, #1e40af);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Cool typewriter effect for subtitle */
+header .subtitle {
+    position: relative;
+    display: inline-block;
+    color: var(--header-text-color);
+    font-weight: 400;
+    margin-top: 0.5rem;
+    animation: typewriter 3s steps(20) infinite;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 body {
@@ -99,15 +141,6 @@ body {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   position: relative;
   z-index: 2;
-}
-
-header {
-  background-color: var(--header-background-color);
-  color: var(--header-text-color);
-  text-align: center;
-  padding: 20px;
-  position: relative;
-  z-index: 3;
 }
 
 .profile-img {
