@@ -24,13 +24,49 @@ body { background-image: url('../assets/5109267.jpg'); }
   --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4ade80, #f472b6, #3b82f6, #8b5cf6);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+    opacity: 0.7;
+    animation: gradientMove 3s linear infinite;
+}
+
+.profile-img {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--profile-border-color);
+    object-fit: cover;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    animation: float 3s ease-in-out infinite;
+    transition: all 0.3s ease;
+    filter: grayscale(100%) brightness(200%);
+}
+
+header:hover .profile-img {
+    filter: none;
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+}
+
+
 header h1 {
-  font-size: 2.5rem; /* Increased from default */
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem; /* Increased from default */
+  letter-spacing: 2px;
   margin-bottom: 0.5rem; /* More space before subtitle */
-  background: linear-gradient(to right, #f87171, #fb923c); /* Gradient text effect */
+  background: linear-gradient(90deg, var(--text-gradient-from), var(--text-gradient-to)); /* Gradient text effect */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  animation: textPulse 3s ease-in-out infinite;	
 }
 
 header p {
@@ -127,6 +163,16 @@ nav button:hover {
   z-index: 4;
 }
 
+/* Opacity handling via JS */
+.theme-controls select {
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--header-text-color);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 #theme-select {
   background-color: var(--button-background-color);
   color: var(--button-text-color);
@@ -197,6 +243,34 @@ section h2 {
   border-left: 15px solid transparent;
   border-right: 15px solid transparent;
   border-bottom: 30px solid #c1c1c1;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes textPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+/* Effects for hover and animations */
+.glow {
+    animation: glowEffect 2s ease-in-out infinite alternate;
+}
+
+@keyframes glowEffect {
+    from { box-shadow: 0 0 5px rgba(255,255,255,0.5); }
+    to { box-shadow: 0 0 20px rgba(66, 153, 225, 0.8); }
 }
 
 @keyframes pulse {
