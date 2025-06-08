@@ -18,7 +18,11 @@
             header {
                 /*background-color: rgba(46, 46, 46, 0.85);  Reduced opacity */
                 background-color: var(--header-background-color); /* Keep theme functionality */
-                background: rgba(var(--hex--header-background-color), 0.9); /* Reduced opacity */                
+                background: rgba(var(--hex--header-background-color), 0.9); /* Reduced opacity */
+                color: var(--header-text-color);
+                position: sticky;
+                top: 0;
+                z-index: 1000;
                 backdrop-filter: blur(10px); /* Subtle blur effect */
                 -webkit-backdrop-filter: blur(10px); /* For Safari */
                 transition: background-color 0.3s ease;
@@ -30,6 +34,16 @@
                 /*background-color: rgba(46, 46, 46, 0.95);  Slightly more opaque on hover */
                 background: rgba(var(--hex--header-background-color), 0.95); /* Slightly more opaque
             }
+
+            nav {
+                padding: 10px;
+                position: sticky;
+                top: 60px; /* Height of header + some margin */
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                transition: all 0.3s ease;
+                z-index: 999;
+            }            
             
             /* Updated About section for modern look */
             #about.section-projects {
