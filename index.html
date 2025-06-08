@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Gene Boo - Portfolio</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        />
+        <link rel="stylesheet" href="css/styles.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+        <script src="https://unpkg.com/@motionone/dom/dist/motion.global.min.js"></script>
+    </head>
+    <body>
+        <header>
+            <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank">
+                <img
+                    class="profile-img"
+                    src="assets/Gene-removebg-preview.png"
+                    alt="Gene Boo"
+                    title="Visit my LinkedIn profile"
+                />
+            </a>
+            <h1>Gene Boo</h1>
+            <p>Curriculum Vitae</p>
+            <div class="theme-controls">
+                <label
+                    for="theme-select"
+                    title="Change the website's color scheme"
+                    >Theme:</label
+                >
+                <select
+                    id="theme-select"
+                    onchange="selectTheme(this.value)"
+                ></select>
+                <button
+                    class="layout-toggle"
+                    onclick="toggleLayout()"
+                    title="Toggle site layout (custom CSS needed)"
+                >
+                    Layout
+                </button>
+            </div>
+        </header>
+
+        <nav id="main-nav">
+            <button
+                onclick="switchTab('about', this)"
+                data-tab-id="about"
+                title="Learn more about me"
+            >
+                About Me
+            </button>
+            <button
+                onclick="switchTab('resume', this)"
+                data-tab-id="resume"
+                title="View my resume and cover letter"
+            >
+                Resume
+            </button>
+            <button
+                onclick="switchTab('contact', this)"
+                data-tab-id="contact"
+                title="How to get in touch"
+            >
+                Contact
+            </button>
+            <button
+                onclick="switchTab('projects', this)"
+                data-tab-id="projects"
+                title="Check out my work"
+            >
+                Projects
+            </button>
+        </nav>
+
+        <div class="container">
+            <section id="about" class="tab-content active">
+                <h2>About Me</h2>
+                <p class="MsoNormal">
+                    <span lang="EN-MY"
+                        >Thank you for having an interest in my profile. I am a
+                        candidate with a background in mathematical model
+                        development and risk management, as well as some
+                        experience in pre- and post-sales of vendor systems. I
+                        am an avid fan of coding and use a lot of programming at
+                        my various jobs, regardless of whatever its nature may
+                        be - I tend to find some way to integrate small coding
+                        projects into my day-to-day.</span
+                    >
+                </p>
+
+                <p class="MsoNormal">
+                    <span lang="EN-MY"
+                        >In my vendor experience, I have supported sales and dev
+                        teams providing insightful product knowledge and helping
+                        buy-side clients to streamline their processes and
+                        workflows, as well as understand the risk metrics
+                        produced by the system and computation processes. This
+                        role allowed me some exposure in communicating with
+                        C-level executives and risk practitioners.
+                    </span>
+                </p>
+
+                <p class="MsoNormal">
+                    <span lang="EN-MY"
+                        >In my middle office and model validation / development
+                        roles within banks and the energy company, I accumulated
+                        experience in quantitative model development in Python,
+                        VBA and C pertaining to financial derivatives, option
+                        pricing, risk metrics, optimization routines in the
+                        scopes of market risk, and operational (non-financial)
+                        risk. I was also exposed to some leadership experience,
+                        having assumed the team head role in one of the bank
+                        positions. During this time, I have had dealings with
+                        banking supervisory, external consultants and vendors.
+                        Working with financial institutions also granted me some
+                        familiarity with concepts behind risk and capital
+                        adequacy as well as Basel compliance.
+                    </span>
+                </p>
+
+                <p class="MsoNormal">
+                    <span lang="EN-MY"
+                        >I see myself as an efficient professional who takes
+                        pride in technical quality and details. For 2 of the
+                        banks I worked for, I created benchmark
+                        <span class="SpellE">VaR</span> models across
+                        multi-asset classes and their derivatives, that helped
+                        prove and locate errors found within the vendor-procured
+                        risk engines.
+                    </span>
+                </p>
+
+                <p class="MsoNormal">
+                    <span lang="EN-MY"
+                        >My hobbies span across developing personal quantitative
+                        tools, electronic music development, computer art and
+                        mathematical write-ups for the benefit of young people,
+                        as well as a bit of cooking. I am actively developing
+                        coding projects in hopes of sharing my love of coding,
+                        math and music with the youth.</span
+                    >
+                </p>
+            </section>
+
+            <section id="resume" class="tab-content">
+                <h2>Resume</h2>
+                <nav class="sub-nav" id="resume-sub-nav">
+                    <button
+                        onclick="switchResumeSubTab('cover-letter', this)"
+                        data-subtab-id="cover-letter"
+                        title="View Cover Letter"
+                    >
+                        Cover Letter
+                    </button>
+                    <button
+                        onclick="switchResumeSubTab('cv-2024', this)"
+                        data-subtab-id="cv-2024"
+                        title="View CV 2024"
+                    >
+                        CV 2024 
+                    </button>
+                    <button
+                        onclick="switchResumeSubTab('cv-2025', this)"
+                        data-subtab-id="cv-2025"
+                        title="View CV 2025"
+                    >
+                        CV 2025 
+                    </button>
+                </nav>
+                <div id="cover-letter-content" class="resume-sub-content">
+                    <h3>Cover Letter</h3>
+                    <p>
+                        View or download my Cover Letter:
+                        <a
+                            href="assets/Cover Letter - Gene Boo.pdf"
+                            target="_blank"
+                            download="Cover Letter - Gene Boo.pdf"
+                            >Download PDF</a
+                        >
+                    </p>
+                    <div class="pdf-container cover-letter-container">
+
+                        <!--<iframe src="assets/Cover Letter - Gene Boo.pdf" title="Cover Letter PDF"></iframe>-->
+                    </div>
+                </div>
+                <div id="cv-2024-content" class="resume-sub-content">
+                    <h3>CV 2024</h3>
+                    <p>
+                        View or download my CV:
+                        <a
+                            href="assets/CV of Gene Boo (2024 v3-s).pdf"
+                            target="_blank"
+                            download="CV of Gene Boo (2024 v3-s).pdf"
+                            >Download PDF</a
+                        >
+                    </p>
+                    <div class="pdf-container cv-2024-container">
+                        <!--<iframe src="assets/CV of Gene Boo (2024 v3-s).pdf" title="CV PDF"></iframe>-->
+                    </div>
+                </div>
+                <div id="cv-2025-content" class="resume-sub-content">
+                    <h3>CV 2025</h3>
+                        <p>
+                            View my CV:
+                            <a 
+                                href="CV_GB_2025_v1-s.html" 
+                                target="_blank"
+                                title="HTML version"
+                            >HTML Version</a>,
+                            <a 
+                                href="assets/CV of Gene Boo (2025 v1-s).pdf" 
+                                target="_blank"
+                                download="CV of Gene Boo (2025 v1-s).pdf"
+                                title="Download PDF"
+                            >Download PDF</a>
+                            or view below
+                        </p>
+                    <div class="pdf-container cv-2025-container">
+                        <!--<iframe src="assets/CV of Gene Boo (2024 v3-s).pdf" title="CV PDF"></iframe>-->
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="tab-content">
+                <h2>Contact</h2>
+                <p>Email: gene.boo@aol.com / gene.boo@gmail.com</p>
+                <p>Phone: Please contact via email</p>
+                <p>
+                    <a
+                        href="https://www.linkedin.com/in/gene-boo-007/"
+                        target="_blank"
+                        ><i class="fab fa-linkedin"></i> LinkedIn</a
+                    >
+                </p>
+            </section>
+
+            <section id="projects" class="tab-content px-6 py-10 bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white">
+              <h2 class="text-4xl font-bold text-center mb-10 animate-fade-in">My Hobby Projects</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Funkygraffy -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow motion-safe:hover:scale-[1.03]" data-motion>
+                  <h3 class="text-2xl font-semibold text-pink-400 mb-2">Funkygraffy! 🎨</h3>
+                  <p class="text-sm mb-4">An educational toy for visualizing math functions with color, interactivity, and easter eggs.</p>
+                  <div class="flex flex-col space-y-2">
+                    <a href="https://funkygraffy.onrender.com/" class="text-blue-400 hover:underline" target="_blank">🌐 Render Cloud</a>
+                    <a href="https://my-cloud-run-service-324349391188.asia-southeast1.run.app/" class="text-blue-400 hover:underline" target="_blank">☁️ Google Cloud</a>
+                  </div>
+                </div>
+            
+                <!-- Convolve -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow" data-motion>
+                  <h3 class="text-2xl font-semibold text-green-400 mb-2">Convolve! 🔁 <span class="italic text-sm text-yellow-300">Coming Soon</span></h3>
+                  <p class="text-sm">Combine any shape, PDF, or function empirically. Useful for joint distributions and intersections!</p>
+                </div>
+            
+                <!-- Cermin Mata Ho -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow" data-motion>
+                  <h3 class="text-2xl font-semibold text-purple-400 mb-2">Cermin Mata Ho 🕶️</h3>
+                  <p class="text-sm mb-4">Client-side business site editable via Excel! Great for small shops needing no-code updates.</p>
+                  <a href="https://geneboo.github.io/GBnfo/OptiStyle.html" class="text-blue-400 hover:underline" target="_blank">🔗 View Site</a>
+                </div>
+            
+                <!-- Fit it -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow" data-motion>
+                  <h3 class="text-2xl font-semibold text-orange-300 mb-2">Fit it! 📊 <span class="italic text-sm text-yellow-300">Coming Soon</span></h3>
+                  <p class="text-sm">Upload data, and this tool will rank best-fit continuous distributions. Stats nerds rejoice!</p>
+                </div>
+            
+                <!-- SVG Fourier -->
+                <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow" data-motion>
+                  <h3 class="text-2xl font-semibold text-sky-400 mb-2">SVG Fourier Epicycle 🎵 <span class="italic text-sm text-yellow-300">Coming Soon</span></h3>
+                  <p class="text-sm">Upload SVGs and generate animated Fourier approximations of your drawings. Art meets math!</p>
+                </div>
+            
+              </div>
+            
+              <h2 class="text-4xl font-bold text-center mt-16 mb-6 animate-fade-in">📝 Written Works</h2>
+              <div class="max-w-3xl mx-auto p-6 bg-gray-800 rounded-2xl shadow-xl" data-motion>
+                <h3 class="text-2xl font-semibold text-indigo-300 mb-2">FFT Convolution + Option Pricing 📘</h3>
+                <p class="text-sm mb-4">An informative piece for math and finance enthusiasts on using FFT in Statistics and the Black-Scholes model.</p>
+                <a href="assets/FFT_Convolution_GB2020_Excerpt.pdf" download class="text-blue-400 hover:underline" target="_blank">📥 Download PDF</a>
+              </div>
+            </section>
+
+        </div>
+
+        <script src="js/scripts.js"></script>
+        <!-- Animation Script -->
+        <script>
+          document.querySelectorAll('[data-motion]').forEach((el, i) => {
+            motion.animate(el, { opacity: [0, 1], y: [30, 0] }, { delay: i * 0.15, duration: 0.6, easing: "ease-out" });
+          });
+        </script>        
+    </body>
+</html>
