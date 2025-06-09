@@ -12,20 +12,28 @@ const themes = {
     "container-background-color": "rgba(255, 255, 255, 0.8)",
     "section-title-color": "#333333",
     "button-background-color": "#521851",
-    "button-text-color": "#ffffff"
+    "button-text-color": "#ffffff",
+    "name-overlay-color": "#000033",
+    "header-subtitle-gradient": "linear-gradient(to right, #ffffff, #e040fb)",
+    "text-gradient-from": "#ffffff",
+    "text-gradient-to": "#e040fb"
   },
   midnightBlue: {
     "background-color": "#1a1a2e",
     "header-background-color": "#16213e",
-    "header-text-color": "#e94560",
+    "header-text-color": "#ffafff",
     "profile-border-color": "#ffffff",
     "nav-link-color": "#e94560",
     "nav-link-hover-background-color": "#0f3460",
     "nav-link-hover-color": "#ffffff",
-    "container-background-color": "rgba(25, 25, 50, 0.9)",
+    "container-background-color": "rgba(25, 25, 50, 0.7)",
     "section-title-color": "#ffffff",
     "button-background-color": "#e94560",
-    "button-text-color": "#ffffff"
+    "button-text-color": "#ffffff",
+    "name-overlay-color": "#ffafff",
+    "header-subtitle-gradient": "linear-gradient(to right,  #ffffff, #0f3460)",
+    "text-gradient-from": "#ffffff",
+    "text-gradient-to": "#0f3460"
   },
   sunsetGlow: {
     "background-color": "#fff4e6",
@@ -35,10 +43,14 @@ const themes = {
     "nav-link-color": "#ff7e5f",
     "nav-link-hover-background-color": "#feb47b",
     "nav-link-hover-color": "#ffffff",
-    "container-background-color": "rgba(255, 255, 255, 0.9)",
+    "container-background-color": "rgba(255, 255, 255, 0.8)",
     "section-title-color": "#333333",
     "button-background-color": "#ff7e5f",
-    "button-text-color": "#ffffff"
+    "button-text-color": "#ffffff",
+    "name-overlay-color": "#7f3f2f",
+    "header-subtitle-gradient": "linear-gradient(to right, #000000, #ffd54f)",
+    "text-gradient-from": "#000000",
+    "text-gradient-to": "#ffd54f"
   },
   forestGreen: {
     "background-color": "#e0f2f1",
@@ -48,10 +60,14 @@ const themes = {
     "nav-link-color": "#00796b",
     "nav-link-hover-background-color": "#004d40",
     "nav-link-hover-color": "#ffffff",
-    "container-background-color": "rgba(255, 255, 255, 0.9)",
+    "container-background-color": "rgba(255, 255, 255, 0.6)",
     "section-title-color": "#004d40",
     "button-background-color": "#00796b",
-    "button-text-color": "#ffffff"
+    "button-text-color": "#ffffff",
+    "name-overlay-color": "#002d2d",
+    "header-subtitle-gradient": "linear-gradient(to right, #26a69a, #00c853)",
+    "text-gradient-from": "#26a69a",
+    "text-gradient-to": "#00c853"
   },
   cyberNight: {
     "background-color": "#0d0d0d",
@@ -61,10 +77,14 @@ const themes = {
     "nav-link-color": "#00ffff",
     "nav-link-hover-background-color": "#111111",
     "nav-link-hover-color": "#00ffff",
-    "container-background-color": "rgba(10, 10, 10, 0.9)",
+    "container-background-color": "rgba(10, 10, 10, 0.3)",
     "section-title-color": "#ffffff",
     "button-background-color": "#00ffff",
-    "button-text-color": "#0d0d0d"
+    "button-text-color": "#0d0d0d",
+    "name-overlay-color": "#00cccc",
+    "header-subtitle-gradient": "linear-gradient(to right, #00ffff, #FDD017)",
+    "text-gradient-from": "#FDD017",
+    "text-gradient-to": "#111111"
   },
   paperWhite: {
     "background-color": "#ffffff",
@@ -74,10 +94,14 @@ const themes = {
     "nav-link-color": "#333333",
     "nav-link-hover-background-color": "#eeeeee",
     "nav-link-hover-color": "#000000",
-    "container-background-color": "rgba(255, 255, 255, 0.95)",
+    "container-background-color": "rgba(255, 255, 255, 0.75)",
     "section-title-color": "#000000",
     "button-background-color": "#333333",
-    "button-text-color": "#ffffff"
+    "button-text-color": "#ffffff",
+    "name-overlay-color": "#111111",
+    "header-subtitle-gradient": "linear-gradient(to right, #333333, #999999)",
+    "text-gradient-from": "#333333",
+    "text-gradient-to": "#999999"
   },
   glacier: {
     "background-color": "#e0f7fa",
@@ -87,12 +111,18 @@ const themes = {
     "nav-link-color": "#004d40",
     "nav-link-hover-background-color": "#00796b",
     "nav-link-hover-color": "#ffffff",
-    "container-background-color": "rgba(224, 247, 250, 0.85)",
+    "container-background-color": "rgba(224, 247, 250, 0.65)",
     "section-title-color": "#004d40",
     "button-background-color": "#006064",
-    "button-text-color": "#ffffff"
+    "button-text-color": "#ffffff",
+    "name-overlay-color": "#003f4f",
+    "header-subtitle-gradient": "linear-gradient(to right, #006064, #00bcd4)",
+    "text-gradient-from": "#000000",
+    "text-gradient-to": "#000000"
   }
 };
+
+
 
 const themeKeys = Object.keys(themes);
 
