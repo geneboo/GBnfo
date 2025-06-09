@@ -56,13 +56,13 @@ header {
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
     animation: float 3s ease-in-out infinite;
     transition: all 0.3s ease;
-    filter: grayscale(45%) brightness(200%);
 }
 
 header:hover .profile-img {
     filter: none;
     transform: scale(1.05);
     box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+    filter: brightness(400%);
 }
 
 
@@ -72,7 +72,7 @@ header h1 {
   letter-spacing: 2px;
   margin-bottom: 0.5rem; /* More space before subtitle */
   background: linear-gradient(90deg, var(--text-gradient-from), var(--text-gradient-to)); /* Gradient text effect */
-  color: white !important;
+  color: var(--header-text-color) !important;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -85,7 +85,7 @@ header h1 {
             position: absolute;
             top: 0;
             width: 100%;
-            opacity: .3;
+            opacity: 0.5;
         }
 
         header h1:before {
@@ -100,9 +100,9 @@ header h1 {
 
 header p {
   font-size: 1.2rem; /* Increased from default */
-  opacity: 0.9; /* More visibility */
+  opacity: 1.0; /* More visibility */
   margin-top: 0;
-  background: linear-gradient(to right, #2563eb, #1e40af);
+  background: var(--header-subtitle-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -143,16 +143,6 @@ body {
   z-index: 2;
 }
 
-.profile-img {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  border: 3px solid var(--profile-border-color);
-  object-fit: cover;
-}
 
 nav {
   text-align: center;
