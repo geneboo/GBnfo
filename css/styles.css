@@ -1,5 +1,5 @@
 /* CSS styles inserted from prior response (trimmed for space) */
-body { background-image: url('../assets/5109267.jpg'); }
+body { background-image: url('../assets/00016.jpg'); } /*fallback*/
 /* Add all necessary style rules here */
 :root {
   --background-color: #1b1b1b;
@@ -176,14 +176,20 @@ nav button:hover {
   /* position and z-index already there from your css */
 }
 
+.full-container {
+	width: 100%;
+	border-radius: 12px;
+	box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+	overflow: hidden;
+}
+
 .theme-controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 10px;
   z-index: 4;
+  border: 0px solid #eee;
 }
 
 /* Opacity handling via JS */
@@ -327,21 +333,157 @@ section h2 {
 }
 
 /* Responsive layout */
-@media (max-width: 768px) {
-  .container {
-    width: 95%;
+/* Default stacked layout for mobile (already handled elsewhere) */
+
+/* Desktop layout */
+@media (min-width: 769px) {
+  .header-flex-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
   }
+
+  .profile-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+  }
+
   .profile-img {
-    width: 70px;
-    height: 70px;
+    width: 100px;
+    height: 100px;
+    margin: 0;
+  }
+
+  .profile-details {
+    text-align: left;
   }
 
   .theme-controls {
-    flex-direction: column;
-    top: auto;
-    right: 10px;
-    bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
   }
+
+  .theme-controls label {
+    font-size: 0.9rem;
+    margin-right: 0.3rem;
+  }
+
+  #theme-select,
+  .layout-toggle {
+    max-width: 120px;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  header {
+    text-align: left;
+    padding: 1rem 0.5rem;
+  }
+
+  header h1 {
+    font-size: 2.8rem;
+    margin-bottom: 0.2rem;
+  }
+
+  header .tagline {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+}
+
+
+@media (max-width: 768px) {
+    /* Header becomes full-width with profile image stacked */
+    header {
+        order: 3;
+        padding: 1rem;
+        justify-content: flex-start;
+        flex-direction: column;
+    }
+
+    .profile-section, .profile-details {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .profile-img {
+        width: 80px;
+        height: 80px;
+        margin: 1rem auto; /* auto left/right centers it */
+        display: block;     /* required for margin:auto centering */
+    }
+
+    header h1, .tagline {
+        margin: 0.5rem 0;
+        text-align: center;
+    }
+
+    .theme-controls {
+        position: relative;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .theme-controls label {
+        margin-bottom: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    #theme-select,
+    .layout-toggle {
+        width: 100%;
+        max-width: 160px;    /* slightly narrower */
+        font-size: 0.7rem;   /* smaller text */
+        padding: 0.2rem 0.4rem; /* tighter padding */
+        margin: 0.2rem auto; /* center them with auto margin */
+        display: block;
+		flex-direction: col;
+    }
+    #about .project-card {
+        padding: 1rem;
+        min-height: auto;
+    }
+    
+    .card-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .card-icon {
+        margin-bottom: 1rem;
+    }
+    
+    .card-title {
+        font-size: 1.2rem;
+    }
+    
+    .card-text {
+        text-align: center;
+        margin: 0.5rem 0;
+        text-size adjust
+    }
+    .tab-button {
+        font-size: 0.85rem;
+        padding: 0.7rem 0.8rem;
+        flex-basis: 100%;
+        margin: 0.3rem 0;
+        justify-content: center;
+        box-sizing: border-box;
+    }	
+	
 }
 
 nav button.active,
