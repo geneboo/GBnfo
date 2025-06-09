@@ -50,7 +50,7 @@ const themes = {
     "name-overlay-color": "#7f3f2f",
     "header-subtitle-gradient": "linear-gradient(to right, #000000, #ffd54f)",
     "text-gradient-from": "#000000",
-    "text-gradient-to": "#ffd54f"
+    "text-gradient-to": "#062E03"
   },
   forestGreen: {
     "background-color": "#e0f2f1",
@@ -84,7 +84,7 @@ const themes = {
     "name-overlay-color": "#00cccc",
     "header-subtitle-gradient": "linear-gradient(to right, #00ffff, #FDD017)",
     "text-gradient-from": "#FDD017",
-    "text-gradient-to": "#111111"
+    "text-gradient-to": "#FFD580"
   },
   paperWhite: {
     "background-color": "#ffffff",
@@ -101,7 +101,7 @@ const themes = {
     "name-overlay-color": "#111111",
     "header-subtitle-gradient": "linear-gradient(to right, #333333, #999999)",
     "text-gradient-from": "#333333",
-    "text-gradient-to": "#999999"
+    "text-gradient-to": "#8B0000"
   },
   glacier: {
     "background-color": "#e0f7fa",
@@ -116,9 +116,9 @@ const themes = {
     "button-background-color": "#006064",
     "button-text-color": "#ffffff",
     "name-overlay-color": "#003f4f",
-    "header-subtitle-gradient": "linear-gradient(to right, #006064, #00bcd4)",
-    "text-gradient-from": "#000000",
-    "text-gradient-to": "#000000"
+    "header-subtitle-gradient": "linear-gradient(to right, #ffff64, #00bcd4)",
+    "text-gradient-from": "#0fff00",
+    "text-gradient-to": "#FDD017"
   }
 };
 
@@ -179,48 +179,95 @@ function toggleLayout() {
           themeControlsOriginalParent = themeControlsElement.parentElement;
       }
   }
+	// --- 1. Handle outgoing layout ---
+	const outgoingLayoutClass = layoutClasses[currentLayoutIndex];
+	if (outgoingLayoutClass !== '') {
+	  // Remove the outgoing layout class from the body
+	  document.body.classList.remove(outgoingLayoutClass);
+	  
+	  // Handle theme controls movement when leaving layout-modern-split
+	  if (outgoingLayoutClass === 'layout-modern-split' && themeControlsElement && themeControlsOriginalParent) {
+		// Move controls back to their original header position
+		if (themeControlsElement.parentElement !== themeControlsOriginalParent) {
+		  themeControlsOriginalParent.appendChild(themeControlsElement);
+		  themeControlsElement.classList.remove('in-aside'); // Reset classes
+		}
+		console.log("Theme controls moved back to header position.");
+	  }
+	}
 
-  // --- 1. Handle outgoing layout ---
-  const outgoingLayoutClass = layoutClasses[currentLayoutIndex];
-  if (outgoingLayoutClass !== '') {
-    body.classList.remove(outgoingLayoutClass);
-  }
+	// --- 2. Determine new layout ---
+	currentLayoutIndex = (currentLayoutIndex + 1) % layoutClasses.length;
+	const newLayoutClass = layoutClasses[currentLayoutIndex];
 
-  // If moving AWAY from layout-modern-split, move controls back to header
-  if (outgoingLayoutClass === 'layout-modern-split' && themeControlsElement && themeControlsOriginalParent) {
-    if (themeControlsElement.parentElement !== themeControlsOriginalParent) { // Check if it was moved
-        themeControlsOriginalParent.appendChild(themeControlsElement);
-    }
-    themeControlsElement.classList.remove('in-aside'); // Remove any specific styling class
-    console.log("Theme controls moved back to header.");
-  }
+	// --- 3. Apply new layout class ---
+	if (newLayoutClass !== '') {
+	  // Add the new layout class to the body
+	  document.body.classList.add(newLayoutClass);
+	  
+	  // Note: Our HTML should not have predefined layout classes - they should be added at runtime
+	}
 
-  // --- 2. Determine new layout ---
-  currentLayoutIndex = (currentLayoutIndex + 1) % layoutClasses.length;
-  const newLayoutClass = layoutClasses[currentLayoutIndex];
+	// --- 4. Handle theme controls placement for the new layout ---
+	if (newLayoutClass === 'layout-modern-split' && themeControlsElement) {
+	  // Find the content aside panel (assumes structure of the page)
+	  const asidePanel = document.querySelector('.container .content-aside');
+	  
+	  if (asidePanel) {
+		// Move controls to sidebar
+		asidePanel.appendChild(themeControlsElement);
+		themeControlsElement.classList.add('in-aside');
+		console.log("Theme controls moved to content aside.");
+	  } else {
+		console.warn('.content-aside not found! Controls cannot be moved.');
+	  }
+	} else {
+	  // In all other layouts, theme controls should be in the header
+	  if (themeControlsElement.parentElement !== themeControlsOriginalParent) {
+		// Create a copy to avoid DOM conflicts
+		console.log("Moving theme controls to header position.");
+		
+		// Create a temporary clone and then move it
+		const tempClone = themeControlsElement.cloneNode(true);
+		const header = document.querySelector('header');
+		
+		if (header && !header.contains(themeControlsElement)) {
+		  // Clear any existing theme controls in the header
+		  const existing = header.querySelector('.theme-controls');
+		  if (existing) {
+			existing.parentNode.removeChild(existing);
+		  }
+		  
+		  // Add the controls to the header
+		  header.appendChild(tempClone);
+		}
+	  }
+	}
 
-  // --- 3. Apply new layout class ---
-  if (newLayoutClass !== '') {
-    body.classList.add(newLayoutClass);
-  }
+	// --- 5. Update the active layout indicator ---
+	const layoutButtons = document.querySelectorAll('.layout-button');
+	if (layoutButtons.length > 0) {
+	  layoutButtons.forEach(button => button.classList.remove('active'));
+	  
+	  const classToMatch = (newLayoutClass === '') ? 'default' : newLayoutClass;
+	  const selectedButton = Array.from(layoutButtons).find(button => {
+		return button.getAttribute('data-layout') === classToMatch;
+	  });
+	  
+	  if (selectedButton) {
+		selectedButton.classList.add('active');
+	  }
+	}
 
-  // --- 4. Handle incoming layout-modern-split ---
-  if (newLayoutClass === 'layout-modern-split' && themeControlsElement) {
-    // Attempt to find the .content-aside panel
-    // This assumes your HTML for .container is structured with .content-aside
-    // when layout-modern-split is active.
-    const asidePanel = mainContainer ? mainContainer.querySelector('.content-aside') : null;
-
-    if (asidePanel) {
-      asidePanel.appendChild(themeControlsElement);
-      themeControlsElement.classList.add('in-aside'); // Optional class for specific styling
-      console.log("Theme controls moved to .content-aside.");
-    } else {
-      console.warn('.content-aside panel not found for layout-modern-split. Theme controls not moved.');
-      // If the asidePanel isn't found, the controls will remain in the header,
-      // which might look odd for this layout if the header isn't visible or styled appropriately.
-    }
-  }
+	// --- 6. Add a slight delay for transitions ---
+	// Add a debounce to prevent controls from moving too rapidly
+	if (currentLayoutIndex === 1 || currentLayoutIndex === 2) {
+	  setTimeout(() => {
+		// Finalize any layout changes
+		document.querySelector('main').style.opacity = '1';
+	  }, 300);
+	}
+  
   console.log("Switched to layout:", newLayoutClass || "default");
 }
 
@@ -330,6 +377,33 @@ async function renderPDFtoContainer(url, containerSelector) {
         console.error(`Failed to render PDF at ${url}:`, err);
     }
 }
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const totalImages = 16;
+    const randomIndex = Math.floor(Math.random() * totalImages) + 1;
+    const paddedIndex = String(randomIndex).padStart(5, '0'); // ensures 00001 format
+    const fallbackUrl = `assets/${paddedIndex}.jpg`;
+    const remoteUrl = "https://source.unsplash.com/1600x900/?dark,abstract,night";
+
+    // Set initial fallback background
+    document.body.style.backgroundImage = `url('${fallbackUrl}')`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundRepeat = 'no-repeat';
+
+    // Try to load remote image
+    const testImg = new Image();
+    testImg.onload = function () {
+      document.body.style.backgroundImage = `url('${remoteUrl}')`;
+    };
+    testImg.onerror = function () {
+      console.warn("Remote background failed to load. Using fallback.");
+    };
+    testImg.src = remoteUrl;
+  });
+
 
 // Automatically render both PDFs when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
