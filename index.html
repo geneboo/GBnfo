@@ -48,7 +48,7 @@
             }            
 
             .container {
-                max-width: 920px;
+
                 width: 90%;
                 margin: 40px auto;
                 padding: 25px;
@@ -117,358 +117,413 @@
         
     </head>
     <body>
-        <header>
-            <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank">
-                <img
-                    class="profile-img"
-                    src="assets/Gene-removebg-preview.png"
-                    alt="Gene Boo"
-                    title="Visit my LinkedIn profile"
-                />
-            </a>
-            <h1>Gene Boo</h1>
-            <p>Curriculum Vitae</p>
-            <div class="theme-controls">
-                <label
-                    for="theme-select"
-                    title="Change the website's color scheme"
-                    >Theme:</label
-                >
-                <select
-                    id="theme-select"
-                    onchange="selectTheme(this.value)"
-                ></select>
-                <button
-                    class="layout-toggle"
-                    onclick="toggleLayout()"
-                    title="Toggle site layout (custom CSS needed)"
-                >
-                    Layout
-                </button>
-            </div>
-        </header>
+		<div class="full-container">
+			<header>
+				<div class="header-flex-row">
+					<div class="profile-section">
+						<a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank">
+							<img
+								class="profile-img"
+								src="assets/Gene-removebg-preview.png"
+								alt="Gene Boo"
+								title="Visit my LinkedIn profile"
+							/>
+						</a>
+						<div class="profile-details">
+							<h1>Gene Boo</h1>
+							<p class="tagline">Curriculum Vitae</p>
+						</div>
+					</div>
+					<div class="theme-controls" flex flex-wrap items-center justify-center gap-2 mt-2">
+						<label
+							for="theme-select"
+							title="Change the website's color scheme"
+							>Theme:</label
+						>
+						<select
+							id="theme-select"
+							onchange="selectTheme(this.value)"
+							class="text-sm px-2 py-1 max-w-[140px]"
+						></select>
+						<button
+							class="layout-toggle text-sm px-2 py-1 max-w-[140px]"
+							onclick="toggleLayout()"
+							title="Toggle site layout (custom CSS needed)"
+						>
+							Layout: 
+						</button>
+					</div>
+				</div>
+			</header>
 
-        <nav id="main-nav">
-            <button
-                onclick="switchTab('about', this)"
-                data-tab-id="about"
-                title="Learn more about me"
-            >
-                About Me
-            </button>
-            <button
-                onclick="switchTab('resume', this)"
-                data-tab-id="resume"
-                title="View my resume and cover letter"
-            >
-                Resume
-            </button>
-            <button
-                onclick="switchTab('contact', this)"
-                data-tab-id="contact"
-                title="How to get in touch"
-            >
-                Contact
-            </button>
-            <button
-                onclick="switchTab('projects', this)"
-                data-tab-id="projects"
-                title="Check out my work"
-            >
-                Projects
-            </button>
-        </nav>
+			<nav id="main-nav">
+				<button
+					onclick="switchTab('about', this)"
+					data-tab-id="about"
+					title="Learn more about me"
+				>
+					About Me
+				</button>
+				<button
+					onclick="switchTab('resume', this)"
+					data-tab-id="resume"
+					title="View my résumé and cover letter"
+				>
+					Résumé
+				</button>
+				<button
+					onclick="switchTab('contact', this)"
+					data-tab-id="contact"
+					title="How to get in touch"
+				>
+					Contact
+				</button>
+				<button
+					onclick="switchTab('projects', this)"
+					data-tab-id="projects"
+					title="Check out my work"
+				>
+					Projects
+				</button>
+				
+					
+			</nav>
 
-        <div class="container">
-            <section id="about" class="tab-content active px-4 py-6 md:px-8 bg-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-800 shadow-2xl transform transition-all duration-300 hover:shadow-xl animation-fadeIn">
-              <div class="max-w-4xl mx-auto animation-delay-100">
-                <!-- Header -->
-                <h2 class="text-3xl md:text-4xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 animate-pulse">About Me</h2>
-                
-                <!-- Content Container -->
-                <div class="bg-gradient-to-b from-blue-900/30 to-gray-900/60 border-t-4 border-pink-500 p-6 rounded-2xl shadow-md animation-delay-200">
-                  <!-- Cool decorative element -->
-                  <div class="absolute -top-8 -right-4 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full blur-xl opacity-30 -z-10 animate-pulse"></div>
-                  
-                  <!-- Core Content -->
-                  <div class="space-y-5 text-gray-200">
-                    <div class="flex items-start space-x-4">
-                      <div class="w-10 h-10 mt-1 rounded-full gradient-bg pulse-animation flex-shrink-0">
-                        <div class="flex items-center justify-center h-full">💡</div>
-                      </div>
-                      <div class="line-clamp-3">
-                        <p class="font-medium text-blue-300">Coding Enthusiast</p>
-                        <p class="text-sm">I love turning ideas into code. Something that used to be just "work" for me is now a passion I pursue in many aspects of my life!</p>
-                      </div>
-                    </div>
-                    
-                    <div class="flex items-start space-x-4">
-                      <div class="w-10 h-10 mt-1 rounded-full gradient-bg pulse-animation flex-shrink-0">
-                        <div class="flex items-center justify-center h-full">📊</div>
-                      </div>
-                      <div class="bg-indigo-900/30 border-l-2 border-indigo-500 pl-4 py-2 rounded pr-4">
-                        <p class="font-medium text-indigo-300">Math and Analytics</p>
-                        <p class="text-sm">With 2 decades of career experience in mathematical modeling and risk analysis, I've contributed in the banking, fintech and energy sectors by helping to solve some of their tricky problems. Not magic, just some creativity and logic powered by a passion for problem-solving and coding - ok maybe a bit of magic...</p>
-                      </div>
-                    </div>
-                    
-                    <div class="flex items-start space-x-4">
-                      <div class="w-10 h-10 mt-1 rounded-full gradient-bg pulse-animation flex-shrink-0">
-                        <div class="flex items-center justify-center h-full"></div>
-                      </div>
-                      <div class="line-clamp-3">
-                        <p class="font-medium text-green-300">Giving back to the community</p>
-                        <p class="text-sm">I create educational tools and share my knowledge with young people, hoping to inspire the next generation of innovators. Making knowledge accessible in fun ways is my thing!</p>
-                      </div>
-                    </div>
-                    
-                    <p class="text-sm mt-4 border-t pt-4 italic text-yellow-300">
-                      Like most creative attempts sometimes things don't work right away, but I get the biggest satisfaction when it finally clicks 💡
-                    </p>
-            		
-            		<p class="text-sm mt-4 border-t pt-4 italic text-white-300">
-                      My hobbies span across developing personal quantitative tools, electronic music development, computer art and mathematical write-ups for the benefit of young people, as well as a bit of cooking.
-                    </p>
-                  </div>
-                  
-                  <!-- Visual accent -->
-                  <div class="mt-6 transform group cursor-pointer">
-                    <div class="flex items-center space-x-2 p-4 rounded-lg bg-gradient-to-r from-violet-800/50 to-blue-800/50 border border-violet-700/60 transition-all duration-300 hover:scale-[1.03]">
-                      <span class="px-3 py-1 text-xs font-medium bg-violet-900/70 text-cyan-300 rounded-full">LET'S COLLAB!</span>
-                      <span class="text-sm text-white/90">I'm always open to new projects, fun conversations and coding collaborations.</span>
-                      <span class="ml-auto flex-shrink-0 opacity-70 group-hover:opacity-100 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Animation styles -->
-              <style>
-                .gradient-bg {
-                  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-                }
-                
-                .pulse-animation {
-                  animation: pulse 2s infinite;
-                }
-                
-                @keyframes pulse {
-                  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-                  70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-                  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-                }
-                
-                .animation-fadeIn {
-                  animation: fadeIn 0.6s ease-out forwards;
-                }
-                
-                @keyframes fadeIn {
-                  from { opacity: 0; transform: translateY(20px); }
-                  to { opacity: 1; transform: translateY(0); }
-                }
-                
-                .animation-delay-100 {
-                  animation-delay: 0.1s;
-                }
-                
-                .animation-delay-200 {
-                  animation-delay: 0.2s;
-                }
-              </style>
-            </section>
+			<div class="container">
+				<section id="about" class="tab-content active px-4 py-6 md:px-8 bg-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-800 shadow-2xl transform transition-all duration-300 hover:shadow-xl animation-fadeIn">
+				  <div class="max-w-4xl mx-auto animation-delay-100">
+					<!-- Header -->
+					<h2 class="text-3xl md:text-4xl font-bold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 animate-pulse">About Me</h2>
+					
+					<!-- Content Container -->
+					<div class="bg-gradient-to-b from-blue-900/30 to-gray-900/60 border-t-4 border-pink-500 p-6 rounded-2xl shadow-md animation-delay-200">
+					  <!-- Cool decorative element -->
+					  <div class="absolute -top-8 -right-4 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full blur-xl opacity-30 -z-10 animate-pulse"></div>
+					  
+					  <!-- Core Content -->
+					  <div class="space-y-5 text-gray-200">
+						<div class="flex items-start space-x-4">
+						  <div class="w-10 h-10 mt-1 rounded-full gradient-bg pulse-animation flex-shrink-0">
+							<div class="flex items-center justify-center h-full">💡</div>
+						  </div>
+						  <div class="bg-indigo-900/30 border-l-2 border-indigo-500 pl-4 py-2 rounded pr-4">
+							<p class="font-medium text-blue-300">Coding Enthusiast</p>
+							<p class="text-sm">I love turning ideas into code. Something that used to be just "work" for me is now a passion I pursue in many aspects of my life!</p>
+						  </div>
+						</div>
+						
+						<div class="flex items-start space-x-4">
+						  <div class="w-10 h-10 mt-1 rounded-full gradient-bg pulse-animation flex-shrink-0">
+							<div class="flex items-center justify-center h-full">📊</div>
+						  </div>
+						  <div class="bg-indigo-900/30 border-l-2 border-indigo-500 pl-4 py-2 rounded pr-4">
+							<p class="font-medium text-indigo-300">Math and Analytics</p>
+							<p class="text-sm">With 2 decades of career experience in mathematical modeling and risk analysis, I've contributed in the banking, fintech and energy sectors by helping to solve some of their tricky problems. Not magic, just some creativity and logic powered by a passion for problem-solving and coding - ok maybe a bit of magic...</p>
+						  </div>
+						</div>
+						
+						<div class="flex items-start space-x-4">
+						  <div class="w-10 h-10 mt-1 rounded-full gradient-bg pulse-animation flex-shrink-0">
+							<div class="flex items-center justify-center h-full">👥</div>
+						  </div>
+						  <div class="bg-indigo-900/30 border-l-2 border-indigo-500 pl-4 py-2 rounded pr-4">
+							<p class="font-medium text-green-300">Giving back to the community</p>
+							<p class="text-sm">I like to create educational toys and share my knowledge with young people, hoping to help inspire the next generation of innovators. Making knowledge accessible in fun ways is my thing!</p>
+						  </div>
+						</div>
+						
+						<div class="flex items-start space-x-4">
+						  <div class="w-10 h-10 mt-1 rounded-full gradient-bg pulse-animation flex-shrink-0">
+							<div class="flex items-center justify-center h-full">🛠️</div>
+						  </div>
+						  <div class="bg-indigo-900/30 border-l-2 border-indigo-500 pl-4 py-2 rounded pr-4">
+							<p class="font-medium text-orange-300">Personal Projects</p>
+							<p class="text-sm">
+							  Whether it's a custom optimization tool, machine learning, econometric, risk or derivative pricing model, visualization tools for math concepts, or a quirky calculator that solves odd problems — I'm always tinkering with something that combines logic, beauty (at least from my perspective), and utility. My repo is my sketchpad.
+							</p>
+						  </div>
+						</div>
+						
+						<div class="flex items-start space-x-4">
+						  <div class="w-10 h-10 mt-1 rounded-full gradient-bg pulse-animation flex-shrink-0">
+							<div class="flex items-center justify-center h-full">🎶</div>
+						  </div>
+						  <div class="bg-indigo-900/30 border-l-2 border-indigo-500 pl-4 py-2 rounded pr-4">
+							<p class="font-medium text-pink-300">Electronic Music & Sound Design</p>
+							<p class="text-sm">
+							  I produce and mix tracks across genres like drum & bass, lo-fi hip-hop, glitchy house, and trip-hop — blending samples, synths, and grooves into sonic stories. Whether I'm building atmospheric intros, slicing breaks, or layering deep bass lines, my studio time is where code meets rhythm. I also used to DJ for fun and shared some of my creations on YouTube, although my stuff isn't at all for the mainstream listener, nor are they that good: 
+							  <a href="https://www.youtube.com/watch?v=4pYIQfxX-HM" target="_blank" class="text-blue-400 hover:underline">have a listen if you wish 🎧</a>.
+							</p>
+						  </div>
+						</div>
+						
+						
+						<div class="flex items-start space-x-4">
+						  <div class="w-10 h-10 mt-1 rounded-full gradient-bg pulse-animation flex-shrink-0">
+							<div class="flex items-center justify-center h-full">🧠</div>
+						  </div>
+						  <div class="bg-indigo-900/30 border-l-2 border-indigo-500 pl-4 py-2 rounded pr-4">
+							<p class="font-medium text-purple-300">Mindset</p>
+							<p class="text-sm">
+							  I believe that coding isn't just about instructions for machines — it's about shaping ideas into reality. Every line is a chance to explore, teach, and make something meaningful.
+							</p>
+						  </div>
+						</div>
 
-            <section id="resume" class="tab-content">
-                <h2>Resume</h2>
-                <nav class="sub-nav" id="resume-sub-nav">
-                    <button
-                        onclick="switchResumeSubTab('cover-letter', this)"
-                        data-subtab-id="cover-letter"
-                        title="View Cover Letter"
-                    >
-                        Cover Letter
-                    </button>
-                    <button
-                        onclick="switchResumeSubTab('cv-2024', this)"
-                        data-subtab-id="cv-2024"
-                        title="View CV 2024"
-                    >
-                        CV 2024 
-                    </button>
-                    <button
-                        onclick="switchResumeSubTab('cv-2025', this)"
-                        data-subtab-id="cv-2025"
-                        title="View CV 2025"
-                    >
-                        CV 2025 
-                    </button>
-                </nav>
-                <div id="cover-letter-content" class="resume-sub-content">
-                    <h3>Cover Letter</h3>
-                    <p>
-                        View or download my Cover Letter:
-                        <a
-                            href="assets/Cover Letter - Gene Boo.pdf"
-                            target="_blank"
-                            download="Cover Letter - Gene Boo.pdf"
-                            >Download PDF</a
-                        >
-                    </p>
-                    <div class="pdf-container cover-letter-container">
+						
+						<p class="text-sm mt-4 border-t pt-4 italic text-white">
+						  Creativity doesn’t always click on the first try — but I thrive in that iterative space where logic meets curiosity. Whether I'm developing a quantitative tool, composing electronic soundscapes, generating computer art, or mentoring young minds with math — it's all part of the same journey: solving problems in inspiring ways.
+						</p>
 
-                        <!--<iframe src="assets/Cover Letter - Gene Boo.pdf" title="Cover Letter PDF"></iframe>-->
-                    </div>
-                </div>
-                <div id="cv-2024-content" class="resume-sub-content">
-                    <h3>CV 2024</h3>
-                    <p>
-                        View or download my CV:
-                        <a
-                            href="assets/CV of Gene Boo (2024 v3-s).pdf"
-                            target="_blank"
-                            download="CV of Gene Boo (2024 v3-s).pdf"
-                            >Download PDF</a
-                        >
-                    </p>
-                    <div class="pdf-container cv-2024-container">
-                        <!--<iframe src="assets/CV of Gene Boo (2024 v3-s).pdf" title="CV PDF"></iframe>-->
-                    </div>
-                </div>
-                <div id="cv-2025-content" class="resume-sub-content">
-                    <h3>CV 2025</h3>
-                        <p>
-                            View my CV:
-                            <a 
-                                href="CV_GB_2025_v1-s.html" 
-                                target="_blank"
-                                title="HTML version"
-                            >HTML Version</a>,
-                            <a 
-                                href="assets/CV of Gene Boo (2025 v1-s).pdf" 
-                                target="_blank"
-                                download="CV of Gene Boo (2025 v1-s).pdf"
-                                title="Download PDF"
-                            >Download PDF</a>
-                            or view below
-                        </p>
-                    <div class="pdf-container cv-2025-container">
-                        <!--<iframe src="assets/CV of Gene Boo (2024 v3-s).pdf" title="CV PDF"></iframe>-->
-                    </div>
-                </div>
-            </section>
+						
+						<p class="text-sm mt-4 border-t pt-4 italic text-white-300">
+						  My hobbies span across developing personal quantitative tools, electronic music development, computer art and mathematical write-ups for the benefit of young people, as well as a bit of cooking.
+						</p>
+					  </div>
+					  
+					  <!-- Visual accent -->
+					  <div class="mt-6 transform group cursor-pointer">
+						<div class="flex items-center space-x-2 p-4 rounded-lg bg-gradient-to-r from-violet-800/50 to-blue-800/50 border border-violet-700/60 transition-all duration-300 hover:scale-[1.03]">
+						  <span class="px-3 py-1 text-xs font-medium bg-violet-900/70 text-cyan-300 rounded-full">LET'S COLLAB!</span>
+						  <span class="text-sm text-white/90">I'm always open to new projects, fun conversations and coding collaborations.</span>
+						  <span class="ml-auto flex-shrink-0 opacity-70 group-hover:opacity-100 flex items-center">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
+							  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+							</svg>
+						  </span>
+						</div>
+					  </div>
+					</div>
+				  </div>
+				  
+				  <!-- Animation styles -->
+				  <style>
+					.gradient-bg {
+					  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+					}
+					
+					.pulse-animation {
+					  animation: pulse 2s infinite;
+					}
+					
+					@keyframes pulse {
+					  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+					  70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+					  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+					}
+					
+					.animation-fadeIn {
+					  animation: fadeIn 0.6s ease-out forwards;
+					}
+					
+					@keyframes fadeIn {
+					  from { opacity: 0; transform: translateY(20px); }
+					  to { opacity: 1; transform: translateY(0); }
+					}
+					
+					.animation-delay-100 {
+					  animation-delay: 0.1s;
+					}
+					
+					.animation-delay-200 {
+					  animation-delay: 0.2s;
+					}
+				  </style>
+				</section>
 
-            <section id="contact" class="tab-content">
-                <h2>Contact</h2>
-                <p>Email: gene.boo@aol.com / gene.boo@gmail.com</p>
-                <p>Phone: Please contact via email</p>
-                <p>
-                    <a
-                        href="https://www.linkedin.com/in/gene-boo-007/"
-                        target="_blank"
-                        ><i class="fab fa-linkedin"></i> LinkedIn</a
-                    >
-                </p>
-            </section>
+				<section id="resume" class="tab-content">
+					<h2>Resume</h2>
+					<nav class="sub-nav" id="resume-sub-nav">
+						<button
+							onclick="switchResumeSubTab('cover-letter', this)"
+							data-subtab-id="cover-letter"
+							title="View Cover Letter"
+						>
+							Cover Letter
+						</button>
+						<button
+							onclick="switchResumeSubTab('cv-2024', this)"
+							data-subtab-id="cv-2024"
+							title="View CV 2024"
+						>
+							CV 2024 
+						</button>
+						<button
+							onclick="switchResumeSubTab('cv-2025', this)"
+							data-subtab-id="cv-2025"
+							title="View CV 2025"
+						>
+							CV 2025 
+						</button>
+					</nav>
+					<div id="cover-letter-content" class="resume-sub-content">
+						<h3>Cover Letter</h3>
+						<p>
+							View or download my Cover Letter:
+							<a
+								href="assets/Cover Letter - Gene Boo.pdf"
+								target="_blank"
+								download="Cover Letter - Gene Boo.pdf"
+								>Download PDF</a
+							>
+						</p>
+						<div class="pdf-container cover-letter-container">
 
-            <section id="projects" class="tab-content px-6 py-8 md:py-10 bg-gray-900 min-h-[80vh] text-white">
-              <div class="max-w-7xl mx-auto relative">
-                <!-- Animated background elements -->
-                <div class="absolute inset-0 opacity-20 overflow-hidden">
-                  <div class="absolute top-10 left-1/4 w-80 h-80 bg-pink-500 rounded-full blur-3xl"></div>
-                  <div class="absolute bottom-10 right-1/3 w-60 h-60 bg-blue-500 rounded-full blur-3xl"></div>
-                </div>
-                
-                <div class="relative z-10">
-                  <h2 class="text-4xl font-bold text-center mb-3 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse">My Creative Projects</h2>
-                  <p class="text-center text-gray-400 max-w-xl mx-auto mb-10">Stuff I build in my free time that matters</p>
-                  
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Card 1 -->
-                    <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
-                      <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      
-                      <h3 class="text-2xl font-semibold text-blue-400 mb-2 group-hover:text-blue-300 transition-colors">Funkygraffy! 🎨</h3>
-                      <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">An educational toy for visualizing math functions with color, interactivity, and easter eggs.</p>
-                      
-                      <div class="flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <a href="https://funkygraffy.onrender.com/" class="text-blue-400 hover:underline flex items-center transition-all duration-200 hover:text-blue-300" target="_blank">
-                          <span>🌐 Render Cloud</span>
-                          <i class="fas fa-external-link-alt ml-2 transform transition-transform duration-300 group-hover:translate-x-1"></i>
-                        </a>
-                        <a href="https://my-cloud-run-service-324349391188.asia-southeast1.run.app/" class="text-blue-400 hover:underline flex items-center transition-all duration-200 hover:text-blue-300" target="_blank">
-                          <span>☁️ Google Cloud</span>
-                          <i class="fas fa-external-link-alt ml-2 transform transition-transform duration-300 group-hover:translate-x-1"></i>
-                        </a>
-                      </div>
-                    </div>
-                    
-                    <!-- Card 2 -->
-                    <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
-                      <div class="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-pink-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      
-                      <h3 class="text-2xl font-semibold text-green-400 mb-2 group-hover:text-green-300 transition-colors">Convolve! 🔁</h3>
-                      <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">Combine any shape, PDF, or function empirically. Useful for joint distributions and intersections!</p>
-                      <p class="text-xs text-gray-500 mt-1 flex items-center group-hover:text-gray-400">
-                        <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span> <span>Coming Soon</span>
-                      </p>
-                    </div>
-                    
-                    <!-- Card 3 -->
-                    <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
-                      <div class="absolute inset-0 bg-gradient-to-br from-green-900/20 to-blue-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      
-                      <h3 class="text-2xl font-semibold text-purple-400 mb-2 group-hover:text-purple-300 transition-colors">Cermin Mata Ho 🕶️</h3>
-                      <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">Client-side business site editable via Excel! Great for small shops needing no-code updates.</p>
-                      <a href="https://geneboo.github.io/GBnfo/OptiStyle.html" class="text-blue-400 hover:underline flex items-center transition-all duration-200 group-hover:text-blue-300" target="_blank">
-                        <span>🔗 View Site</span>
-                        <i class="fas fa-external-link-alt ml-2 transform transition-transform duration-300 group-hover:translate-x-1"></i>
-                      </a>
-                    </div>
-                    
-                    <!-- Card 4 -->
-                    <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
-                      <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-yellow-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      
-                      <h3 class="text-2xl font-semibold text-orange-300 mb-2 group-hover:text-orange-200 transition-colors">Fit it! 📊</h3>
-                      <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">Upload data, and this tool will rank best-fit continuous distributions. Stats nerds rejoice!</p>
-                      <p class="text-xs text-gray-500 mt-1 flex items-center group-hover:text-gray-400">
-                        <span class="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-1"></span> <span>Coming Soon</span>
-                      </p>
-                    </div>
-                    
-                    <!-- Card 5 -->
-                    <div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
-                      <div class="absolute inset-0 bg-gradient-to-br from-yellow-900/20 to-green-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      
-                      <h3 class="text-2xl font-semibold text-sky-400 mb-2 group-hover:text-sky-300 transition-colors">SVG Fourier Epicycle 🎵</h3>
-                      <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">Upload SVGs and generate animated Fourier approximations of your drawings. Art meets math!</p>
-                      <p class="text-xs text-gray-500 mt-1 flex items-center group-hover:text-gray-400">
-                        <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span> <span>Coming Soon</span>
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <!-- Written Works Section -->
-                  <h2 class="text-4xl font-bold text-center mt-20 mb-6 animate-fade-in">📝 Written Works</h2>
-                  <div class="bg-gradient-to-br from-violet-900 to-indigo-900 p-8 rounded-2xl shadow-xl group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 mt-6">
-                    <h3 class="text-2xl font-semibold text-indigo-300 mb-4 flex items-center">
-                      <i class="fas fa-book-open mr-2 text-indigo-300"></i>
-                      FFT Convolution + Option Pricing 📘
-                    </h3>
-                    <p class="text-sm mb-6 opacity-0 group-hover:opacity-100 transition-opacity">An informative piece for math and finance enthusiasts on using FFT in Statistics and the Black-Scholes model.</p>
-                    <a href="assets/FFT_Convolution_GB2020_Excerpt.pdf" download class="inline-block px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-medium transition-all duration-200 flex items-center group-hover:scale-105">
-                      <i class="fas fa-download mr-2"></i> Download PDF
-                    </a>
-                  </div>
-                  
-                </div>
-              </div>
-            </section>
+							<!--<iframe src="assets/Cover Letter - Gene Boo.pdf" title="Cover Letter PDF"></iframe>-->
+						</div>
+					</div>
+					<div id="cv-2024-content" class="resume-sub-content">
+						<h3>CV 2024</h3>
+						<p>
+							View or download my CV:
+							<a
+								href="assets/CV of Gene Boo (2024 v3-s).pdf"
+								target="_blank"
+								download="CV of Gene Boo (2024 v3-s).pdf"
+								>Download PDF</a
+							>
+						</p>
+						<div class="pdf-container cv-2024-container">
+							<!--<iframe src="assets/CV of Gene Boo (2024 v3-s).pdf" title="CV PDF"></iframe>-->
+						</div>
+					</div>
+					<div id="cv-2025-content" class="resume-sub-content">
+						<h3>CV 2025</h3>
+							<p>
+								View my CV:
+								<a 
+									href="CV_GB_2025_v1-s.html" 
+									target="_blank"
+									title="HTML version"
+								>HTML Version</a>,
+								<a 
+									href="assets/CV of Gene Boo (2025 v1-s).pdf" 
+									target="_blank"
+									download="CV of Gene Boo (2025 v1-s).pdf"
+									title="Download PDF"
+								>Download PDF</a>
+								or view below
+							</p>
+						<div class="pdf-container cv-2025-container">
+							<!--<iframe src="assets/CV of Gene Boo (2024 v3-s).pdf" title="CV PDF"></iframe>-->
+						</div>
+					</div>
+				</section>
 
-        </div>
+				<section id="contact" class="tab-content">
+					<h2>Contact</h2>
+					<p>Email: gene.boo@aol.com / gene.boo@gmail.com</p>
+					<p>Phone: Please contact via email</p>
+					<p>
+						<a
+							href="https://www.linkedin.com/in/gene-boo-007/"
+							target="_blank"
+							><i class="fab fa-linkedin"></i> LinkedIn</a
+						>
+					</p>
+				</section>
+
+				<section id="projects" class="tab-content px-6 py-8 md:py-10 bg-gray-900 min-h-[80vh] text-white">
+				  <div class="max-w-7xl mx-auto relative">
+					<!-- Animated background elements -->
+					<div class="absolute inset-0 opacity-20 overflow-hidden">
+					  <div class="absolute top-10 left-1/4 w-80 h-80 bg-pink-500 rounded-full blur-3xl"></div>
+					  <div class="absolute bottom-10 right-1/3 w-60 h-60 bg-blue-500 rounded-full blur-3xl"></div>
+					</div>
+					
+					<div class="relative z-10">
+					  <h2 class="text-4xl font-bold text-center mb-3 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 animate-pulse">My Creative Projects</h2>
+					  <p class="text-center text-gray-400 max-w-xl mx-auto mb-10">Stuff I build in my free time that matters</p>
+					  
+					  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+						<!-- Card 1 -->
+						<div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
+						  <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+						  
+						  <h3 class="text-2xl font-semibold text-blue-400 mb-2 group-hover:text-blue-300 transition-colors">Funkygraffy! 🎨</h3>
+						  <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">An educational toy for visualizing math functions with color, interactivity, and easter eggs.</p>
+						  
+						  <div class="flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
+							<a href="https://funkygraffy.onrender.com/" class="text-blue-400 hover:underline flex items-center transition-all duration-200 hover:text-blue-300" target="_blank">
+							  <span>🌐 Render Cloud</span>
+							  <i class="fas fa-external-link-alt ml-2 transform transition-transform duration-300 group-hover:translate-x-1"></i>
+							</a>
+							<a href="https://my-cloud-run-service-324349391188.asia-southeast1.run.app/" class="text-blue-400 hover:underline flex items-center transition-all duration-200 hover:text-blue-300" target="_blank">
+							  <span>☁️ Google Cloud</span>
+							  <i class="fas fa-external-link-alt ml-2 transform transition-transform duration-300 group-hover:translate-x-1"></i>
+							</a>
+						  </div>
+						</div>
+						
+						<!-- Card 2 -->
+						<div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
+						  <div class="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-pink-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+						  
+						  <h3 class="text-2xl font-semibold text-green-400 mb-2 group-hover:text-green-300 transition-colors">Convolve! 🔁</h3>
+						  <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">Combine any shape, PDF, or function empirically. Useful for joint distributions and intersections!</p>
+						  <p class="text-xs text-gray-500 mt-1 flex items-center group-hover:text-gray-400">
+							<span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span> <span>Coming Soon</span>
+						  </p>
+						</div>
+						
+						<!-- Card 3 -->
+						<div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
+						  <div class="absolute inset-0 bg-gradient-to-br from-green-900/20 to-blue-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+						  
+						  <h3 class="text-2xl font-semibold text-purple-400 mb-2 group-hover:text-purple-300 transition-colors">Cermin Mata Ho 🕶️</h3>
+						  <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">Client-side business site editable via Excel! Great for small shops needing no-code updates.</p>
+						  <a href="https://geneboo.github.io/GBnfo/OptiStyle.html" class="text-blue-400 hover:underline flex items-center transition-all duration-200 group-hover:text-blue-300" target="_blank">
+							<span>🔗 View Site</span>
+							<i class="fas fa-external-link-alt ml-2 transform transition-transform duration-300 group-hover:translate-x-1"></i>
+						  </a>
+						</div>
+						
+						<!-- Card 4 -->
+						<div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
+						  <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-yellow-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+						  
+						  <h3 class="text-2xl font-semibold text-orange-300 mb-2 group-hover:text-orange-200 transition-colors">Fit it! 📊</h3>
+						  <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">Upload data, and this tool will rank best-fit continuous distributions. Stats nerds rejoice!</p>
+						  <p class="text-xs text-gray-500 mt-1 flex items-center group-hover:text-gray-400">
+							<span class="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-1"></span> <span>Coming Soon</span>
+						  </p>
+						</div>
+						
+						<!-- Card 5 -->
+						<div class="p-6 bg-gray-800 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group relative overflow-hidden border border-gray-700">
+						  <div class="absolute inset-0 bg-gradient-to-br from-yellow-900/20 to-green-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+						  
+						  <h3 class="text-2xl font-semibold text-sky-400 mb-2 group-hover:text-sky-300 transition-colors">SVG Fourier Epicycle 🎵</h3>
+						  <p class="text-sm mb-4 text-gray-300 group-hover:text-gray-200 transition-colors">Upload SVGs and generate animated Fourier approximations of your drawings. Art meets math!</p>
+						  <p class="text-xs text-gray-500 mt-1 flex items-center group-hover:text-gray-400">
+							<span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span> <span>Coming Soon</span>
+						  </p>
+						</div>
+					  </div>
+					  
+					  <!-- Written Works Section -->
+					  <h2 class="text-4xl font-bold text-center mt-20 mb-6 animate-fade-in">📝 Written Works</h2>
+					  <div class="bg-gradient-to-br from-violet-900 to-indigo-900 p-8 rounded-2xl shadow-xl group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 mt-6">
+						<h3 class="text-2xl font-semibold text-indigo-300 mb-4 flex items-center">
+						  <i class="fas fa-book-open mr-2 text-indigo-300"></i>
+						  FFT Convolution + Option Pricing 📘
+						</h3>
+						<p class="text-sm mb-6 opacity-0 group-hover:opacity-100 transition-opacity">An informative piece for math and finance enthusiasts on using FFT in Statistics and the Black-Scholes model.</p>
+						<a href="assets/FFT_Convolution_GB2020_Excerpt.pdf" download class="inline-block px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-medium transition-all duration-200 flex items-center group-hover:scale-105">
+						  <i class="fas fa-download mr-2"></i> Download PDF
+						</a>
+					  </div>
+					  
+					</div>
+				  </div>
+				</section>
+
+			</div>
+			<footer>
+				<p>© 2023 Gene Boo - Portfolio Website</p>
+				<p>Designed with lotsa lotsa ❤️</p>
+			</footer>
+    </div>
 
         <script src="js/scripts.js"></script>
         <!-- Animation Script -->
