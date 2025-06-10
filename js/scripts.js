@@ -381,7 +381,7 @@ async function renderPDFtoContainer(url, containerSelector) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    const totalImages = 16;
+    const totalImages = 17;
     const randomIndex = Math.floor(Math.random() * totalImages) + 1;
     const paddedIndex = String(randomIndex).padStart(5, '0'); // ensures 00001 format
     const fallbackUrl = `assets/${paddedIndex}.jpg`;
