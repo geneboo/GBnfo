@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gene Boo - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            scroll-behavior: smooth;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+        }
+        
+        .music-player {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: rgba(226, 232, 240, 0.2);
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            width: 0%;
+        }
+        
+        .waveform {
+            height: 40px;
+            background: linear-gradient(90deg, 
+                rgba(56, 189, 248, 0.2) 0%, 
+                rgba(129, 140, 248, 0.3) 50%, 
+                rgba(192, 132, 252, 0.2) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wave {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20 Q 25 10, 50 20 T 100 20 T 150 20 T 200 20' fill='none' stroke='%2338bdf8' stroke-width='2'/%3E%3C/svg%3E") repeat-x;
+            animation: wave 2s linear infinite;
+        }
+        
+        @keyframes wave {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 200px; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-slate-900/80 backdrop-blur-md z-50 border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="text-xl font-bold gradient-text">Gene Boo</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#about" class="px-3 py-2 rounded-md text-sm font-medium hover:text-blue-300 transition">About</a>
+                        <a href="#resume" class="px-3 py-2 rounded-md text-sm font-medium hover:text-indigo-300 transition">Resume</a>
+                        <a href="#projects" class="px-3 py-2 rounded-md text-sm font-medium hover:text-purple-300 transition">Projects</a>
+                        <a href="#contact" class="px-3 py-2 rounded-md text-sm font-medium hover:text-blue-300 transition">Contact</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="menu-toggle" class="text-gray-300 hover:text-white focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800/95 px-2 pt-2 pb-3 space-y-1">
+            <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-700">About</a>
+            <a href="#resume" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-700">Resume</a>
+            <a href="#projects" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-700">Projects</a>
+            <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium hover:bg-slate-700">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-24 pb-16 md:pt-32 md:pb-24 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                <span class="gradient-text">Turning Ideas</span> Into Code
+            </h1>
+            <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-8">
+                Mathematical modeling, risk analysis, coding, and electronic music - blending logic with creativity to solve problems in inspiring ways.
+            </p>
+            <div class="flex justify-center space-x-4">
+                <a href="#contact" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition">Let's Collaborate</a>
+                <a href="#projects" class="px-6 py-3 border border-blue-400 text-blue-400 hover:bg-blue-900/30 rounded-md font-medium transition">View Projects</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 px-4 sm:px-6 lg:px-8 bg-slate-800/30">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold mb-12 section-title">About Me</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Coding Enthusiast -->
+                <div class="bg-slate-800/50 rounded-xl p-6 card-hover border border-slate-700/50">
+                    <div class="text-blue-400 text-3xl mb-4">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Coding Enthusiast</h3>
+                    <p class="text-slate-300">
+                        I love turning ideas into code. Something that used to be just "work" for me is now a passion I pursue in many aspects of my life!
+                    </p>
+                </div>
+                
+                <!-- Math and Analytics -->
+                <div class="bg-slate-800/50 rounded-xl p-6 card-hover border border-slate-700/50">
+                    <div class="text-indigo-400 text-3xl mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Math and Analytics</h3>
+                    <p class="text-slate-300">
+                        With 2 decades of career experience in mathematical modeling and risk analysis, I've contributed in banking, fintech and energy sectors.
+                    </p>
+                </div>
+                
+                <!-- Community -->
+                <div class="bg-slate-800/50 rounded-xl p-6 card-hover border border-slate-700/50">
+                    <div class="text-purple-400 text-3xl mb-4">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Giving Back</h3>
+                    <p class="text-slate-300">
+                        I create educational toys and share knowledge with young people, hoping to inspire the next generation of innovators.
+                    </p>
+                </div>
+                
+                <!-- Personal Projects -->
+                <div class="bg-slate-800/50 rounded-xl p-6 card-hover border border-slate-700/50">
+                    <div class="text-pink-400 text-3xl mb-4">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Personal Projects</h3>
+                    <p class="text-slate-300">
+                        Whether it's optimization tools, ML models, or quirky calculators — I'm always tinkering with something that combines logic and utility.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Music Section -->
+            <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-4 gradient-text">Electronic Music & Sound Design</h3>
+                    <p class="text-slate-300 mb-6">
+                        I produce and mix tracks across genres like drum & bass, lo-fi hip-hop, glitchy house, and trip-hop — blending samples, synths, and grooves into sonic stories. Whether I'm building atmospheric intros, slicing breaks, or layering deep bass lines, my studio time is where code meets rhythm.
+                    </p>
+                    <a href="https://www.youtube.com/watch?v=4pYIQfxX-HM" target="_blank" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition">
+                        <i class="fab fa-youtube mr-2"></i> Have a listen if you wish 
+                    </a>
+                </div>
+                <div class="music-player rounded-xl overflow-hidden">
+                    <div class="waveform">
+                        <div class="wave"></div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="text-lg font-medium mb-2">Gene Boo - Untitled Track</h4>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-slate-400">0:00</span>
+                            <span class="text-sm text-slate-400">4:32</span>
+                        </div>
+                        <div class="progress-bar rounded-full mb-4">
+                            <div class="progress rounded-full"></div>
+                        </div>
+                        <div class="flex justify-center space-x-6">
+                            <button class="text-slate-300 hover:text-white">
+                                <i class="fas fa-step-backward"></i>
+                            </button>
+                            <button class="text-slate-300 hover:text-white text-2xl">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="text-slate-300 hover:text-white">
+                                <i class="fas fa-step-forward"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mindset Section -->
+            <div class="mt-16 bg-slate-800/50 rounded-xl p-8 border border-slate-700/50">
+                <h3 class="text-2xl font-semibold mb-4 gradient-text">Mindset</h3>
+                <p class="text-slate-300 mb-4">
+                    I believe that coding isn't just about instructions for machines — it's about shaping ideas into reality. Every line is a chance to explore, teach, and make something meaningful.
+                </p>
+                <p class="text-slate-300">
+                    Creativity doesn't always click on the first try — but I thrive in that iterative space where logic meets curiosity. Whether I'm developing a quantitative tool, composing electronic soundscapes, generating computer art, or mentoring young minds with math — it's all part of the same journey: solving problems in inspiring ways.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resume Section -->
+    <section id="resume" class="py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold mb-12 section-title">Resume</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Cover Letter -->
+                <div class="bg-slate-800/50 rounded-xl p-6 card-hover border border-blue-500/30">
+                    <div class="text-blue-400 text-3xl mb-4">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Cover Letter</h3>
+                    <p class="text-slate-300 mb-4">
+                        View or download my cover letter to learn more about my professional approach.
+                    </p>
+                    <a href="https://geneboo.github.io/GBnfo/assets/Cover%20Letter%20-%20Gene%20Boo.pdf" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition">
+                        <i class="fas fa-download mr-2"></i> Download PDF
+                    </a>
+                </div>
+                
+                <!-- CV 2024 -->
+                <div class="bg-slate-800/50 rounded-xl p-6 card-hover border border-indigo-500/30">
+                    <div class="text-indigo-400 text-3xl mb-4">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">CV 2024</h3>
+                    <p class="text-slate-300 mb-4">
+                        My comprehensive CV detailing professional experience and skills.
+                    </p>
+                    <a href="https://geneboo.github.io/GBnfo/assets/CV%20of%20Gene%20Boo%20(2024%20v3-s).pdf" class="inline-flex items-center text-indigo-400 hover:text-indigo-300 transition">
+                        <i class="fas fa-download mr-2"></i> Download PDF
+                    </a>
+                </div>
+                
+                <!-- CV 2025 -->
+                <div class="bg-slate-800/50 rounded-xl p-6 card-hover border border-purple-500/30">
+                    <div class="text-purple-400 text-3xl mb-4">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">CV 2025</h3>
+                    <p class="text-slate-300 mb-4">
+                        My most recent CV with updated experience and projects.
+                    </p>
+                    <div class="space-y-2">
+                        <a href="https://geneboo.github.io/GBnfo/CV_GB_2025_v1-s.html" class="inline-flex items-center text-purple-400 hover:text-purple-300 transition block">
+                            <i class="fas fa-external-link-alt mr-2"></i> HTML Version
+                        </a>
+                        <a href="https://geneboo.github.io/GBnfo/assets/CV%20of%20Gene%20Boo%20(2025%20v1-s).pdf" class="inline-flex items-center text-purple-400 hover:text-purple-300 transition block">
+                            <i class="fas fa-download mr-2"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-16 px-4 sm:px-6 lg:px-8 bg-slate-800/30">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold mb-12 section-title">My Creative Projects</h2>
+            <p class="text-xl text-slate-300 mb-8 max-w-3xl">
+                Stuff I build in my free time that matters
+            </p>
+            
+            <!-- Written Works -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-semibold mb-6 gradient-text">Written Works</h3>
+                
+                <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
+                    <div class="flex flex-col md:flex-row md:items-center">
+                        <div class="md:w-1/4 mb-4 md:mb-0">
+                            <div class="text-blue-400 text-5xl">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                        </div>
+                        <div class="md:w-3/4">
+                            <h4 class="text-xl font-semibold mb-2">FFT Convolution + Option Pricing</h4>
+                            <p class="text-slate-300 mb-4">
+                                An informative piece for math and finance enthusiasts on using FFT in Statistics and the Black-Scholes model.
+                            </p>
+                            <a href="https://geneboo.github.io/GBnfo/assets/FFT_Convolution_GB2020_Excerpt.pdf" class="inline-flex items-center text-blue-400 hover:text-blue-300 transition">
+                                <i class="fas fa-download mr-2"></i> Download PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Collaboration CTA -->
+            <div class="text-center mt-12 p-8 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl border border-slate-700/50">
+                <h3 class="text-2xl font-semibold mb-4 gradient-text">LET'S COLLAB!</h3>
+                <p class="text-slate-300 mb-6 max-w-2xl mx-auto">
+                    I'm always open to new projects, fun conversations and coding collaborations. Whether you have an idea to discuss or a problem to solve, let's connect!
+                </p>
+                <a href="#contact" class="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition">
+                    Get In Touch
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold mb-12 section-title">Contact</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 gradient-text">Get in Touch</h3>
+                    <p class="text-slate-300 mb-6">
+                        Feel free to reach out for collaborations, questions, or just to say hello!
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="text-blue-400 text-xl mr-4 mt-1">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Email</h4>
+                                <a href="mailto:gene.boo@aol.com" class="text-blue-400 hover:text-blue-300 transition">gene.boo@aol.com</a><br>
+                                <a href="mailto:gene.boo@gmail.com" class="text-blue-400 hover:text-blue-300 transition">gene.boo@gmail.com</a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="text-indigo-400 text-xl mr-4 mt-1">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Phone</h4>
+                                <p class="text-slate-300">Please contact via email</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="text-purple-400 text-xl mr-4 mt-1">
+                                <i class="fab fa-linkedin"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">LinkedIn</h4>
+                                <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank" class="text-purple-400 hover:text-purple-300 transition">linkedin.com/in/gene-boo-007</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 gradient-text">Send a Message</h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-slate-300 mb-1">Name</label>
+                            <input type="text" id="name" class="w-full bg-slate-700/50 border border-slate-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-slate-300 mb-1">Email</label>
+                            <input type="email" id="email" class="w-full bg-slate-700/50 border border-slate-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-slate-300 mb-1">Message</label>
+                            <textarea id="message" rows="4" class="w-full bg-slate-700/50 border border-slate-600 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                        </div>
+                        <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-md font-medium transition w-full">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4 sm:px-6 lg:px-8 border-t border-slate-700/50">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <span class="text-lg font-bold gradient-text">Gene Boo</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="mailto:gene.boo@aol.com" class="text-slate-400 hover:text-blue-400 transition">
+                        <i class="fas fa-envelope text-xl"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank" class="text-slate-400 hover:text-indigo-400 transition">
+                        <i class="fab fa-linkedin text-xl"></i>
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=4pYIQfxX-HM" target="_blank" class="text-slate-400 hover:text-red-400 transition">
+                        <i class="fab fa-youtube text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-6 text-center md:text-left text-sm text-slate-500">
+                &copy; 2025 Gene Boo. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    // Close mobile menu if open
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                    
+                    // Scroll to target
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Music player simulation
+        const playButton = document.querySelector('.music-player .fa-play').parentElement;
+        const progressBar = document.querySelector('.progress');
+        let isPlaying = false;
+        let progress = 0;
+        let progressInterval;
+        
+        playButton.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            
+            if (isPlaying) {
+                icon.classList.replace('fa-pause', 'fa-play');
+                clearInterval(progressInterval);
+            } else {
+                icon.classList.replace('fa-play', 'fa-pause');
+                
+                // Simulate progress
+                progressInterval = setInterval(() => {
+                    progress += 0.5;
+                    if (progress > 100) progress = 0;
+                    progressBar.style.width = `${progress}%`;
+                }, 100);
+            }
+            
+            isPlaying = !isPlaying;
+        });
+    </script>
+</body>
+</html>
