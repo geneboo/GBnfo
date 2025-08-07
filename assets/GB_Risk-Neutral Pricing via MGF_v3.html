@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk-Neutral Pricing via Moment Generating Functions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.18/katex.min.css">
+    <style>
+        /* Modern scientific journal styling */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --border-color: #e0e0e0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Lato', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: white;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            counter-reset: section;
+        }
+        
+        @media print {
+            body {
+                padding: 15px;
+                font-size: 12pt;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: 'Roboto Slab', Georgia, serif;
+            color: var(--primary-color);
+            margin: 1.5em 0 0.8em;
+        }
+        
+        h1 {
+            font-size: 28px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--secondary-color);
+            margin-bottom: 25px;
+            counter-reset: subsection;
+        }
+        
+        h2 {
+            font-size: 22px;
+            padding-left: 10px;
+            border-left: 4px solid var(--secondary-color);
+            counter-increment: section;
+            counter-reset: subsection;
+        }
+        
+        h2:before {
+            content: counter(section) ". ";
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        h3 {
+            font-size: 18px;
+            counter-increment: subsection;
+            margin-top: 1.8em;
+        }
+        
+        h3:before {
+            content: counter(section) "." counter(subsection) " ";
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        .author {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .abstract {
+            background-color: var(--light-bg);
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .abstract h2 {
+            border-left: none;
+            padding-left: 0;
+            margin-top: 0;
+        }
+        
+        .theorem {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .theorem-title {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+        
+        .equation-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        
+        .example {
+            background-color: #f0f7ff;
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .example-title {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+        
+        .section-content {
+            margin-bottom: 30px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul {
+            margin: 15px 0 15px 30px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .katex-display {
+            margin: 15px 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 10px 0;
+        }
+        
+        .print-header {
+            display: none;
+        }
+        
+        @media print {
+            .print-header {
+                display: block;
+                text-align: center;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .print-header h1 {
+                font-size: 18pt;
+                border-bottom: none;
+            }
+            
+            .print-header .author {
+                font-size: 11pt;
+            }
+            
+            h1 {
+                font-size: 16pt;
+            }
+            
+            h2 {
+                font-size: 14pt;
+            }
+            
+            h3 {
+                font-size: 13pt;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-header">
+        <h1>Risk-Neutral Pricing via Moment Generating Functions</h1>
+        <div class="author">Gene Boo | Updated: Jun 2016, Dec 2020, May 2024</div>
+    </div>
+    
+    <h1>Risk-Neutral Pricing via Moment Generating Functions</h1>
+    <div class="author">Gene Boo | Jun 2016 | Updated: Dec 2020, May 2024</div>
+    
+    <div class="abstract">
+        <h2>Abstract</h2>
+        <p>This paper presents a comprehensive derivation of risk-neutral drift adjustment using moment generating functions (MGFs). 
+        We establish the fundamental relationship between MGFs and martingale conditions in derivative pricing, demonstrating 
+        how this approach provides a unified framework for both Gaussian and non-Gaussian asset price models. The methodology 
+        is extended to multi-asset systems with correlated returns, and connections to fundamental theorems (Girsanov, 
+        Radon-Nikodym) are explored. Practical implementation considerations, including quadrature methods and Monte Carlo 
+        techniques, are discussed alongside limitations of traditional tree-based approaches.</p>
+    </div>
+
+    <div class="section-content">
+        <h2>Fundamentals of Risk-Neutral Pricing</h2>
+        
+        <p>In arbitrage-free pricing theory, derivative valuation requires the existence of a risk-neutral measure 
+        \(\mathbb{Q}\) under which discounted asset prices become martingales. For an asset price process \(S_t\), 
+        this fundamental condition is expressed as:</p>
+        
+        <div class="equation-box">
+            \[ \mathbb{E}^{\mathbb{Q}}[e^{-rT}S_T | \mathcal{F}_t] = S_t \]
+        </div>
+        
+        <p>where \(r\) denotes the risk-free rate, \(T\) the maturity, and \(\mathcal{F}_t\) the filtration 
+        representing available information at time \(t\).</p>
+        
+        <p>For models with a log-price representation \(S_T = S_0 e^{X_T}\) where \(X_T \sim f_X(x; \mu)\), 
+        we require:</p>
+        
+        <div class="equation-box">
+            \[ \mathbb{E}^{\mathbb{Q}}[e^{X_T}] = e^{rT} \]
+        </div>
+        
+        <p>The moment generating function provides a powerful tool to enforce this condition through its definition:</p>
+        
+        <div class="equation-box">
+            \[ M(u) = \mathbb{E}[e^{uX_T}] = \int_{-\infty}^{\infty} e^{ux} f_X(x) dx \]
+        </div>
+    </div>
+    
+    <div class="theorem">
+        <div class="theorem-title">Theorem 1: Risk-Neutral Drift Adjustment</div>
+        <p>For a log-asset price \(X_T \sim f_X(x; \mu)\) where \(\mu\) represents the physical drift, 
+        the risk-neutral drift \(\mu_{RN}\) must satisfy:</p>
+        
+        <div class="equation-box">
+            \[ M(1; \mu_{RN}) = e^{rT} \]
+        </div>
+        
+        <p>This condition ensures the discounted asset price is a martingale under \(\mathbb{Q}\). 
+        The explicit solution for \(\mu_{RN}\) is:</p>
+        
+        <div class="equation-box">
+            \[ \mu_{RN} = \log\left(\frac{e^{rT}}{M(1; \mu=0)}\right) \]
+        </div>
+        
+        <p>where \(M(1; \mu=0)\) denotes the MGF evaluated at \(u=1\) with zero drift.</p>
+    </div>
+
+    <div class="section-content">
+        <h2>MGF Derivation and Examples</h2>
+        
+        <h3>General Properties</h3>
+        <p>The MGF provides a complete characterization of the distribution when it exists. Key properties include:</p>
+        <ul>
+            <li>\(M(0) = 1\) for any random variable</li>
+            <li>\(\frac{d^n M}{du^n}(0) = \mathbb{E}[X^n]\) (when derivatives exist)</li>
+            <li>For independent random variables: \(M_{X+Y}(u) = M_X(u)M_Y(u)\)</li>
+        </ul>
+        
+        <div class="example">
+            <div class="example-title">Example 1: Gaussian Distribution</div>
+            <p>For \(X_T \sim \mathcal{N}(\mu, \sigma^2)\):</p>
+            <div class="equation-box">
+                \[ M(u) = \exp\left(\mu u + \frac{1}{2}\sigma^2 u^2\right) \]
+            </div>
+            <p>Enforcing the martingale condition:</p>
+            <div class="equation-box">
+                \[ e^{\mu_{RN} + \frac{1}{2}\sigma^2} = e^{rT} \Rightarrow \mu_{RN} = rT - \frac{1}{2}\sigma^2 \]
+            </div>
+            <p>This recovers the classic Black-Scholes drift adjustment.</p>
+        </div>
+        
+        <div class="example">
+            <div class="example-title">Example 2: Poisson Jump Diffusion</div>
+            <p>For a compound Poisson process \(X_T = \sum_{i=1}^{N_T} Y_i\) where \(N_T \sim \text{Poisson}(\lambda T)\) and \(Y_i \sim \mathcal{N}(\mu_J, \sigma_J^2)\):</p>
+            <div class="equation-box">
+                \[ M(u) = \exp\left[T\left(\lambda(e^{\mu_J u + \frac{1}{2}\sigma_J^2 u^2} - 1\right)\right] \]
+            </div>
+            <p>The risk-neutral drift satisfies:</p>
+            <div class="equation-box">
+				\[
+				\lambda_{RN} \left( e^{\mu_{J,RN} + \frac{1}{2}\sigma_J^2} - 1 \right) = r - \frac{1}{2}\sigma^2 - \lambda \left( e^{\mu_J + \frac{1}{2}\sigma_J^2} - 1 \right)
+				\]
+            </div>
+            <p>where \(\sigma\) represents the diffusion volatility.</p>
+        </div>
+        
+        <div class="example">
+            <div class="example-title">Example 3: Variance Gamma Process</div>
+            <p>For the variance gamma model with parameters \(\theta, \sigma, \nu\):</p>
+            <div class="equation-box">
+                \[ M(u) = \left(1 - u\theta\nu - \frac{1}{2}\sigma^2\nu u^2\right)^{-T/\nu} \]
+            </div>
+            <p>The risk-neutral condition requires solving:</p>
+            <div class="equation-box">
+                \[ \left(1 - \theta_{RN}\nu - \frac{1}{2}\sigma_{RN}^2\nu\right)^{-T/\nu} = e^{rT} \]
+            </div>
+            <p>which involves simultaneous adjustment of multiple parameters.</p>
+        </div>
+    </div>
+
+    <div class="section-content">
+        <h2>Connections to Fundamental Theorems</h2>
+        
+        <h3>Girsanov Theorem</h3>
+        <p>The MGF approach provides a computational implementation of Girsanov's theorem, which describes measure transformations:</p>
+        
+        <div class="equation-box">
+            \[ \frac{d\mathbb{Q}}{d\mathbb{P}} = \exp\left(-\int_0^T \theta(t) dW_t^{\mathbb{P}} - \frac{1}{2}\int_0^T \theta(t)^2 dt\right) \]
+        </div>
+        
+        <p>The Radon-Nikodym derivative connects to the MGF through exponential moments. For exponential Lévy models, the density is directly related to the MGF.</p>
+        
+        <h3>Itô Calculus</h3>
+        <p>For diffusion models, the MGF approach provides an alternative to solving PDEs derived from Itô's lemma. The Feynman-Kac theorem establishes the equivalence between:</p>
+        <ul>
+            <li>Expectation representations (MGF approach)</li>
+            <li>Partial differential equations (PDE approach)</li>
+        </ul>
+        
+        <div class="equation-box">
+            \[ \frac{\partial V}{\partial t} + \mu \frac{\partial V}{\partial x} + \frac{1}{2}\sigma^2 \frac{\partial^2 V}{\partial x^2} - rV = 0 \]
+        </div>
+        
+        <h3>Taylor Series Expansion</h3>
+        <p>The MGF encodes all moments of the distribution through its series expansion:</p>
+        
+        <div class="equation-box">
+            \[ M(u) = \sum_{n=0}^{\infty} \frac{u^n}{n!} \mathbb{E}[X^n] \]
+        </div>
+        
+        <p>This reveals that the risk-neutral adjustment incorporates adjustments to all moments, not just the mean:</p>
+        
+        <div class="equation-box">
+            \[ \mu_{RN} = rT - \log M(1) = rT - \left(\mu T + \frac{1}{2}\sigma^2 T + \frac{\mathbb{E}[X^3]}{3!} + \cdots\right) \]
+        </div>
+    </div>
+
+    <div class="section-content">
+        <h2>Multi-Asset Generalization</h2>
+        
+        <p>For a system of \(n\) assets with correlated returns \(\vec{X} = (X_1, \ldots, X_n) \sim \mathcal{N}(\vec{\mu}, \Sigma)\), the multivariate MGF is:</p>
+        
+        <div class="equation-box">
+            \[ M(\vec{u}) = \exp\left(\vec{\mu}^T \vec{u} + \frac{1}{2}\vec{u}^T \Sigma \vec{u}\right) \]
+        </div>
+        
+        <p>The martingale condition requires for each asset \(i\):</p>
+        
+        <div class="equation-box">
+            \[ \mathbb{E}^{\mathbb{Q}}[e^{X_i}] = M(0,\ldots,1_i,\ldots,0) = e^{rT} \]
+        </div>
+        
+        <p>This generates a system of equations:</p>
+        
+        <div class="equation-box">
+            \[ \mu_{i,RN} + \frac{1}{2}\Sigma_{ii} + \sum_{j \neq i} \Sigma_{ij} \lambda_j = rT \]
+        </div>
+        
+        <p>where \(\lambda_j\) are market prices of risk. The complete adjustment requires solving:</p>
+        
+        <div class="equation-box">
+            \[ \vec{\mu}_{RN} = rT\vec{1} - \frac{1}{2}\text{diag}(\Sigma) - \Sigma \vec{\lambda} \]
+        </div>
+        
+        <p>This framework extends to non-Gaussian multivariate models through copula-based MGF constructions.</p>
+    </div>
+
+    <div class="section-content">
+        <h2>Implementation Considerations</h2>
+        
+        <h3>Quadrature Methods</h3>
+        <p>For distributions without closed-form MGFs (e.g., Weibull, generalized hyperbolic), numerical integration is essential:</p>
+        
+        <div class="equation-box">
+            \[ M(1) \approx \sum_{k=1}^N w_k e^{x_k} f_X(x_k) \]
+        </div>
+        
+        <p>Gauss-Hermite quadrature is particularly efficient for approximately Gaussian densities, while adaptive quadrature handles heavy-tailed distributions.</p>
+        
+        <h3>Monte Carlo Simulation</h3>
+        <p>When analytical and quadrature methods fail, Monte Carlo provides a flexible alternative:</p>
+        
+        <div class="equation-box">
+            \[ M(1) \approx \frac{1}{N} \sum_{i=1}^N e^{X_T^{(i)}} \]
+        </div>
+        
+        <p>with variance reduction techniques (importance sampling, control variates) dramatically improving convergence.</p>
+        
+        <h3>Limitations of Lattice Methods</h3>
+        <p>Traditional binomial/trinomial trees face fundamental limitations:</p>
+        <ul>
+            <li>Exponential growth in multi-dimensional settings</li>
+            <li>Difficulty matching higher moments (skewness > 3, kurtosis > 4)</li>
+            <li>Lattice artifacts in barrier option pricing</li>
+        </ul>
+        
+        <p>Advanced alternatives include:</p>
+        <ul>
+            <li><strong>Heptanomial trees:</strong> Match up to 4 moments but with \(O(n^4)\) complexity</li>
+            <li><strong>Edgeworth expansions:</strong> Adjust lattice probabilities to match moments</li>
+            <li><strong>Markov chain approximations:</strong> Preserve distributional properties</li>
+        </ul>
+    </div>
+
+    <div class="section-content">
+        <h2>Applications in Option Pricing</h2>
+        
+        <h3>European Options</h3>
+        <p>For European calls, the risk-neutral expectation becomes:</p>
+        
+        <div class="equation-box">
+            \[ C = e^{-rT} \mathbb{E}^{\mathbb{Q}}[\max(S_T - K, 0)] = e^{-rT} \int_K^{\infty} (S_0 e^x - K) f_{X_T}(x) dx \]
+        </div>
+        
+        <p>When the MGF is known, this can be efficiently computed using Fourier transform methods.</p>
+        
+        <h3>Exotic Options</h3>
+        <p>For barrier options, the MGF of the first passage time can be derived for Brownian motion:</p>
+        
+        <div class="equation-box">
+            \[ M_{\tau_b}(u) = \mathbb{E}[e^{-u\tau_b}] = e^{-b(\sqrt{2u + \theta^2} - \theta)} \]
+        </div>
+        
+        <p>where \(\tau_b = \inf\{t > 0: W_t = b\}\) and \(\theta = \mu/\sigma\).</p>
+        
+        <h3>Stochastic Volatility Models</h3>
+        <p>In the Heston model, the characteristic function (Fourier transform of MGF) has a closed form:</p>
+        
+        <div class="equation-box">
+            \[ \phi(u) = \exp\left(C(u,T) + D(u,T)v_0 + iu \ln S_0\right) \]
+        </div>
+        
+        <p>where \(C(\cdot)\) and \(D(\cdot)\) solve Riccati equations. This enables efficient option pricing via Fourier inversion.</p>
+    </div>
+
+    <div class="section-content">
+        <h2>Conclusion</h2>
+        
+        <p>The moment generating function provides a powerful unified framework for risk-neutral drift adjustment across diverse asset price models. This approach:</p>
+        
+        <ul>
+            <li>Generalizes beyond Gaussian assumptions to Lévy processes and jump diffusions</li>
+            <li>Provides explicit connections to fundamental theorems of asset pricing</li>
+            <li>Enables efficient computation via quadrature when closed-form solutions exist</li>
+            <li>Extends naturally to multi-asset systems with correlations</li>
+            <li>Integrates with Fourier methods for efficient option pricing</li>
+        </ul>
+        
+        <p>Future research directions include developing MGF-based methods for rough volatility models, machine learning accelerated quadrature techniques, and quantum computing approaches for high-dimensional problems.</p>
+    </div>
+
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.18/katex.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.18/contrib/auto-render.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        });
+    </script>
+</body>
+</html>
