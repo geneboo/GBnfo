@@ -103,6 +103,21 @@
             background: var(--bg-overlay-gradient);
         }
         
+		/* ----------------------------------------------------
+		   2. Sub‑tle “grid” that looks like a Vogue magazine
+		   ---------------------------------------------------- */
+		.vogue-grid {
+			position: fixed;
+			inset: 0;
+			z-index: -1;
+			background-image:
+				linear-gradient(var(--primary-color) 1px, transparent 1px),
+				linear-gradient(90deg, var(--primary-color) 1px, transparent 1px);
+			background-size: 40px 40px;
+			opacity: 0.08;                 /* small hint of the pattern */
+			pointer-events: none;
+		}
+
         /* Shape Animations from Initial Design */
         .shape {
             position: absolute;
