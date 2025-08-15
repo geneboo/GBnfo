@@ -62,6 +62,7 @@
 <main>
 
   <h1>Asian/Basket Spread Options via Stochastic Taylor Expansions, MGF Moments, and Chebyshev Acceleration</h1>
+  <div class="author">Gene Boo | Updated: Jul 2020, Jul 2025</div>
   <p class="lead">
     Closed-form proxy pricing with analytic higher-order corrections, moment-generating (MGF) moments, and uniform accuracy across strikes via Chebyshev re-expansion.
   </p>
@@ -263,7 +264,6 @@
           \frac{\partial}{\partial \sigma_\text{tot}}\mathrm{Black} = DF\,F\,\varphi(d_1),
           \quad \sigma_\text{tot} := \sqrt{v^2}.
         \]
-      \]
       </p>
     </div>
     <div>
@@ -674,13 +674,14 @@
   </div>
   <div>
     <h4>Stochastic Volatility (Heston, SABR)</h4>
-    <p class="math">
+    <p class="math">\[
       \text{(Heston)}\quad
       \begin{cases}
       dS_t/S_t = (r-q)dt + \sqrt{v_t}dW_t^S \\
       dv_t = \kappa(\theta - v_t)dt + \xi\sqrt{v_t}dW_t^v
       \end{cases}
-    \p>
+	\]
+    </p>
     <p>
       <strong>Integration:</strong> ◐<br>
       - Proxy with <em>Hull-White moments</em> for basket components<br>
@@ -957,47 +958,124 @@
 <h2 id="d-structured">Appendix E — Structured Products Pricing</h2>
 
 <h3>E.1 Autocallable with Lizard Payoff</h3>
+
+<!-- ----------------------- PAYOFF ------------------------------ -->
 <p class="math">
-  \text{Payoff:}\quad
-  V_T = 
-  \begin{cases} 
-    R_i & \text{if } S_{t_i} \geq K_i \text{ at } t_i \\ 
-    \min\left(\max\left(\frac{S_T}{S_0}, F\right), C\right) & \text{otherwise}
-  \end{cases}
-\]</p>
+\[
+V_T =
+\begin{cases}
+R_i, & \text{if } S_{t_i} \ge K_i \text{ for the first time at } t_i, \\[4pt]
+\min\left(\max\left(\tfrac{S_T}{S_0}, F\right), C\right), &
+\text{if no call and } \min_{t\le T} S_t > L, \\[6pt]
+0, & \text{if the underlying ever hits } L.
+\end{cases}
+\]
+</p>
+<p><em>Payoff behaves like an autocall until maturity, at which point a “lizard” barrier protects a capped and floored payoff.</em></p>
+
+<!-- ----------------------- TWO COLUMN LAYOUT -------------------- -->
 <div class="two-col">
+
+  <!-- PRICING COLUMN -->
   <div>
-    <p>
-      <strong>Pricing Steps:</strong>
-      <ol>
-        <li>Compute survival probability \(Q(\tau > t_i)\) via barrier-like formulas</li>
-        <li>Conditional forward value for lizard payoff:
-          \[
-          V_\text{lizard} = C - (C-F)\Phi\left(\frac{\ln(F/F_0)}{\sigma\sqrt{T}}\right)
-          \]
-        </li>
-        <li>Assemble:
-          \[
-          V = \sum_i e^{-rt_i}R_i \Delta Q_i + e^{-rT}V_\text{lizard} Q(\text{no call})
-          \]
-        </li>
-      </ol>
-    </p>
+    <strong>Pricing Logic:</strong>
+    <ol>
+      <li>
+        <em>Autocall cashflows:</em>
+        <p class="math">
+        \[
+        V_{\text{auto}} =
+        \sum_i e^{-r t_i} R_i \,\bigl[\,\mathbb{P}(\tau > t_{i-1}) - \mathbb{P}(\tau > t_i)\,\bigr]
+        \]
+        </p>
+        <small>Calls trigger sequentially; only the first hit pays.</small>
+      </li>
+
+      <li>
+        <em>Broadie–Glasserman (discrete barrier) survival probability:</em>
+        <p class="math">
+        \[
+        \mathbb{P}(\tau > T,\; \min_{t\le T}S_t > L)
+        \;\approx\;
+        h_0\Phi(a) + h_1\phi(a) + h_2\bigl(a^2-1\bigr)\phi(a)
+        \]
+        </p>
+        <small>
+          with \(a = \dfrac{\ln(S_0/L)}{\sigma\sqrt{T}}\);  
+          \(h_k\) are Hermite coefficients.
+        </small>
+      </li>
+
+      <li>
+        <em>Conditional lizard payoff value:</em>
+        <p class="math">
+        \[
+        V_{\text{lizard}} = 
+        \mathbb{E}\left[
+        \min\left(\max\left(\tfrac{S_T}{S_0},F\right),C\right)
+        \,\Big|\, \tau > T,\; \min_{t\le T} S_t > L\right]
+        \]
+        </p>
+        <small>
+          Typically computed via Black–Scholes or regression under survival conditioning.
+        </small>
+      </li>
+
+      <li>
+        <em>Total price:</em>
+        <p class="math">
+        \[
+        V = V_{\text{auto}} + e^{-rT}\cdot
+        \mathbb{P}(\tau > T,\; \min S_t > L)\cdot V_{\text{lizard}}
+        \]
+        </p>
+      </li>
+    </ol>
   </div>
+
+  <!-- GREEKS COLUMN -->
   <div>
-    <p>
-      <strong>Key Greeks:</strong>
-      <ul>
-        <li>Autocall trigger sensitivity:
-          \[
-          \frac{\partial V}{\partial K_i} = -e^{-rt_i}R_i f_{S_{t_i}}(K_i)
-          \]
-        </li>
-        <li>Lizard vega concentrated at final maturity</li>
-      </ul>
-    </p>
+    <strong>Key Greeks:</strong>
+    <ul>
+      <li>
+        Autocall delta:
+        <p class="math">\[
+        \Delta = \frac{\partial V}{\partial S_0}
+        \approx \sum_i e^{-rt_i} R_i \,\frac{\partial Q_i}{\partial S_0}
+        \]
+        </p>
+      </li>
+      <li>
+        Trigger-gamma:
+        <p class="math">
+        \[
+        \Gamma = \frac{\partial^2 V}{\partial S_0^2}
+        \approx \sum_i e^{-rt_i}R_i \,\frac{\partial^2 Q_i}{\partial S_0^2}
+        \]
+        </p>
+      </li>
+      <li>
+        Vega (lizard dominates):
+        <p class="math">\[
+        \nu = \frac{\partial V}{\partial \sigma}
+        \approx
+        e^{-rT}\,V_{\text{lizard}}\,
+        \frac{\partial}{\partial\sigma}\mathbb{P}(\tau>T,\min S_t>L)
+        \]
+        </p>
+      </li>
+      <li>
+        Rho:
+        <p class="math">\[
+        \rho = \frac{\partial V}{\partial r}
+        = -\sum_i t_i e^{-rt_i}R_i\Delta Q_i - T e^{-rT} V_{\text{lizard}} Q_{\text{surv}}
+        \]
+        </p>
+      </li>
+    </ul>
   </div>
 </div>
+
 
 <h3>E.2 KIKO (Knock-In Knock-Out) Barriers</h3>
 <p class="math">\[
