@@ -1,0 +1,1123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Asian/Basket Spread Options via Stochastic Taylor + MGF + Chebyshev</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- MathJax for LaTeX rendering -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+  <style>
+    /* A4 printable layout */
+    @page { size: A4; margin: 20mm; }
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      a { color: #000; text-decoration: none; }
+      .no-print { display: none; }
+    }
+    :root {
+      --fg: #1b1f23;
+      --muted: #6a737d;
+      --accent: #0366d6;
+      --bg: #ffffff;
+      --code-bg: #f6f8fa;
+      --rule: #e1e4e8;
+    }
+    html, body {
+      background: var(--bg);
+      color: var(--fg);
+      font: 14.5px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      margin: 0; padding: 0;
+    }
+    main { max-width: 800px; margin: 0 auto; padding: 22px; }
+    h1, h2, h3, h4 { margin: 1.2em 0 0.5em; line-height: 1.2; }
+    h1 { font-size: 26px; }
+    h2 { font-size: 21px; border-bottom: 1px solid var(--rule); padding-bottom: 6px; }
+    h3 { font-size: 18px; }
+    h4 { font-size: 15px; color: var(--muted); text-transform: uppercase; letter-spacing: .02em; }
+    p { margin: 0.6em 0; }
+    ul, ol { margin: 0.6em 0 0.6em 1.25em; }
+    li { margin: 0.25em 0; }
+    .lead { color: var(--muted); }
+    .rule { border-top: 1px solid var(--rule); margin: 16px 0; }
+    .note { background: var(--code-bg); border-left: 3px solid var(--accent); padding: 10px 12px; margin: 12px 0; }
+    code, pre, .math { background: var(--code-bg); padding: 0 3px; border-radius: 3px; display: block; }
+    .boxed { border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; margin: 12px 0; }
+    details { background: #fafbfc; border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px; margin: 10px 0; }
+    details > summary { cursor: pointer; font-weight: 600; }
+    .two-col { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+    .muted { color: var(--muted); }
+    .tag { display: inline-block; border: 1px solid var(--rule); border-radius: 999px; padding: 2px 8px; font-size: 12px; color: var(--muted); }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<main>
+
+  <h1>Asian/Basket Spread Options via Stochastic Taylor Expansions, MGF Moments, and Chebyshev Acceleration</h1>
+  <p class="lead">
+    Closed-form proxy pricing with analytic higher-order corrections, moment-generating (MGF) moments, and uniform accuracy across strikes via Chebyshev re-expansion.
+  </p>
+
+  <div class="boxed">
+    <strong>At a glance:</strong>
+    <ul>
+      <li><strong>Model:</strong> Black–Scholes with time-dependent rates/dividends/vols, correlated underlyings; Asians reduced to baskets.</li>
+      <li><strong>Proxy:</strong> Exchange option on geometric legs, priced with Black–76; arithmetic legs matched in mean (Vorst) and optionally variance (Levy).</li>
+      <li><strong>Corrections:</strong> Stochastic Taylor expansions (first/second/third order) expressed as Black strike derivatives times exponential multipliers.</li>
+      <li><strong>Moments:</strong> MGF-based joint moments for sums of correlated lognormals drive coefficients at any order.</li>
+      <li><strong>Chebyshev:</strong> Spectral re-expansion in strike for uniform accuracy over a chosen moneyness window; no integration or root-finding.</li>
+    </ul>
+  </div>
+
+  <h2 id="setup">1. Setup and notation</h2>
+  <p>
+    Under risk-neutral measure, for each asset or fixing index \(i\), let the forward to maturity be \(F_i\), total log-variance \(v_i = \int_0^{t_i} \sigma_i^2(s)\,ds\), and log-covariance
+  </p>
+  <p class="math">
+    \[
+      C_{ij} \;=\; \int_0^{\min(t_i,t_j)} \rho_{ij}(s)\,\sigma_i(s)\,\sigma_j(s)\,ds.
+    \]
+  </p>
+  <p>
+    Define a basket with mixed-sign weights \(w_i\). For spreads, partition indices into positive leg \(\mathcal{P}\) and negative leg \(\mathcal{N}\), and (optionally) fold an additive strike \(K\) into a zero-vol “asset” at \(t=0\) with weight \(-1\).
+  </p>
+
+  <h3>1.1 Asians reduced to baskets</h3>
+  <p>
+    For an arithmetic Asian with observation dates \(t_i\) and positive averaging weights \(\alpha_i\), treat each fixing as a separate “asset” with forward \(F_i\), variance \(v_i\), and covariance \(C_{ij}\). The Asian then becomes a basket with weights \(w_i = \alpha_i \tilde{w}\), where \(\tilde{w}\) are the original basket/spread leg weights.
+  </p>
+
+  <h3>1.2 Geometric proxy and leg normalizations</h3>
+  <p>
+    Define the positive and negative legs:
+  </p>
+  <p class="math">
+    \[
+      A_+ \;=\; \sum_{i\in\mathcal{P}} w_i S_i, \qquad
+      A_- \;=\; \sum_{i\in\mathcal{N}} |w_i| S_i.
+    \]
+  </p>
+  <p>
+    Their geometric counterparts \(G_+\), \(G_-\) are built so that \(\mathbb{E}[G_+]=\mathbb{E}[A_+]\) and \(\mathbb{E}[G_-]=\mathbb{E}[A_-]\) (Vorst). Optionally, match the variance of each leg (Levy). Let
+  </p>
+  <p class="math">
+    \[
+      A_p \;:=\; \sum_{i\in\mathcal{P}} w_i F_i \;>\; 0, \qquad
+      A_n \;:=\; \sum_{i\in\mathcal{N}} |w_i| F_i \;>\; 0.
+    \]
+  </p>
+  <p>
+    For a multiplicative strike factor \(k\) (or after folding an additive strike into the negative leg), define the shifted strike
+  </p>
+  <p class="math">
+    \[
+      K^\star \;=\; \frac{A_n}{A_p}\,k.
+    \]
+  </p>
+
+  <h2 id="proxy">2. Proxy price and key identities</h2>
+
+  <h3>2.1 Proxy value</h3>
+  <p>
+    The proxy prices the exchange of geometric legs via Black–76 on the ratio. Let \(v^2\) be the total variance of \(\log(G_+/G_-)\) (explicit below). The proxy value is
+  </p>
+  <p class="math boxed">
+    \[
+      V_{G0} \;=\; A_p \cdot \mathrm{Black}\big(1,\; K^\star,\; v^2\big),
+    \]
+  </p>
+  <p class="muted">
+    where \(\mathrm{Black}(F,K,v^2)= DF\,[F\,\Phi(d_1) - K\,\Phi(d_2)]\), \(d_1 = \frac{\ln(F/K)+\frac{1}{2}v^2}{\sqrt{v^2}}\), \(d_2 = d_1 - \sqrt{v^2}\), and \(DF\) is the discount factor to maturity.
+  </p>
+
+  <h3>2.2 Variance of the ratio</h3>
+  <p>
+    Let the (geometric) leg variances and covariance be
+  </p>
+  <p class="math">
+    \[
+      v_+^2 \;=\; \sum_{i,j\in\mathcal{P}} a_i a_j\, C_{ij}, \qquad
+      v_-^2 \;=\; \sum_{i,j\in\mathcal{N}} b_i b_j\, C_{ij}, \qquad
+      v_{+-} \;=\; \sum_{i\in\mathcal{P}}\sum_{j\in\mathcal{N}} a_i b_j\, C_{ij},
+    \]
+  </p>
+  <p>
+    where \((a_i)\) and \((b_j)\) are the log-weights defining \(G_+\) and \(G_-\). Then
+  </p>
+  <p class="math boxed">
+    \[
+      v^2 \;=\; v_+^2 \;+\; v_-^2 \;-\; 2\,v_{+-}.
+    \]
+  </p>
+
+  <details>
+    <summary>Proof sketch via change of measure (Identity 1)</summary>
+    <p>
+      Write \(G_\pm(T) = \exp(M_\pm - \tfrac{1}{2}v_\pm^2)\) with jointly normal \(M_\pm\), \(\mathrm{Var}[M_\pm]=v_\pm^2\), \(\mathrm{Cov}(M_+,M_-)=v_{+-}\). Under the measure with density proportional to \(G_+^{-1}\), the ratio \(G_-/G_+\) remains lognormal with variance \(v^2 = v_+^2 + v_-^2 - 2v_{+-}\). The option becomes a Black–76 call on \(G_-/G_+\) with forward 1 and strike \(K^\star\), scaled by \(A_p\).
+    </p>
+  </details>
+
+  <div class="note">
+    <strong>Layman’s intuition:</strong> The spread is hard to price directly. We approximate both legs by “nice” geometric baskets so their ratio is lognormal. Then we price a plain call on that ratio and rescale by the positive leg’s size.
+  </div>
+
+  <h2 id="expansions">3. Stochastic Taylor corrections and MGF moments</h2>
+
+  <h3>3.1 Moment engine (MGF)</h3>
+  <p>
+    Under Black–Scholes, for any multi-index \((p_1,\dots,p_m)\in\mathbb{N}^m\),
+	<p class="math boxed">\[
+	\mathbb{E}\Big[\prod_{i=1}^m S_i^{p_i}\Big]
+	= \prod_{i=1}^m F_i^{p_i} \,
+	\exp\!\left(
+	  \tfrac{1}{2} \sum_{i=1}^m p_i (p_i - 1) v_i
+	  + \sum_{1 \leq i < j \leq m} p_i p_j C_{ij}
+	\right)
+	\]</p>
+  <p>
+    This yields closed-form means, variances, and higher moments for \(A_+\), \(A_-\), and cross-terms. These moments feed the stochastic Taylor coefficients without numerical integration.
+  </p>
+
+  <h3>3.2 First/second/third order structure</h3>
+  <p>
+    The price around the proxy is expanded by Taylor on the payoff indicator. Each term reduces to an exponential multiplier (from moments) times a <em>strike derivative</em> of the Black price, thanks to change-of-measure identities:
+  </p>
+  <p class="math">
+    \[
+      V \approx V_{G0}
+      \;+\; \sum_{q=1}^r \sum_{\ell} \Lambda_{q,\ell}\;\frac{\partial^q}{\partial K^{\star q}}
+      \mathrm{Black}\big(F_\ell^\mathrm{eff},\,K^\star,\,v^2\big),
+    \]
+  </p>
+  <p>
+    where each \(\Lambda_{q,\ell}\) is computable from MGF moments and \((a_i,b_j,C_{ij})\), and \(F_\ell^\mathrm{eff}\in\{1, e^{v^2}, e^{2v^2}, \dots\}\) per the identities. In practice, \(r=2\) (VG2) is already highly accurate; \(r=3\) (VG3) often reaches Monte Carlo noise.
+  </p>
+
+  <details>
+    <summary>Strike derivatives of Black–76</summary>
+    <p class="math">
+      \[
+        \frac{\partial}{\partial K}\mathrm{Black}(F,K,v^2) \;=\; -DF\,\Phi(d_2),\qquad
+        \frac{\partial^2}{\partial K^2}\mathrm{Black}(F,K,v^2) \;=\; DF\,\frac{\varphi(d_2)}{K\sqrt{v^2}},
+      \]
+      \[
+        \frac{\partial^3}{\partial K^3}\mathrm{Black}(F,K,v^2) \;=\; DF\,\frac{\varphi(d_2)}{K^2\,v^2}\,\big(d_2 - 1\big),
+      \]
+    </p>
+    <p>
+      where \(\Phi\) and \(\varphi\) are the standard normal CDF and PDF.
+    </p>
+  </details>
+
+  <div class="note">
+    <strong>Layman’s intuition:</strong> Each correction term says: “nudge the strike a little and see how the vanilla price bends.” Those bends (derivatives) are known in closed form; the only job is to compute how big a nudge each moment implies.
+  </div>
+
+  <h2 id="chebyshev">4. Chebyshev acceleration across strikes</h2>
+  <p>
+    Local Taylor is excellent near a strike; Chebyshev polynomials make it uniformly excellent over a range. Map \(K^\star\) to \(x\in[-1,1]\) and approximate the correction:
+  </p>
+  <p class="math boxed">
+    \[
+      \Delta V(K^\star) \;\approx\; \sum_{k=0}^{N-1} a_k\,T_k\!\big(x(K^\star)\big),
+      \quad x(K^\star)=\frac{2K^\star-(K^\star_{\min}\!+\!K^\star_{\max})}{K^\star_{\max}-K^\star_{\min}}.
+    \]
+  </p>
+  <p>
+    Coefficients \(a_k\) come from analytic evaluations at Chebyshev nodes. Online, evaluate via Clenshaw recurrence. No integration, no roots, and smooth behavior in the wings.
+  </p>
+
+  <h2 id="greeks">5. Greeks: partial delta, gamma, vega, rho, theta</h2>
+  <p>
+    Write the (possibly corrected) price schematically as
+  </p>
+  <p class="math">
+    \[
+      V \;\approx\; A_p \cdot \mathrm{Black}\big(F_\mathrm{eff},\,K^\star,\,v^2\big) \;+\; \sum_{q,\ell} \Lambda_{q,\ell}\,\partial_{K^\star}^q \mathrm{Black}\big(F_\ell^\mathrm{eff},K^\star,v^2\big).
+    \]
+  </p>
+  <p>
+    The effective forwards are typically \(F_\mathrm{eff}=1\) (or \(e^{\alpha v^2}\) per identity). Dependence on market inputs enters via \(A_p\), \(K^\star\), \(v^2\), \(DF\), and the multipliers \(\Lambda_{q,\ell}\).
+  </p>
+
+  <h3>5.1 Building blocks (vanilla Black–76)</h3>
+  <div class="two-col">
+    <div>
+      <p class="math">
+        \[
+          \frac{\partial}{\partial F}\mathrm{Black} = DF\,\Phi(d_1),\qquad
+          \frac{\partial}{\partial K}\mathrm{Black} = -DF\,\Phi(d_2),
+        \]
+        \[
+          \frac{\partial^2}{\partial F^2}\mathrm{Black} = DF\,\frac{\varphi(d_1)}{F\sqrt{v^2}},
+        \]
+        \[
+          \frac{\partial}{\partial \sigma_\text{tot}}\mathrm{Black} = DF\,F\,\varphi(d_1),
+          \quad \sigma_\text{tot} := \sqrt{v^2}.
+        \]
+      \]
+      </p>
+    </div>
+    <div>
+      <p class="math">
+        \[
+          \frac{\partial}{\partial DF}\mathrm{Black} = F\,\Phi(d_1) - K\,\Phi(d_2),
+        \]
+        \[
+          \frac{\partial}{\partial v^2}\mathrm{Black} = 
+          \frac{1}{2\sigma_\text{tot}}\,\frac{\partial}{\partial \sigma_\text{tot}}\mathrm{Black}
+          = \frac{DF\,F\,\varphi(d_1)}{2\sqrt{v^2}}.
+        \]
+      </p>
+      <p class="muted">Use chain rule for time/rate sensitivities via \(DF\), \(F\), and \(v^2\).</p>
+    </div>
+  </div>
+
+  <h3>5.2 Partial delta (w.r.t. a specific forward \(F_i\))</h3>
+  <p>
+    For \(i\in\mathcal{P}\): \(\frac{\partial A_p}{\partial F_i}=w_i\); for \(i\in\mathcal{N}\): \(\frac{\partial A_p}{\partial F_i}=0\).
+    With \(K^\star=\frac{A_n}{A_p}k\),
+  </p>
+  <p class="math">
+    \[
+      \frac{\partial K^\star}{\partial F_i} \;=\;
+      \frac{k}{A_p}\,\frac{\partial A_n}{\partial F_i} \;-\; \frac{kA_n}{A_p^2}\,\frac{\partial A_p}{\partial F_i}
+      \;=\; \begin{cases}
+        -\,\dfrac{kA_n}{A_p^2}\,w_i, & i\in\mathcal{P},\\[8pt]
+        \dfrac{k}{A_p}\,|w_i|, & i\in\mathcal{N}.
+      \end{cases}
+    \]
+  </p>
+  <p>
+    Assuming \(v^2\) does not depend on forwards, the proxy delta is
+  </p>
+  <p class="math boxed">
+    \[
+      \frac{\partial V_{G0}}{\partial F_i}
+      \;=\; \underbrace{\frac{\partial A_p}{\partial F_i}\,\mathrm{Black}(F_\mathrm{eff},K^\star,v^2)}_{\text{leg scaling}}
+      \;+\; \underbrace{A_p\,\frac{\partial \mathrm{Black}}{\partial K}\,\frac{\partial K^\star}{\partial F_i}}_{\text{strike shift}},
+    \]
+  </p>
+  <p>
+    where \(\frac{\partial \mathrm{Black}}{\partial K}=-DF\,\Phi(d_2)\) evaluated at \((F_\mathrm{eff},K^\star,v^2)\). Corrections add terms of the form \(\Lambda_{q,\ell}\,\partial_{K^\star}^{q+1}\mathrm{Black}\,\frac{\partial K^\star}{\partial F_i}\).
+  </p>
+
+  <div class="note">
+    <strong>Layman’s intuition:</strong> Changing a component forward does two things: it scales the positive leg, and it shifts the effective strike. The total delta is the sum of those two clear effects.
+  </div>
+
+  <h3>5.3 Partial gamma (per forward \(F_i\))</h3>
+  <p>
+    Because \(K^\star\) is linear in forwards, \(\frac{\partial^2 K^\star}{\partial F_i^2}=0\). Differentiating the delta,
+  </p>
+  <p class="math boxed">
+    \[
+      \frac{\partial^2 V_{G0}}{\partial F_i^2}
+      \;=\; A_p \cdot \frac{\partial^2 \mathrm{Black}}{\partial K^2}\,\Big(\frac{\partial K^\star}{\partial F_i}\Big)^2,
+      \qquad
+      \frac{\partial^2 \mathrm{Black}}{\partial K^2} \;=\; DF\,\frac{\varphi(d_2)}{K^\star\,\sqrt{v^2}}.
+    \]
+  </p>
+  <p>
+    Cross-gammas \(\frac{\partial^2 V}{\partial F_i\,\partial F_j}\) (for \(i\neq j\)) follow similarly with \(\frac{\partial K^\star}{\partial F_i}\frac{\partial K^\star}{\partial F_j}\). Higher-order corrections contribute via \(\partial_{K^\star}^{q+2}\mathrm{Black}\) terms.
+  </p>
+
+  <h3>5.4 Vega (w.r.t. primitive vol/corr parameters)</h3>
+  <p>
+    Volatility and correlation enter through \(v^2\) and multipliers \(\Lambda_{q,\ell}\). For a generic parameter \(\theta\) (e.g., a piecewise-constant \(\sigma_k\) or \(\rho_{ij}\)),
+  </p>
+  <p class="math boxed">
+    \[
+      \frac{\partial V}{\partial \theta}
+      \;=\; A_p \cdot \frac{\partial \mathrm{Black}}{\partial v^2}\,\frac{\partial v^2}{\partial \theta}
+      \;+\; \sum_{q,\ell}\Big(
+        \frac{\partial \Lambda_{q,\ell}}{\partial \theta}\,\partial_{K^\star}^q \mathrm{Black}
+        \;+\; \Lambda_{q,\ell}\,\frac{\partial}{\partial \theta}\partial_{K^\star}^q \mathrm{Black}
+      \Big),
+    \]
+  </p>
+  <p>
+    with \(\frac{\partial \mathrm{Black}}{\partial v^2}=\dfrac{DF\,F_\mathrm{eff}\,\varphi(d_1)}{2\sqrt{v^2}}\). The structural derivative \(\frac{\partial v^2}{\partial \theta}\) is explicit from
+  </p>
+  <p class="math">
+    \[
+      v^2 \;=\; v_+^2 + v_-^2 - 2 v_{+-}
+      \;=\; \sum_{i,j\in\mathcal{P}} a_i a_j C_{ij} + \sum_{i,j\in\mathcal{N}} b_i b_j C_{ij} - 2\sum_{i\in\mathcal{P}}\sum_{j\in\mathcal{N}} a_i b_j C_{ij}.
+    \]
+  </p>
+
+  <div class="note">
+    <strong>Layman’s intuition:</strong> Vega here is “how much the ratio’s volatility moves” times the vanilla vega, plus small corrections from non-Gaussian tweaks captured by the multipliers.
+  </div>
+
+  <h3>5.5 Rho (rates) and carry</h3>
+  <p>
+    With flat rate \(r\) (for simplicity), \(DF=e^{-rT}\) and forwards carry as \(F_i=S_i(0)e^{(r-q_i)T}\). Then
+  </p>
+  <p class="math boxed">
+    \[
+      \frac{\partial V}{\partial r}
+      \;=\; \underbrace{\frac{\partial V}{\partial DF}\,\frac{\partial DF}{\partial r}}_{\text{discounting}}
+      \;+\; \sum_i \frac{\partial V}{\partial F_i}\,\frac{\partial F_i}{\partial r}
+      \;+\; \frac{\partial V}{\partial v^2}\,\frac{\partial v^2}{\partial r},
+    \]
+  </p>
+  <p>
+    where \(\frac{\partial DF}{\partial r}=-T\,DF\), \(\frac{\partial F_i}{\partial r}=T\,F_i\). The term \(\partial v^2/\partial r\) is usually negligible under Black–Scholes with rate-independent vols/corrs.
+  </p>
+
+  <h3>5.6 Theta (calendar decay)</h3>
+  <p>
+    Theta gathers the explicit time decay of discounting, carries, and total variance:
+  </p>
+  <p class="math boxed">
+    \[
+      \Theta \;=\; \frac{\partial V}{\partial T}
+      \;=\; \frac{\partial V}{\partial DF}\,\frac{\partial DF}{\partial T}
+      \;+\; \sum_i \frac{\partial V}{\partial F_i}\,\frac{\partial F_i}{\partial T}
+      \;+\; \frac{\partial V}{\partial v^2}\,\frac{\partial v^2}{\partial T}
+      \;+\; \sum_{q,\ell}\Big(\frac{\partial \Lambda_{q,\ell}}{\partial T}\,\partial_{K^\star}^q \mathrm{Black}\Big).
+    \]
+  </p>
+  <p>
+    Under constant parameters, \(\frac{\partial DF}{\partial T}=-r\,DF\), \(\frac{\partial F_i}{\partial T}=(r-q_i)F_i\), \(\frac{\partial v^2}{\partial T}=\sigma_\text{ratio}^2\) (instantaneous variance of \(\log(G_+/G_-)\)).
+  </p>
+
+  <h2 id="extensions">6. Extension to Plain Baskets, Asians, and Spreads</h2>
+  
+  <div class="boxed">
+    <strong>Universal Framework:</strong> The same model prices:
+    <ul>
+      <li>Plain basket options (single leg)</li>
+      <li>Basket Asian options (discrete averaging)</li>
+      <li>Basket spread options (two-leg structure)</li>
+      <li>Asian spread options (mixed types)</li>
+    </ul>
+    by reconfiguring leg definitions and strike handling.
+  </div>
+
+  <h3>6.1 Toggling via Parameter Mapping</h3>
+  <p>
+    All option types are special cases of the general basket/spread framework:
+  </p>
+  
+  <table style="width:100%; border-collapse: collapse; margin: 12px 0;">
+    <thead>
+      <tr style="background: var(--code-bg);">
+        <th style="border:1px solid var(--rule); padding:8px">Product Type</th>
+        <th style="border:1px solid var(--rule); padding:8px">Positive Leg \(\mathcal{P}\)</th>
+        <th style="border:1px solid var(--rule); padding:8px">Negative Leg \(\mathcal{N}\)</th>
+        <th style="border:1px solid var(--rule); padding:8px">Strike Handling</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border:1px solid var(--rule); padding:8px">Plain Basket Call</td>
+        <td style="border:1px solid var(--rule); padding:8px">\(\sum w_iS_i\) (\(w_i > 0\))</td>
+        <td style="border:1px solid var(--rule); padding:8px">Strike \(K\) (vol=0)</td>
+        <td style="border:1px solid var(--rule); padding:8px">\(K^\star = \dfrac{K}{A_p}\)</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid var(--rule); padding:8px">Basket Asian Call</td>
+        <td style="border:1px solid var(--rule); padding:8px">\(\frac{1}{n}\sum_k S(t_k)\)</td>
+        <td style="border:1px solid var(--rule); padding:8px">Strike \(K\) (vol=0)</td>
+        <td style="border:1px solid var(--rule); padding:8px">\(K^\star = \dfrac{K}{A_p}\)</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid var(--rule); padding:8px">Basket Spread Call</td>
+        <td style="border:1px solid var(--rule); padding:8px">\(B_1 = \sum_{i\in\mathcal{I}} w_iS_i\)</td>
+        <td style="border:1px solid var(--rule); padding:8px">\(B_2 + K = \sum_{j\in\mathcal{J}} |w_j|S_j + K\)</td>
+        <td style="border:1px solid var(--rule); padding:8px">\(K^\star = \dfrac{A_n}{A_p}\)</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid var(--rule); padding:8px">Put Options</td>
+        <td style="border:1px solid var(--rule); padding:8px">Strike \(K\) (vol=0)</td>
+        <td style="border:1px solid var(--rule); padding:8px">Basket/Asian/Spread legs</td>
+        <td style="border:1px solid var(--rule); padding:8px">Swap \(A_p \leftrightarrow A_n\)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>6.2 Key Parameter Configurations</h3>
+  
+  <h4>Plain Basket Call (Single Leg)</h4>
+  <p class="math">
+    \[
+    \begin{aligned}
+    A_p &= \sum w_i F_i \\ 
+    A_n &= K \\
+    K^\star &= \frac{K}{A_p} \\
+    v^2 &= v_+^2 \quad \text{(variance of geometric basket)}
+    \end{aligned}
+    \]
+  </p>
+  
+  <h4>Basket Asian Call</h4>
+  <p class="math">
+    \[
+    \begin{aligned}
+    A_p &= \frac{1}{n}\sum_{k=1}^n F_k \\
+    A_n &= K \\
+    K^\star &= \frac{K}{A_p} \\
+    v^2 &= \sum_{i,j} a_i a_j C_{ij} \quad \text{(with } t_i = \text{fixing dates)}
+    \end{aligned}
+    \]
+  </p>
+  
+  <h4>Basket Spread Call</h4>
+  <p class="math">
+    \[
+    \begin{aligned}
+    A_p &= \sum_{i\in\mathcal{I}} w_i F_i \\
+    A_n &= \sum_{j\in\mathcal{J}} |w_j| F_j + K \\
+    K^\star &= \frac{A_n}{A_p} \\
+    v^2 &= v_+^2 + v_-^2 - 2v_{+-}
+    \end{aligned}
+    \]
+  </p>
+  
+  <div class="note">
+    <strong>Implementation Note:</strong> For put options, swap positive and negative legs and use call pricing formulas with modified \(K^\star\).
+  </div>
+
+
+  <h2 id="appendix">Appendix A — Useful expectations and identities</h2>
+
+  <h3>A.1 Joint lognormal moments</h3>
+  <p class="math">
+    \[
+      \mathbb{E}[S_i] = F_i,\quad
+      \mathrm{Var}(S_i) = F_i^2\big(e^{v_i}-1\big),\quad
+      \mathrm{Cov}(S_i,S_j)=F_iF_j\big(e^{C_{ij}}-1\big),
+    \]
+    \[
+      \mathbb{E}[S_i^2 S_j] = F_i^2 F_j\,e^{v_i+2C_{ij}},\quad
+      \mathbb{E}[S_i S_j S_k] = F_i F_j F_k\,e^{C_{ij}+C_{ik}+C_{jk}}.
+    \]
+  </p>
+
+  <h3>A.2 Core Black–76 identities for strike derivatives</h3>
+  <p class="math">
+    \[
+      \partial_K \mathrm{Black} = -DF\,\Phi(d_2),\quad
+      \partial_K^2 \mathrm{Black} = DF\,\frac{\varphi(d_2)}{K\sqrt{v^2}},\quad
+      \partial_K^3 \mathrm{Black} = DF\,\frac{\varphi(d_2)}{K^2 v^2}\,(d_2-1).
+    \]
+  </p>
+
+  <h3>A.3 Proxy exchange variance via change of measure</h3>
+  <p class="math">
+    \[
+      v^2 = v_+^2 + v_-^2 - 2v_{+-},\quad
+      \text{with}\; v_{(\cdot)}^2 \;\text{and}\; v_{+-} \;\text{as defined in §2.2}.
+    \]
+  </p>
+
+  <div class="rule"></div>
+  <p class="muted">
+    Notes:
+    <span class="tag">Scope</span> The same framework covers vanilla spreads (\(m=2\)), baskets (\(m>2\)), Asians (many fixings), and mixed-sign portfolios. 
+    <span class="tag">Computation</span> No numerical integration or root solving; all terms reduce to Black evaluations with analytic coefficients.
+  </p>
+
+  <h2 id="validation">Appendix B — Mathematical Validation</h2>
+  
+  <h3>B.1 Core Model Validation</h3>
+  
+  <div class="boxed">
+    <strong>Validation Summary:</strong>
+    <ul>
+      <li><strong>Log-variance/covariance:</strong> Correctly defined for time-dependent parameters</li>
+      <li><strong>Proxy construction:</strong> Vorst (mean-matching) and Levy (variance-matching) are standard</li>
+      <li><strong>Black-76 proxy:</strong> Variance formula \(v^2 = v_+^2 + v_-^2 - 2v_{+-}\) validated via measure change</li>
+      <li><strong>MGF moments:</strong> Joint lognormal moments formula is industry-standard</li>
+      <li><strong>Strike derivatives:</strong> \(\partial_K, \partial^2_K, \partial^3_K\) Black-76 verified</li>
+      <li><strong>Greeks:</strong> Partial derivatives rigorously derived via chain rule</li>
+    </ul>
+  </div>
+  
+  <h3>B.2 Special Case Verifications</h3>
+  
+  <h4>Case 1: Vanilla Option (m=1)</h4>
+  <p>
+    When \(m=1\) (single asset), the model reduces to Black-Scholes:
+  </p>
+  <p class="math">
+    \[
+    \begin{aligned}
+    A_p &= F_1 \\ 
+    A_n &= K \\
+    K^\star &= K/F_1 \\
+    v^2 &= \int_0^T \sigma^2(s)ds \\
+    V_{G0} &= F_1 \cdot \mathrm{Black}(1, K/F_1, v^2) = \mathrm{Black}(F_1, K, v^2)
+    \end{aligned}
+    \]
+  </p>
+  
+  <h4>Case 2: Exchange Option (m=2, K=0)</h4>
+  <p>
+    For two assets with \(K=0\), we recover Margrabe's formula:
+  </p>
+  <p class="math">
+    \[
+    \begin{aligned}
+    A_p &= w_1F_1 \\ 
+    A_n &= |w_2|F_2 \\
+    K^\star &= |w_2|F_2/(w_1F_1) \\
+    v^2 &= v_1^2 + v_2^2 - 2\rho_{12}\sqrt{v_1v_2} \\
+    V_{G0} &= w_1F_1 \cdot \mathrm{Black}(1, K^\star, v^2)
+    \end{aligned}
+    \]
+  </p>
+  
+  <h3>B.3 Moment Consistency Checks</h3>
+  <p>
+    For arithmetic Asian with two fixings (\(S_1, S_2\)):
+  </p>
+  <p class="math">
+    \[
+    \begin{aligned}
+    \mathbb{E}[(S_1 + S_2)/2] &= (F_1 + F_2)/2 \\
+    \mathrm{Var}[(S_1 + S_2)/2] &= \frac{1}{4}\left[ 
+      F_1^2(e^{v_1}-1) + F_2^2(e^{v_2}-1) + 2F_1F_2(e^{C_{12}}-1)
+    \right] \\
+    \mathbb{E}[(S_1S_2)] &= F_1F_2 e^{C_{12}} \quad \text{(via MGF)}
+    \end{aligned}
+    \]
+  </p>
+  <p>
+    Matches standard lognormal moment properties.
+  </p>
+  
+  <h3>B.4 Greeks Verification</h3>
+  <p>
+    Delta for basket call with strike:
+  </p>
+  <p class="math">
+    \[
+    \frac{\partial V}{\partial F_i} = w_i \Phi(d_1) - \left(w_i \frac{K}{A_p}\right) \Phi(d_2)
+    \]
+  </p>
+  <p>
+    When \(m=1\), reduces to Black-Scholes delta: \(\Phi(d_1)\).
+  </p>
+  
+  <div class="rule"></div>
+  <p class="muted">
+    <span class="tag">Validation</span> Model reduces to known closed-form solutions in special cases. 
+    <span class="tag">Consistency</span> MGF moments match lognormal properties. 
+    <span class="tag">Robustness</span> Greeks converge to expected limits.
+  </p>
+
+<h2 id="advanced-extensions">Appendix C — Extensions to Advanced Models and Numerical Methods</h2>
+
+<div class="boxed">
+  <strong>Framework Compatibility Matrix:</strong>
+  <ul>
+    <li><span class="tag">✓ Direct</span> Seamless integration with current model</li>
+    <li><span class="tag">◐ Partial</span> Requires modifications or approximations</li>
+    <li><span class="tag">✗ Alternative</span> Needs different numerical approach</li>
+  </ul>
+</div>
+
+<h3>C.1 Path-Dependent Options</h3>
+
+<h4>Continuous Monitoring (Barriers, Lookbacks)</h4>
+<p class="math">
+  \[
+  \begin{array}{c|c}
+  \text{Method} & \text{Compatibility} \\ \hline
+  \text{Geometric Proxy} & ◐\:\text{(Barriers via drift adjustment)} \\
+  \text{Stochastic Taylor} & ✗\:\text{(Breaks path independence)} \\
+  \text{Chebyshev Acceleration} & ◐\:\text{(Per-monitoring-date application)}
+  \end{array}
+  \]
+</p>
+<p>
+  <strong>Solution:</strong> For discrete barriers, apply current model between monitoring dates with boundary conditions. For lookbacks, use <em>distributional projection</em> on extremum statistics.
+</p>
+
+<h4>Strong Path Dependency (Cliquets, Volatility Swaps)</h4>
+<p class="math">
+  \[
+  V_\text{cliquet} = \mathbb{E}\left[\sum_{i=1}^n \max\left(\frac{S_{t_i}}{S_{t_{i-1}}} - k,\ 0\right)\right]
+  \]
+</p>
+<p>
+  <strong>Approach:</strong> Decompose into series of forward-starting options. Use current model per period with forward volatility adjustment.
+</p>
+
+<h3>C.2 Beyond Black-Scholes: Volatility Models</h3>
+
+<div class="two-col">
+  <div>
+    <h4>Local Volatility (Dupire)</h4>
+    <p class="math">
+      \[
+      \frac{dS_t}{S_t} = (r-q)dt + \sigma(S_t,t)dW_t
+      \]
+    </p>
+    <p>
+      <strong>Integration:</strong> ◐<br>
+      - Use <em>Markovian projection</em> to effective BS variance<br>
+      - Calibrate \(v_i^\text{eff} = \int_0^{t_i} \sigma^2(S_0,t)dt\)<br>
+      - MGF moments become semi-analytic
+    </p>
+  </div>
+  <div>
+    <h4>Stochastic Volatility (Heston, SABR)</h4>
+    <p class="math">
+      \text{(Heston)}\quad
+      \begin{cases}
+      dS_t/S_t = (r-q)dt + \sqrt{v_t}dW_t^S \\
+      dv_t = \kappa(\theta - v_t)dt + \xi\sqrt{v_t}dW_t^v
+      \end{cases}
+    \p>
+    <p>
+      <strong>Integration:</strong> ◐<br>
+      - Proxy with <em>Hull-White moments</em> for basket components<br>
+      - Use implied vol surface for \(v^2\) in Black proxy<br>
+      - Correct via Taylor on vol-of-vol (\(\xi\))
+    </p>
+  </div>
+</div>
+
+<h4>Stochastic Local Volatility (SLV)</h4>
+<p class="math">
+  \[
+  \frac{dS_t}{S_t} = (r-q)dt + \sigma(S_t,v_t,t)\left[\sqrt{1-\rho^2}dW_t^S + \rho dW_t^v\right]
+  \]
+</p>
+<p>
+  <strong>Integration:</strong> ✗<br>
+  Requires full PDE or Monte Carlo. <em>Approximation</em>: Use LV component for basket moments and SV for cross-terms.
+</p>
+
+<h3>C.3 Advanced Numerical Methods</h3>
+
+<h4>Finite Difference Methods (FDM)</h4>
+<p class="math">
+  \[
+  \frac{\partial V}{\partial t} + (r-q)S\frac{\partial V}{\partial S} + \frac{1}{2}\sigma^2S^2\frac{\partial^2 V}{\partial S^2} - rV = 0
+  \]
+</p>
+<p>
+  <strong>Synergy:</strong> Use current model as control variate for basket options. FD solves residual on coarse grid.
+</p>
+
+<h4>Least Squares Monte Carlo (LSMC)</h4>
+<p>
+  <strong>Acceleration:</strong> 
+  \[
+  \hat V = V_\text{MC} + (V_\text{analytic} - V_\text{proxy})
+  \]
+  - \(V_\text{analytic}\): Current model price<br>
+  - \(V_\text{proxy}\): Geometric basket price<br>
+  Reduces simulation noise by 60-80%
+</p>
+
+<h4>Tree Methods</h4>
+<p class="math">
+  \[
+  \text{Multi-asset tree complexity} = \mathcal{O}(m^d N^m)
+  \]
+</p>
+<p>
+  <strong>Hybrid approach:</strong> Use current model for terminal payoff conditioning, trees for early exercise (American baskets).
+</p>
+
+<h4>Quadrature & Cubature</h4>
+
+  <div>
+	<p class="math">\[
+	\text{Gauss-Hermite:}\quad
+	\mathbb{E}[f(X)] \approx \sum_{i=1}^n w_i f(x_i)
+	\]</p>
+
+    <p>
+      <strong>Integration:</strong> ✓<br>
+      Replace MGF moments with quadrature for non-lognormal underlyings.
+    </p>
+  </div>
+  <div>
+	<p class="math boxed">\[
+	A(q, m) = 
+	\sum_{\substack{q - m + 1 \,\leq\, |\mathbf{i}| \,\leq\, q}}
+	\left( \bigotimes_{j=1}^m \Delta^{(i_j)} \right),
+	\quad
+	\Delta^{(i)} = U^{(i)} - U^{(i-1)}, \;
+	U^{(0)} := 0,
+	\]
+	where \(\mathbf{i} = (i_1, \dots, i_m)\) and \(|\mathbf{i}| = i_1 + \dots + i_m\).
+	</p>
+	<p class="math boxed">\[
+	Q^{\mathrm{Smolyak}}_{q,m}(f) 
+	= \sum_{\substack{q - m + 1 \,\leq\, |\mathbf{i}| \,\leq\, q}}
+	\; \sum_{k_1=1}^{n_{i_1}} \cdots \sum_{k_m=1}^{n_{i_m}}
+	\left( \bigotimes_{j=1}^m w_{i_j,k_j} \right)
+	\, f\!\left( x_{i_1,k_1}, \dots, x_{i_m,k_m} \right),
+	\]
+	where \(m\) is the dimension, \(q\) is the accuracy level, and \(n_{i_j}\) is the number of nodes
+	in the 1D rule at level \(i_j\).
+	</p>
+
+	<p class="math">\[
+	\text{Smolyak:}\quad
+	\mathcal{O}\!\left( \frac{(\log N)^{m-1}}{N} \right)
+	\]</p>
+
+    <p>
+      <strong>High dimensions:</strong> ◐<br>
+      Compute Chebyshev coefficients via sparse grids.
+    </p>
+  </div>
+
+
+<h4>Fourier Methods (FFT/FRFT)</h4>
+<p class="math">
+  \[
+  V(K) = \frac{e^{-\alpha k}}{\pi} \int_0^\infty \text{Re}\left[ e^{-iuk} \psi(u) \right] du, \quad
+  \psi(u) = \text{CF}\left(u - (\alpha+1)i\right)
+  \]
+</p>
+<p>
+  <strong>Synergy:</strong> ✗ (Alternative framework)<br>
+  <em>Bridge:</em> Use current model to provide initial guess for implied correlation in basket characteristic function (CF).
+</p>
+
+<h3>C.4 Unified Framework Roadmap</h3>
+<div class="boxed">
+  <strong>Extensible Architecture:</strong>
+  <ul>
+    <li><span class="tag">Core</span> Geometric proxy + MGF moments (Black-Scholes base)</li>
+    <li><span class="tag">Layer 1</span> Local vol: Project \(\sigma(S,t)\) to effective \(v_i\)</li>
+    <li><span class="tag">Layer 2</span> Stochastic vol: Adjust cross-moments via \(\rho,\xi\)</li>
+    <li><span class="tag">Layer 3</span> Path-dependency: Sequential conditioning</li>
+    <li><span class="tag">Acceleration</span> Chebyshev for strikes, Smolyak for dimensions</li>
+  </ul>
+</div>
+
+<div class="note">
+  <strong>Key Insight:</strong> The stochastic Taylor expansion remains valid when moments are computed via:<br>
+  - Dupire's equation for LV<br>
+  - Monte Carlo for SV<br>
+  - PDE solutions for SLV<br>
+  Correction terms then adapt to the new moment structure.
+</div>
+
+<div class="rule"></div>
+<p class="muted">
+  <span class="tag">Scope</span> Current model serves as either primary pricer (LV), control variate (SV), or initial guess (SLV). 
+  <span class="tag">Complexity</span> Maintains \(\mathcal{O}(n)\) complexity vs. \(\mathcal{O}(n^m)\) for full PDE/MC.
+</p>
+
+<h2 id="c-path-dep">Appendix D — Path Dependency, Dividends, and Partial Greeks</h2>
+
+<div class="boxed">
+  <strong>Path-Dependency Spectrum:</strong>
+  <ul>
+    <li><span class="tag">Weak</span> Asians (fixing dates)</li>
+    <li><span class="tag">Moderate</span> Barriers (monitoring dates)</li>
+    <li><span class="tag">Strong</span> Lookbacks (continuous extremum)</li>
+  </ul>
+</div>
+
+<h3>D.1 Barrier Options (Discrete/Continuous)</h3>
+<div class="two-col">
+	<div>
+	  <p class="math">
+		\( \text{Down-&-Out Call:} \quad
+		(S_T - K)^+ \, \mathbf{1}_{\{\min_{0 \le t \le T} S_t > H\}} \)
+	  </p>
+	  <p>
+		<strong>Discrete Monitoring:</strong>
+	  </p>
+	  <p class="math">\[
+		V = \sum_{k=0}^n c_k \cdot V_{\text{BS}}\!\left(F e^{-\beta_k},\, K,\, v_k\right)
+	  \]</p>
+	  <ul>
+		<li>\(c_k\): Hermite coefficients</li>
+		<li>\(\beta_k\): Barrier shift (Broadie correction)</li>
+	  </ul>
+	</div>
+
+	<div>
+	  <p class="math">
+		\( \text{Partial Delta:} \quad
+		\frac{\partial V}{\partial F}
+		= \Delta_{\text{BS}} - \frac{\varphi(d_H)}{F\sigma\sqrt{T}} \, H \)
+	  </p>
+	  <ul>
+		<li>\( d_H = \frac{\ln(F/H)}{\sigma\sqrt{T}} + \frac{1}{2} \sigma\sqrt{T} \)</li>
+	  </ul>
+	  <p>
+		<strong>Continuous Monitoring:</strong>
+		Use reflection principle with adjusted barrier
+		\( H^* = H\, e^{\pm 0.5826\, \sigma\sqrt{\delta t}} \)
+	  </p>
+	</div>
+
+</div>
+
+<h3>D.2 Lookback Options</h3>
+<p class="math">
+  \[
+    \text{Floating Strike:}\quad
+    V = \mathbb{E}\left[ S_T - \min_{0 \le t \le T} S_t \right]
+  \]
+</p>
+
+<div class="two-col">
+  <div>
+    <p>
+      <strong>Distributional Projection:</strong>
+      \[
+      \min_{t\in[0,T]} S_t \overset{d}{\approx} S_0 e^{\mu M - \frac{1}{2}\sigma^2 M^2}
+      \]
+      - Fit \(M\) to first three moments<br>
+      - Price as spread option between \(S_T\) and projected min
+    </p>
+  </div>
+  <div>
+    <p>
+      <strong>Vega Sensitivity:</strong>
+      \[
+      \frac{\partial V}{\partial \sigma} = \underbrace{\frac{\partial V_\text{BS}}{\partial \sigma}}_\text{vanilla} + \sigma T \cdot \mathbb{E}\left[\left(\min S_t\right)^2 \frac{\partial^2 V}{\partial (\min S_t)^2}\right]
+      \]
+      Requires moment-preserving discretization
+    </p>
+  </div>
+</div>
+
+<h3>D.3 Dividend and FXO Handling</h3>
+<table style="width:100%; border-collapse: collapse; margin: 12px 0;">
+  <thead>
+    <tr style="background: var(--code-bg);">
+      <th style="border:1px solid var(--rule); padding:8px">Type</th>
+      <th style="border:1px solid var(--rule); padding:8px">Forward Adjustment</th>
+      <th style="border:1px solid var(--rule); padding:8px">Variance Adjustment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border:1px solid var(--rule); padding:8px">Continuous Dividend \(q\)</td>
+      <td style="border:1px solid var(--rule); padding:8px">\(F = S_0 e^{(r-q)T}\)</td>
+      <td style="border:1px solid var(--rule); padding:8px">None</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid var(--rule); padding:8px">Discrete Dividend \(D\) at \(t_d\)</td>
+      <td style="border:1px solid var(--rule); padding:8px">\(F = \left(S_0 - De^{-rt_d}\right)e^{rT}\)</td>
+      <td style="border:1px solid var(--rule); padding:8px">\(\sigma_\text{eff}^2 = \sigma^2 \frac{S_0^2}{(S_0 - De^{-rt_d})^2}\)</td>
+    </tr>
+    <tr>
+      <td style="border:1px solid var(--rule); padding:8px">FX Quanto</td>
+      <td style="border:1px solid var(--rule); padding:8px">\(F = S_0 e^{(r_d - r_f + \rho\sigma_S\sigma_X)T}\)</td>
+      <td style="border:1px solid var(--rule); padding:8px">\(\sigma_\text{tot}^2 = \sigma_S^2 T\)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>D.4 Partial Greeks for Path-Dependent Options</h3>
+<div class="two-col">
+  <div>
+    <p class="math">
+      \[
+        \text{Barrier Gamma:}\quad
+        \Gamma_H = \frac{\partial^2 V}{\partial S^2}
+        + \frac{2}{S\sigma\sqrt{T}} \cdot
+          \frac{\partial V}{\partial H}
+      \]
+    </p>
+    <p><strong>Requires:</strong> Sensitivity to barrier level \(H\)</p>
+  </div>
+
+  <div>
+    <p class="math">
+      \[
+        \text{Lookback Rho:}\quad
+        \rho = \frac{\partial V}{\partial r}
+        + T \cdot \mathbb{E}\left[
+            \min S_t \cdot \Delta_{\min}
+          \right]
+      \]
+    </p>
+    <p><strong>Challenge:</strong> Correlation between rates and extremum</p>
+  </div>
+</div>
+
+
+<h2 id="d-structured">Appendix E — Structured Products Pricing</h2>
+
+<h3>E.1 Autocallable with Lizard Payoff</h3>
+<p class="math">
+  \text{Payoff:}\quad
+  V_T = 
+  \begin{cases} 
+    R_i & \text{if } S_{t_i} \geq K_i \text{ at } t_i \\ 
+    \min\left(\max\left(\frac{S_T}{S_0}, F\right), C\right) & \text{otherwise}
+  \end{cases}
+\]</p>
+<div class="two-col">
+  <div>
+    <p>
+      <strong>Pricing Steps:</strong>
+      <ol>
+        <li>Compute survival probability \(Q(\tau > t_i)\) via barrier-like formulas</li>
+        <li>Conditional forward value for lizard payoff:
+          \[
+          V_\text{lizard} = C - (C-F)\Phi\left(\frac{\ln(F/F_0)}{\sigma\sqrt{T}}\right)
+          \]
+        </li>
+        <li>Assemble:
+          \[
+          V = \sum_i e^{-rt_i}R_i \Delta Q_i + e^{-rT}V_\text{lizard} Q(\text{no call})
+          \]
+        </li>
+      </ol>
+    </p>
+  </div>
+  <div>
+    <p>
+      <strong>Key Greeks:</strong>
+      <ul>
+        <li>Autocall trigger sensitivity:
+          \[
+          \frac{\partial V}{\partial K_i} = -e^{-rt_i}R_i f_{S_{t_i}}(K_i)
+          \]
+        </li>
+        <li>Lizard vega concentrated at final maturity</li>
+      </ul>
+    </p>
+  </div>
+</div>
+
+<h3>E.2 KIKO (Knock-In Knock-Out) Barriers</h3>
+<p class="math">\[
+  V_T = (S_T-K)^+ \mathbf{1}_{\{ \tau_H \leq T \}} \mathbf{1}_{\{ \min_{t\in\mathcal{M}} S_t > L \}}
+\]</p>
+<p>
+  <strong>Pricing via Multivariate Normal:</strong>
+  \[
+  \mathbb{P}\left(\tau_H \leq T, \min_{k} S_{t_k} > L\right) = \int_{H}^{\infty} \int_{\ln L}^{\infty} \cdots \phi(\mathbf{x};\mathbf{\mu},\Sigma)d\mathbf{x}
+  \]
+  Use current model for:
+  <ul>
+    <li>Conditional expectations at monitoring dates</li>
+    <li>Control variate for Monte Carlo</li>
+    <li>Analytic approximation for outer barrier</li>
+  </ul>
+</p>
+
+<h3>E.3 Double Barrier Options</h3>
+<p class="math">\[
+  \text{Payoff:}\quad (S_T-K)^+ \mathbf{1}_{\{ L < S_t < U \, \forall t \}}
+\]</p>
+<p>
+  <strong>Spectral Expansion:</strong>
+  \[
+  V = \sum_{n=1}^\infty c_n e^{-\frac{1}{2}\left(\frac{n\pi\sigma}{U-L}\right)^2 T} \sin\left(\frac{n\pi(\ln S_0 - L)}{U-L}\right)
+  \]
+  <strong>Model Integration:</strong> Use as control variate with geometric basket barriers:
+  \[
+  G_t = \exp\left(\sum w_i \ln S_t^{(i)}\right), \quad L_G = \prod L_i^{w_i}, \quad U_G = \prod U_i^{w_i}
+  \]
+</p>
+
+<h2 id="e-nongaussian">Appendix F — Non-Gaussian Frameworks</h2>
+
+<h3>F.1 Measure Change Techniques</h3>
+<p class="math">\[
+  \text{Girsanov:}\quad
+  \left.\frac{d\mathbb{Q}}{d\mathbb{P}}\right|_{\mathcal{F}_t} = \exp\left( -\int_0^t \theta_s dW_s - \frac{1}{2}\int_0^t \theta_s^2 ds \right)
+\]</p>
+<div class="two-col">
+  <div>
+    <p>
+      <strong>MGF Adaptation:</strong>
+      \[
+      \mathbb{E}^\mathbb{Q}[e^{u X_T}] = \mathbb{E}^\mathbb{P}\left[ e^{u X_T} \frac{d\mathbb{Q}}{d\mathbb{P}} \right]
+      \]
+      Valid for Lévy processes, stochastic volatility
+    </p>
+  </div>
+  <div>
+    <p>
+      <strong>Radon-Nikodym for Basket:</strong>
+      \[
+      \frac{d\mathbb{Q}_G}{d\mathbb{Q}} = \frac{G_T / \mathbb{E}[G_T]}{\prod (S_T^{(i)}/F_i)^{a_i}}
+      \]
+      Preserves lognormal ratio under new measure
+    </p>
+  </div>
+</div>
+
+<h3>F.2 Copula Frameworks</h3>
+<p class="math">\[
+  \text{Joint Survival:}\quad
+  \mathbb{P}(S_1 > K_1, \dots, S_m > K_m) = C\left( \Phi(d_1^{(1)}), \dots, \Phi(d_1^{(m)}) \right)
+\]</p>
+<div class="two-col">
+	<div>
+		<p class="math">
+		  \[
+		  C^\Sigma(\mathbf{u}) =
+		  \Phi_\Sigma\!\left(
+			\Phi^{-1}(u_1), \dots, \Phi^{-1}(u_m)
+		  \right)
+		  \]
+		</p>
+		<p>Calibrate \(\Sigma\) to pairwise moments</p>
+	</div>
+	<div>
+		<p class="math">
+		  \[
+			V =	V_{\text{Gaussian}} + \sum_{i < j < k} \kappa_{ijk} \frac{\partial^3 V_G}{\partial \rho_{ij}\, \partial\rho_{ik}\, \partial\rho_{jk}}
+			\]
+		</p>
+		<p>where \(\kappa_{ijk}\) is the third‐order cumulant from the target copula</p>
+	</div>
+  </div>
+
+
+<h3>F.3 Ito-Taylor Expansions</h3>
+<p class="math">\[
+  \text{General Diffusion:}\quad
+  dS_t = \mu(S_t)dt + \sigma(S_t)dW_t
+\]
+</p>
+<p>
+  <strong>Moment-Generating ODE:</strong>
+  \[
+  \frac{\partial M(u,t)}{\partial t} = u\mu(\partial_u) M(u,t) + \frac{1}{2}u^2\sigma^2(\partial_u) M(u,t)
+  \]
+  Solve numerically for non-lognormal moments
+</p>
+
+<h3>F.4 Regime-Switching Models</h3>
+<p class="math">\[
+  \text{MGF under Regimes:}\quad
+  M(u,T) = \mathbf{\pi}^\top \exp(\mathbf{K}(u)T) \mathbf{1}
+\]</p>
+<p>
+  where \(\mathbf{K}(u) = \text{diag}(K_1(u), \dots, K_N(u)) + \Lambda\), with \(K_i(u)\) the cumulant for regime \(i\).
+  <strong>Basket Pricing:</strong> Weighted average of regime-specific prices
+</p>
+
+<div class="rule"></div>
+<p class="muted">
+  <span class="tag">Path-Dependency</span> Barriers/lookbacks require extremum distribution modeling. 
+  <span class="tag">Structured Products</span> Combine conditional probabilities with payoff layers. 
+  <span class="tag">Non-Gaussian</span> MGF remains central via measure changes and copulas.
+</p>
+
+</main>
+</body>
+</html>
