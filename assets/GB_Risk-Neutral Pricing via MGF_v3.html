@@ -515,6 +515,30 @@
         \[ C = \frac{e^{-rT}}{\pi} \int_0^\infty \text{Re}\left[ \frac{e^{-i u \ln K} \phi(u - i)}{i u \phi(-i)} \right]  du \]
 </div>
 <p>This method achieves high accuracy with computational complexity \(O(N \log N)\) using FFT techniques.</p>
+
+<h3>Clarification on the “rT - log(M(1))” Formula</h3>
+<p>
+	The formula
+	<ul><li>\(M(1)\,=\,e^{rT}\)</li></ul>
+	that appeared at the top of the manuscript can be viewed as a compact notation for the fundamental martingale condition
+	<div class="equation-box">
+		\[\mathbb{E}^{\mathbb{Q}}\!\bigl[e^{X_T}\bigr]=e^{rT}.\]
+	</div>
+	In practice this equality is satisfied by *adjusting the
+	physical drift component* of the log‐return process so that the
+	first moment of the exponentiated log‑return equals the
+	risk‑free growth factor.  The adjustment is never a mere algebraic
+	manipulation of <code>CF=M(1)</code>; it is the solution of the
+	equality <code>M(1)=e^{rT}</code> that follows from Girsanov’s theorem.
+	Consequently, the “<code>CF=M(1)</code>” shorthand is simply a
+	convenient mnemonic for the risk‑neutral drift adjustment
+	rather than an independent calibration rule.  This here
+	therefore provides a bridge between that shorthand and
+	the derivation presented in Sections&nbsp;2 and&nbsp;5, ensuring
+	that readers appreciate the role of the MGF as a tool for enforcing
+	the martingale property rather than a standalone conversion
+	formula.
+</p>
 </div>
 
 <div class="section-content">
