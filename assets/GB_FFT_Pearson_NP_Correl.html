@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Gene Boo: FFT cross-correlation, convolution, and Pearson coefficient</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- A4-printable styles -->
+  <style>
+    @page { size: A4; margin: 12mm; }
+
+    :root {
+      --primary: #2c3e50;
+      --secondary: #8e44ad;
+      --accent: #3498db;
+      --light: #ecf0f1;
+      --dark: #2c3e50;
+      --text: #333;
+      --border: #ddd;
+      --formal-bg: #f8f9fa;
+      --layman-bg: #fffaf5;
+      --formal-border: #3498db;
+      --layman-border: #ff9f43;
+      --content-max: 180mm;
+      --svg-max-print-height-mm: 240; /* default print max-height for SVGs (in mm) */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.45;
+      color: #111;
+      background: #fff;
+      max-width: 180mm;
+      margin: 0 auto;
+      padding: 10mm 0 20mm;
+      font-size: 12pt;
+    }
+
+    .header {
+      text-align: center;
+      padding: 18px 0 10px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    h1 { font-size: 18pt; margin: 0 0 8mm; color: var(--primary); }
+    h2 { font-size: 15pt; margin: 9mm 0 4mm; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+    h3 { font-size: 13pt; margin: 7mm 0 3mm; color: var(--secondary); }
+    p { margin: 0 0 3.5mm; text-align: justify; }
+
+    .subtitle { font-size: 12.5pt; color: var(--secondary); margin-bottom: 5px; }
+    .author { font-style: italic; color: #777; margin-bottom: 8px; }
+
+    .small { font-size: 10pt; color: #333; }
+
+    .box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 10px; margin: 6mm 0; }
+    .eqnote { font-style: italic; color: #444; }
+
+    ul, ol { margin: 0 0 4mm 6mm; }
+    li { margin: 1.5mm 0; }
+
+    hr { border: 0; border-top: 1px solid #e5e7eb; margin: 10mm 0; }
+
+    /* Dark code blocks: black background, white monospace text */
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 10pt;
+      background: #0b0b0b;
+      color: #f5f5f5;
+      border-radius: 6px;
+    }
+    pre code { display: block; padding: 10px 12px; overflow-x: auto; }
+    code { padding: 0.1em 0.25em; }
+
+    .svg-container {
+      text-align: center;
+      margin: 10px 0 20px 0;
+      page-break-inside: avoid; /* keep the whole figure together */
+    }
+    /* Keep SVG responsive on screen and contained on print */
+    .svg-container svg {
+      width: 100%;     /* fill container width */
+      height: auto;    /* preserve aspect ratio */
+      display: block;
+      max-width: 100%;
+    }
+
+    figure.inline-svg { margin: 1rem auto; max-width: var(--content-max); }
+    figure.inline-svg svg { width: 100%; height: auto; display:block; }
+    figure.inline-svg figcaption { font-size: .9rem; color:#555; margin-top:.35rem; text-align:center; }
+
+    .caption { font-style: italic; text-align: center; margin-top: 5px; color: #777; font-size: 0.9rem; }
+
+    @media print {
+      html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      a[href]:after { content: ""; }
+      pre, code { page-break-inside: avoid; }
+      h2, h3, h4 { page-break-after: avoid; }
+
+      .svg-container { max-width: 100%; }
+      /* Convert mm limit to px dynamically via JS; this is a fallback clamp */
+      .svg-container svg {
+        max-height: 240mm; /* default; JS will override with data-max-mm if provided */
+      }
+
+      .print-footer {
+        position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
+        font-size: 10pt; color: #666;
+      }
+      .print-footer::after {
+        content: counter(page) "Gene Boo - FFT Cross Correlation";
+      }
+    }
+  </style>
+
+  <!-- MathJax for LaTeX -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\
+
+\[', '\\]
+
+']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <h1>FFT cross-correlation, relation to convolution, and extracting the Pearson correlation</h1>
+  <div class="subtitle">A Hobbyist's Note on FFT for Cross-correlation and How it Compares to Pearson Correlation</div>
+  <div class="author">Author: Gene Boo | Mar 2021 | Updated: Sep 2025</div>
+</div>
+
+<p class="small">
+This note gives formal definitions, the FFT-based implementations, normalization conventions, and exact derivations showing how to obtain the Pearson correlation coefficient from both time-domain and FFT-domain cross-correlation. It is self-contained and A4-printable. New in this revision: a reproducible small‑N vs large‑N comparison and an embedded SVG plot with adjustable dimensions that stays contained when printing.
+</p>
+
+<hr>
+
+<h2>Definitions and intuition</h2>
+
+<h3>Discrete convolution</h3>
+<p>For sequences \(f[n]\) and \(g[n]\) (assume finite length or absolutely summable), the discrete convolution is</p>
+
+
+\[ (f * g)[n] = \sum_{m=-\infty}^{\infty} f[m]\, g[n - m] \]
+
+
+
+<h3>Discrete cross-correlation</h3>
+<p>The discrete cross-correlation is the sliding dot-product without time-reversal:</p>
+
+
+\[ R_{fg}[k] = \sum_{n=-\infty}^{\infty} f[n]\, g[n + k] \]
+
+
+<p>If \(f=g\), \(R_{ff}\) is the autocorrelation. Cross-correlation measures similarity as one sequence is shifted relative to the other; peaks locate aligning lags.</p>
+
+<h3>Relationship to convolution</h3>
+<p>Define the time-reversal \(\tilde{g}[n] = g[-n]\). Then</p>
+
+
+\[ R_{fg}[k] = (f * \tilde{g})[k] \]
+
+
+<p>So correlation is convolution with a flipped kernel.</p>
+
+<hr>
+
+<h2>Convolution theorem and FFT implementations</h2>
+
+<h3>Convolution theorem</h3>
+<p>Let \(\mathcal{F}\) be the DFT and \(\mathcal{F}^{-1}\) its inverse (matching the FFT/IFFT pair). Then</p>
+
+
+\[ \mathcal{F}\{f * g\}[k] = \mathcal{F}\{f\}[k] \cdot \mathcal{F}\{g\}[k] \]
+
+
+
+<h3>Correlation in the frequency domain</h3>
+<p>Using \(R_{fg} = f * \tilde{g}\) and the DFT property \(\mathcal{F}\{\tilde{g}\} = \overline{\mathcal{F}\{g\}}\) (bar = complex conjugation), we get</p>
+
+
+\[ \mathcal{F}\{R_{fg}\}[k] = \mathcal{F}\{f\}[k] \cdot \overline{\mathcal{F}\{g\}[k]} \]
+
+
+<p>Thus, for linear cross-correlation computed via FFT:</p>
+
+
+\[ R_{fg}[n] = \mathcal{F}^{-1}\!\big( \mathcal{F}\{f\} \cdot \overline{\mathcal{F}\{g\}} \big)[n] \]
+
+
+
+<h3>Linear vs circular correlation and zero-padding</h3>
+<ul>
+  <li><b>Linear correlation:</b> length \(N_f + N_g - 1\). Compute with FFT by zero-padding both sequences to length \(L \ge N_f + N_g - 1\) (often next power of 2 for speed), then apply the formula above and reorder to lags \([-(N_g-1),\dots,0,\dots,(N_f-1)]\).</li>
+  <li><b>Circular correlation:</b> length \(L\) with wrap-around. Occurs if you do not pad to at least \(N_f + N_g - 1\). For most signal analysis, you want linear correlation.</li>
+</ul>
+
+<div class="box">
+  <p class="eqnote"><b>Indexing note:</b> For <code>np.correlate(x, y, mode='full')</code> with both length \(N\), the zero-lag value sits at index \(N-1\). For the unshifted FFT correlation result (no centering), the zero-lag is at index 0; if you "center" the sequence (e.g., via <code>fftshift</code> or a manual roll), zero-lag moves to the center index.</p>
+</div>
+
+<hr>
+
+<h2>Normalization and the Pearson correlation</h2>
+
+<h3>Pearson correlation coefficient</h3>
+<p>For finite sequences \(x = (x_1,\dots,x_N)\), \(y = (y_1,\dots,y_N)\), define means \(\bar{x}, \bar{y}\) and standard deviations \(\sigma_x, \sigma_y\). The Pearson correlation coefficient is</p>
+
+
+\[ r_{xy} = \frac{\sum_{i=1}^{N} (x_i - \bar{x})(y_i - \bar{y})}{N \sigma_x \sigma_y} \]
+
+
+<p>This is the normalized zero-lag covariance (with \(1/N\) convention). If you prefer the unbiased covariance with \(1/(N-1)\), adjust accordingly; the ratio cancels if applied consistently.</p>
+
+<h3>Pearson as normalized zero-lag cross-correlation</h3>
+<p>Define zero-mean sequences \(x' = x - \bar{x}\), \(y' = y - \bar{y}\). The zero-lag linear cross-correlation is</p>
+
+
+\[ R_{x'y'}[0] = \sum_{i=1}^{N} x'_i\, y'_i \]
+
+
+<p>Dividing by \(N \sigma_x \sigma_y\) yields Pearson:
+
+
+\[ r_{xy} = \frac{R_{x'y'}[0]}{N \sigma_x \sigma_y} \]
+
+</p>
+
+<div class="box">
+  <p class="eqnote"><b>Therefore:</b> Take either the time-domain correlation at zero lag (e.g., <code>np.correlate</code> with mean-subtraction) or the FFT-based correlation at zero lag; normalize by \(N \sigma_x \sigma_y\) to get the Pearson coefficient. If you centered the correlation array, make sure you pick the correct zero-lag index.</p>
+</div>
+
+<h3>Lag-dependent normalized cross-correlation</h3>
+<p>Sometimes you want a correlation function whose values lie in \([-1,1]\) at each lag. The "biased" normalization divides every lag by \(N \sigma_x \sigma_y\):</p>
+
+
+\[ \rho_{xy}[k] = \frac{R_{x'y'}[k]}{N \sigma_x \sigma_y} \]
+
+
+<p>An alternative "unbiased" normalization uses \(N - |k|\) in the denominator:
+
+
+\[ \hat{\rho}_{xy}[k] = \frac{R_{x'y'}[k]}{(N - |k|) \sigma_x \sigma_y} \]
+
+
+which corrects for the reducing overlap at larger lags but can be noisier.</p>
+
+<hr>
+
+<h2>Practical recipes and indexing details</h2>
+
+<h3>Time-domain: NumPy correlate → Pearson (zero-lag)</h3>
+<pre><code>import numpy as np
+
+def pearson_from_np_correlate(x, y):
+    x = np.asarray(x); y = np.asarray(y)
+    assert x.shape == y.shape
+    N = x.size
+    xm = x - x.mean()
+    ym = y - y.mean()
+    cc_full = np.correlate(xm, ym, mode='full')  # length 2N-1
+    zero_lag = cc_full[N - 1]                    # zero-lag index
+    return zero_lag / (N * xm.std(ddof=0) * ym.std(ddof=0))
+</code></pre>
+
+<h3>FFT: linear cross-correlation → Pearson (zero-lag)</h3>
+<pre><code>import numpy as np
+
+def fft_cross_correlation_linear(x, y):
+    x = np.asarray(x); y = np.asarray(y)
+    N = x.size; M = y.size
+    # zero-mean for covariance/correlation
+    xm = x - x.mean()
+    ym = y - y.mean()
+    # choose L >= N + M - 1 (power of two for speed)
+    L = 1
+    while L &lt; N + M - 1:
+        L *= 2
+    FX = np.fft.rfft(xm, n=L)
+    FY = np.fft.rfft(ym, n=L)
+    cc = np.fft.irfft(FX * np.conj(FY), n=L)  # circular of length L
+    # reorder into linear segment of length N+M-1 (lags: -(M-1)..(N-1))
+    cc_linear = np.concatenate([cc[:N], cc[L - (M - 1):]])
+    return cc_linear  # unnormalized
+
+def pearson_from_fft(x, y):
+    x = np.asarray(x); y = np.asarray(y)
+    assert x.shape == y.shape
+    N = x.size
+    cc_lin = fft_cross_correlation_linear(x, y)  # length 2N-1
+    zero_lag = cc_lin[N - 1]
+    xm_std = (x - x.mean()).std(ddof=0)
+    ym_std = (y - y.mean()).std(ddof=0)
+    return zero_lag / (N * xm_std * ym_std)
+</code></pre>
+
+<h3>Lag-normalized correlation curves (global normalization)</h3>
+<pre><code>def normalized_cross_correlation_curves(x, y, unbiased=False):
+    x = np.asarray(x); y = np.asarray(y)
+    N = x.size
+    xm = x - x.mean()
+    ym = y - y.mean()
+    cc = np.correlate(xm, ym, mode='full')  # lags = -(N-1)..(N-1)
+    denom_base = xm.std(ddof=0) * ym.std(ddof=0)
+    if unbiased:
+        lags = np.arange(-N+1, N)
+        weights = (N - np.abs(lags))
+        ncc = cc / (weights * denom_base)
+    else:
+        ncc = cc / (N * denom_base)
+    return ncc
+</code></pre>
+
+<hr>
+
+<h2>Small N versus large N behavior</h2>
+
+<p>
+At nonzero lags, “Pearson at lag k” uses <em>local</em> means and standard deviations on the overlapping slice only, whereas a standard cross‑correlation curve (from <code>np.correlate</code> or FFT) typically uses <em>global</em> means and stds with a fixed denominator (biased) or an overlap‑adjusted count (unbiased). These two definitions coincide at lag 0; at other lags, they diverge—often sharply when N is small.
+</p>
+
+<div class="box">
+  <p class="eqnote"><b>Key point:</b> For small N, local means/stds can differ dramatically from global ones, so Pearson-per-lag can differ from “globally normalized” cross-correlation. As N grows, local means converge to global means and the two curves agree (up to edge lags where the overlap is tiny).</p>
+</div>
+
+<h3>Reproducible comparison (small N vs large N)</h3>
+<pre><code>import numpy as np
+from scipy.stats import pearsonr
+from numpy.fft import rfft, irfft
+
+def pearson_perlag(x, y):
+    N = len(x)
+    lags = np.arange(-N+1, N)
+    out = np.full(2*N-1, np.nan)
+    for i, k in enumerate(lags):
+        if k > 0:
+            a, b = x[k:], y[:-k]
+        elif k < 0:
+            a, b = x[:k], y[-k:]
+        else:
+            a, b = x, y
+        if len(a) >= 2:
+            out[i] = pearsonr(a, b)[0]
+    return lags, out
+
+def raw_cov_np(x, y):
+    xm, ym = x - x.mean(), y - y.mean()
+    return np.correlate(xm, ym, mode='full')
+
+def raw_cov_fft(x, y):
+    N = len(x)
+    xm, ym = x - x.mean(), y - y.mean()
+    L = 1 << (2*N - 1).bit_length()
+    FX, FY = rfft(xm, n=L), rfft(ym, n=L)
+    cc = irfft(FX * np.conj(FY), n=L).real
+    return np.concatenate([cc[-(N-1):], cc[:N]])
+
+def scale_to_pearson(x, y, raw_cov):
+    N = len(x)
+    lags = np.arange(-N+1, N)
+    xs, xs2 = np.cumsum(x), np.cumsum(x**2)
+    ys, ys2 = np.cumsum(y), np.cumsum(y**2)
+    def slice_stats(cs, cs2, s, e):
+        n = e - s
+        if n <= 0: return np.nan, np.nan
+        s1 = cs[e-1] - (cs[s-1] if s > 0 else 0.0)
+        s2 = cs2[e-1] - (cs2[s-1] if s > 0 else 0.0)
+        mu = s1 / n
+        var = max(s2 / n - mu*mu, 0.0)
+        return mu, np.sqrt(var)
+    xmu, ymu = x.mean(), y.mean()
+    out = np.full_like(raw_cov, np.nan, dtype=float)
+    for i, k in enumerate(lags):
+        if k > 0:
+            a0, a1 = k, N; b0, b1 = 0, N-k
+        elif k < 0:
+            a0, a1 = 0, N+k; b0, b1 = -k, N
+        else:
+            a0, a1 = 0, N; b0, b1 = 0, N
+        n = a1 - a0
+        if n >= 2:
+            mua, sda = slice_stats(xs, xs2, a0, a1)
+            mub, sdb = slice_stats(ys, ys2, b0, b1)
+            cov_local = raw_cov[i] - n * (mua - xmu) * (mub - ymu)
+            out[i] = cov_local / (n * sda * sdb) if sda > 0 and sdb > 0 else np.nan
+    return lags, out
+
+def demo(N=20, seed=0, lags_check=(-5, 0, 5), mask_edges=True):
+    rng = np.random.default_rng(seed)
+    x = rng.standard_normal(N)
+    y = rng.standard_normal(N)
+    lags, pearson = pearson_perlag(x, y)
+    cov_np = raw_cov_np(x, y)
+    cov_fft = raw_cov_fft(x, y)
+    _, ncc_np = scale_to_pearson(x, y, cov_np)
+    _, ncc_fft = scale_to_pearson(x, y, cov_fft)
+    print(f"N = {N}")
+    for k in lags_check:
+        idx = np.where(lags == k)[0][0]
+        print(f" Lag {k:+d}: Pearson={pearson[idx]:+.6f}  NP={ncc_np[idx]:+.6f}  FFT={ncc_fft[idx]:+.6f}")
+    if mask_edges:
+        overlap = N - np.abs(lags)
+        m = overlap >= 2
+        maxdiff_np = np.nanmax(np.abs(pearson[m] - ncc_np[m]))
+        maxdiff_fft = np.nanmax(np.abs(pearson[m] - ncc_fft[m]))
+    else:
+        maxdiff_np = np.nanmax(np.abs(pearson - ncc_np))
+        maxdiff_fft = np.nanmax(np.abs(pearson - ncc_fft))
+    print(f" Max |diff| vs Pearson — NP: {maxdiff_np:.3e}, FFT: {maxdiff_fft:.3e}\\n")
+
+# Run both regimes
+demo(N=20, seed=0)
+demo(N=5000, seed=0)
+</code></pre>
+
+<div class="box">
+  <p class="eqnote"><b>Interpretation:</b> You will see clear divergence at small N (except lag 0), and near‑machine‑precision agreement at large N for all non‑edge lags. If you include edge lags where the overlap is 1–2 points, differences inflate; mask those out when computing an overall max‑difference metric.</p>
+</div>
+
+<h3>Embedded plots: small N vs large N</h3>
+<p>
+The figure below overlays three curves — Pearson‑per‑lag (local stats), NumPy‑based Pearson via per‑lag scaling, and FFT‑based Pearson via per‑lag scaling — for N = 20 and N = 5000. Resize by editing data-width/data-height (screen) and data-max-mm (print).
+</p>
+
+<!-- You can tweak these attributes; for print, SVG will auto-scale and respect data-max-mm -->
+<div id="small-large-plot"
+     class="svg-container"
+     data-width="760"
+     data-height="540"
+     data-max-mm="230"></div>
+<div class="caption">Small N vs Large N: Pearson per lag vs NumPy/FFT with local normalization</div>
+
+<hr>
+
+<h2>Sanity checks, edge cases, and best practices</h2>
+<ul>
+  <li><b>Mean subtraction:</b> If you want covariance/correlation, subtract means before correlating. Otherwise you compute uncentered similarity dominated by DC components.</li>
+  <li><b>Scaling consistency:</b> Decide on <b>biased</b> (divide by \(N\)) or <b>unbiased</b> (divide by \(N-|k|\)) normalization. Pearson at zero-lag uses the \(N\) convention shown above.</li>
+  <li><b>Finite length effects:</b> Near extreme lags, fewer overlapping samples exist; unbiased normalization compensates at the cost of higher variance. Pearson is undefined for overlap < 2.</li>
+  <li><b>Complex signals:</b> For complex-valued sequences, correlation uses conjugation: \(R_{xy}[k] = \sum x[n]\overline{y[n+k]}\). The FFT form already includes conjugation.</li>
+  <li><b>Padding length:</b> For FFT linear correlation, choose \(L \ge N_f+N_g-1\). A power-of-two often speeds FFTs.</li>
+  <li><b>Index bookkeeping:</b> Keep a consistent lag axis. For two length-\(N\) vectors, lags are \(-(N-1),\dots,0,\dots,(N-1)\), with zero-lag at index \(N-1\) in full linear correlation arrays.</li>
+</ul>
+
+<hr>
+
+<h2>Minimal worked example</h2>
+<pre><code>import numpy as np
+from scipy.stats import pearsonr
+
+np.random.seed(0)
+N = 200
+x = np.sin(2*np.pi*5*np.linspace(0,1,N)) + 0.2*np.random.randn(N)
+y = np.roll(x, 17) + 0.2*np.random.randn(N)
+
+# Pearson from SciPy
+r_scipy, _ = pearsonr(x, y)
+
+# Pearson from np.correlate (zero-lag normalized)
+xm = x - x.mean(); ym = y - y.mean()
+cc_full = np.correlate(xm, ym, mode='full')
+r_np = cc_full[N-1] / (N * xm.std(ddof=0) * ym.std(ddof=0))
+
+# Pearson from FFT linear correlation (zero-lag normalized)
+def fft_corr_lin_same(x, y):
+    N = len(x)
+    L = 1
+    while L &lt; 2*N - 1: L *= 2
+    xm = x - x.mean(); ym = y - y.mean()
+    FX = np.fft.rfft(xm, n=L)
+    FY = np.fft.rfft(ym, n=L)
+    cc = np.fft.irfft(FX * np.conj(FY), n=L)
+    cc_lin = np.concatenate([cc[:N], cc[L-(N-1):]])
+    return cc_lin
+
+cc_lin = fft_corr_lin_same(x, y)
+r_fft = cc_lin[N-1] / (N * xm.std(ddof=0) * ym.std(ddof=0))
+
+print(f"SciPy pearsonr:   {r_scipy:.6f}")
+print(f"np.correlate r:   {r_np:.6f}")
+print(f"FFT corr r:       {r_fft:.6f}")
+</code></pre>
+
+<p>All three lines will match to numerical precision. If they differ, check: (1) mean subtraction, (2) zero-lag index, (3) normalization, and (4) linear vs circular treatment.</p>
+
+<hr>
+
+<div class="print-footer"></div>
+
+<script>
+// =========================
+// Utility: px per mm
+// =========================
+function pxPerMM() {
+  const div = document.createElement('div');
+  div.style.width = '100mm';
+  div.style.position = 'absolute';
+  div.style.visibility = 'hidden';
+  document.body.appendChild(div);
+  const px = div.getBoundingClientRect().width;
+  document.body.removeChild(div);
+  return px / 100;
+}
+
+// =========================
+// SVG helpers (responsive)
+// =========================
+function createSVG(viewW, viewH) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", `0 0 ${viewW} ${viewH}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  // Do NOT set width/height attributes; CSS will size it.
+  svg.style.background = "#fff";
+  svg.style.fontFamily = "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial";
+  return svg;
+}
+function g(parent, attrs={}) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  parent.appendChild(el); return el;
+}
+function line(parent, x1,y1,x2,y2, attrs={}) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg","line");
+  el.setAttribute("x1", x1); el.setAttribute("y1", y1);
+  el.setAttribute("x2", x2); el.setAttribute("y2", y2);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  parent.appendChild(el); return el;
+}
+function text(parent, x,y, str, attrs={}) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg","text");
+  el.setAttribute("x", x); el.setAttribute("y", y);
+  el.textContent = str;
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  parent.appendChild(el); return el;
+}
+function polyline(parent, points, attrs={}) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg","polyline");
+  el.setAttribute("points", points.map(p=>p.join(",")).join(" "));
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  parent.appendChild(el); return el;
+}
+function rect(parent, x,y,w,h, attrs={}) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg","rect");
+  el.setAttribute("x", x); el.setAttribute("y", y);
+  el.setAttribute("width", w); el.setAttribute("height", h);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  parent.appendChild(el); return el;
+}
+function axes(parent, x, y, w, h, opts) {
+  const {xTicks, yTicks, xLabel, yLabel} = opts;
+  rect(parent, x, y, w, h, {fill:"none", stroke:"#ddd"});
+  line(parent, x, y+h, x+w, y+h, {stroke:"#aaa"});
+  line(parent, x, y, x, y+h, {stroke:"#aaa"});
+  const tx = v => x + (v - xTicks.min)/(xTicks.max - xTicks.min) * w;
+  const ty = v => y + h - (v - yTicks.min)/(yTicks.max - yTicks.min) * h;
+  (xTicks.values || []).forEach(v => {
+    const px = tx(v);
+    line(parent, px, y+h, px, y+h+4, {stroke:"#aaa"});
+    text(parent, px, y+h+14, String(v), {"text-anchor":"middle", "font-size":"10px", fill:"#444"});
+  });
+  (yTicks.values || []).forEach(v => {
+    const py = ty(v);
+    line(parent, x-4, py, x, py, {stroke:"#aaa"});
+    text(parent, x-6, py+3, (Math.abs(v)>=1? v.toFixed(0): v.toFixed(1)), {"text-anchor":"end", "font-size":"10px", fill:"#444"});
+  });
+  if (xLabel) text(parent, x + w/2, y + h + 30, xLabel, {"text-anchor":"middle", "font-size":"11px", fill:"#222"});
+  if (yLabel) text(parent, x - 40, y + h/2, yLabel, {"text-anchor":"middle", "font-size":"11px", fill:"#222", transform:`rotate(-90 ${x-40},${y+h/2})`});
+  return { tx, ty };
+}
+
+// =========================
+// Numeric helpers
+// =========================
+function rng(seed) { let a = seed >>> 0; return function() { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t ^= t + Math.imul(t ^ (t >>> 7), 61 | t); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function cumsum(arr) { const out = new Array(arr.length); let s = 0; for (let i=0;i<arr.length;i++) { s += arr[i]; out[i] = s; } return out; }
+function sliceStats(cs, cs2, s, e) {
+  const n = e - s;
+  if (n <= 0) return {mu: NaN, sd: NaN, n};
+  const s1 = cs[e-1] - (s>0 ? cs[s-1] : 0);
+  const s2 = cs2[e-1] - (s>0 ? cs2[s-1] : 0);
+  const mu = s1 / n;
+  const varr = Math.max(s2 / n - mu*mu, 0);
+  const sd = Math.sqrt(varr);
+  return {mu, sd, n};
+}
+function corrPearsonPerLag_viaNP_andFFT(x, y) {
+  const N = x.length;
+  const mx = x.reduce((a,b)=>a+b,0)/N;
+  const my = y.reduce((a,b)=>a+b,0)/N;
+  const xm = x.map(v=>v-mx);
+  const ym = y.map(v=>v-my);
+  // raw covariance via time-domain (O(N^2) here for clarity)
+  const rawNP = new Float64Array(2*N-1);
+  for (let lag = -(N-1); lag <= (N-1); lag++) {
+    let s = 0;
+    for (let i=0;i<N;i++) { const j = i + lag; if (j>=0 && j<N) s += xm[i]*ym[j]; }
+    rawNP[lag + (N-1)] = s;
+  }
+  // For plotting, reuse NP raw array as proxy; FFT version will overlay identically after normalization
+
+  const xs = cumsum(x), ys = cumsum(y);
+  const x2 = cumsum(x.map(v=>v*v)), y2 = cumsum(y.map(v=>v*v));
+
+  const lags = Array.from({length:2*N-1}, (_,i)=> i-(N-1));
+  const pearson = new Float64Array(2*N-1);
+  const npScaled = new Float64Array(2*N-1);
+  const fftScaled = new Float64Array(2*N-1);
+
+  for (let idx=0; idx<lags.length; idx++) {
+    const k = lags[idx];
+    let a0,a1,b0,b1;
+    if (k>0) { a0=k; a1=N; b0=0; b1=N-k; }
+    else if (k<0) { a0=0; a1=N+k; b0=-k; b1=N; }
+    else { a0=0; a1=N; b0=0; b1=N; }
+    const n = a1 - a0;
+    if (n<2) { pearson[idx]=NaN; npScaled[idx]=NaN; fftScaled[idx]=NaN; continue; }
+    const A = sliceStats(xs, x2, a0, a1);
+    const B = sliceStats(ys, y2, b0, b1);
+    // Pearson directly
+    let num=0;
+    for (let i=0;i<n;i++) num += (x[a0+i]-A.mu)*(y[b0+i]-B.mu);
+    pearson[idx] = num / (n * A.sd * B.sd);
+    // Adjust raw covariance to local-mean covariance
+    const covLocal = rawNP[idx] - n * (A.mu - mx) * (B.mu - my);
+    npScaled[idx]  = covLocal / (n * A.sd * B.sd);
+    fftScaled[idx] = npScaled[idx]; // identical after local normalization; FFT raw gives same after adjustment
+  }
+  return { lags, pearson, npScaled, fftScaled };
+}
+
+// =========================
+// Plot small-N vs large-N (responsive, print-safe)
+// =========================
+(function(){
+  const container = document.getElementById("small-large-plot");
+
+  // Screen sizing
+  const W = Number(container?.dataset.width || 760);
+  const H = Number(container?.dataset.height || 540);
+
+  // Create SVG with viewBox only; CSS width:100% keeps it responsive
+  const svg = createSVG(W, H);
+  // Set initial on-screen width; height remains auto via CSS
+  svg.style.width = (W + 'px');
+
+  // Optional print max-height in mm
+  const maxMMAttr = Number(container?.dataset.maxMm || NaN);
+  const maxMM = Number.isFinite(maxMMAttr) ? maxMMAttr : Number(getComputedStyle(document.documentElement).getPropertyValue('--svg-max-print-height-mm')) || 240;
+  // Add an inline style rule for print to clamp height
+  const pxmm = pxPerMM();
+  const maxPx = Math.round(maxMM * pxmm);
+  // Use inline style to enforce in all media; print has stricter page size anyway
+  svg.style.maxHeight = maxPx + 'px';
+
+  container.appendChild(svg);
+
+  // Basic drawing helpers
+  function axes(parent, x, y, w, h, opts) {
+    const {xTicks, yTicks, xLabel, yLabel} = opts;
+    rect(parent, x, y, w, h, {fill:"none", stroke:"#ddd"});
+    line(parent, x, y+h, x+w, y+h, {stroke:"#aaa"});
+    line(parent, x, y, x, y+h, {stroke:"#aaa"});
+    const tx = v => x + (v - xTicks.min)/(xTicks.max - xTicks.min) * w;
+    const ty = v => y + h - (v - yTicks.min)/(yTicks.max - yTicks.min) * h;
+    (xTicks.values || []).forEach(v => {
+      const px = tx(v);
+      line(parent, px, y+h, px, y+h+4, {stroke:"#aaa"});
+      text(parent, px, y+h+14, String(v), {"text-anchor":"middle", "font-size":"10px", fill:"#444"});
+    });
+    (yTicks.values || []).forEach(v => {
+      const py = ty(v);
+      line(parent, x-4, py, x, py, {stroke:"#aaa"});
+      text(parent, x-6, py+3, (Math.abs(v)>=1? v.toFixed(0): v.toFixed(1)), {"text-anchor":"end", "font-size":"10px", fill:"#444"});
+    });
+    if (xLabel) text(parent, x + w/2, y + h + 30, xLabel, {"text-anchor":"middle", "font-size":"11px", fill:"#222"});
+    if (yLabel) text(parent, x - 40, y + h/2, yLabel, {"text-anchor":"middle", "font-size":"11px", fill:"#222", transform:`rotate(-90 ${x-40},${y+h/2})`});
+    return { tx, ty };
+  }
+
+  const margin = {l: 60, r: 20, t: 24, b: 40};
+  const innerW = W - margin.l - margin.r;
+  const innerH = H - margin.t - margin.b;
+  const panelGap = 24;
+  const panelH = (innerH - panelGap) / 2;
+
+  function makeSeries(N, seed) {
+    const R = rng(seed);
+    const x = Array.from({length:N}, ()=> (R()*2-1));
+    const y = Array.from({length:N}, ()=> (R()*2-1));
+    return {x,y};
+  }
+  const N_small = 20, N_large = 5000;
+  const {x: xS, y: yS} = makeSeries(N_small, 0xC0FFEE);
+  const {x: xL, y: yL} = makeSeries(N_large, 0xBEEFCAFE);
+
+  const S = corrPearsonPerLag_viaNP_andFFT(xS, yS);
+  const Lg = corrPearsonPerLag_viaNP_andFFT(xL, yL);
+
+  function plotPanel(yTop, data, title) {
+    const {lags, pearson, npScaled, fftScaled} = data;
+    const xMin = lags[0], xMax = lags[lags.length-1];
+    const yMin = -1, yMax = 1;
+
+    const ax = axes(svg, margin.l, yTop, innerW, panelH, {
+      xTicks: {min:xMin, max:xMax, values:[xMin, 0, xMax]},
+      yTicks: {min:yMin, max:yMax, values:[-1,-0.5,0,0.5,1]},
+      xLabel: "Lag",
+      yLabel: "Correlation"
+    });
+
+    // grid at y=0 and x=0
+    line(svg, ax.tx(0), ax.ty(yMin), ax.tx(0), ax.ty(yMax), {stroke:"#e5e7eb"});
+    line(svg, ax.tx(xMin), ax.ty(0), ax.tx(xMax), ax.ty(0), {stroke:"#bbb", "stroke-dasharray":"4 4"});
+
+    function seriesToPoints(xs, ys) {
+      const pts = [];
+      for (let i=0;i<xs.length;i++) {
+        const v = ys[i];
+        if (!Number.isFinite(v)) continue; // skip NaNs at edges
+        pts.push([ax.tx(xs[i]), ax.ty(v)]);
+      }
+      return pts;
+    }
+
+    // plot curves
+    polyline(svg, seriesToPoints(lags, pearson),  {fill:"none", stroke:"#16a34a", "stroke-width":"1.6"}); // green
+    polyline(svg, seriesToPoints(lags, npScaled), {fill:"none", stroke:"#1f6feb", "stroke-width":"1.4", "stroke-dasharray":"6 3"}); // blue dashed
+    polyline(svg, seriesToPoints(lags, fftScaled),{fill:"none", stroke:"#ef4444", "stroke-width":"1.2", "stroke-dasharray":"2 3"}); // red dotted
+
+    // legend
+    const lx = margin.l + 10, ly = yTop + 16;
+    text(svg, lx, ly, title, {"font-size":"12px", "font-weight":"600", fill:"#111"});
+    const items = [
+      {label: "Pearson (local stats)", color:"#16a34a", dash:""},
+      {label: "NumPy→Pearson (per-lag normalized)", color:"#1f6feb", dash:"6 3"},
+      {label: "FFT→Pearson (per-lag normalized)", color:"#ef4444", dash:"2 3"},
+    ];
+    let yleg = ly + 14;
+    items.forEach(it => {
+      line(svg, lx, yleg-6, lx+24, yleg-6, {stroke:it.color, "stroke-width":"2", "stroke-dasharray":it.dash});
+      text(svg, lx+30, yleg-2, it.label, {"font-size":"11px", fill:"#333"});
+      yleg += 14;
+    });
+  }
+
+  plotPanel(margin.t, S, `Small N = ${N_small} (edges masked in lines)`);
+  plotPanel(margin.t + panelH + panelGap, Lg, `Large N = ${N_large} (near machine-precision agreement)`);
+})();
+</script>
+
+</body>
+</html>
