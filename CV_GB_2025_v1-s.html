@@ -1,9 +1,20 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gene Boo - Professional CV</title>
+
+    <!-- Font Awesome (CSS for icons; prints reliably) -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXrj3G5T8Jrj0A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    />
+
     <style>
         /* Modern, condensed professional styling */
         :root {
@@ -98,6 +109,8 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 5px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         
         .position {
@@ -110,6 +123,7 @@
             font-weight: 600;
             color: var(--secondary);
             font-size: 14px;
+            margin-left: 8px;
         }
         
         .date {
@@ -171,23 +185,19 @@
             line-height: 1.35;
         }
         
-        .website-link {
+        .website-link, .written-works a {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             color: var(--secondary);
             text-decoration: none;
             font-size: 13px;
+            word-break: break-all; /* ensure long URLs wrap */
         }
         
-        .website-link:hover {
+        .website-link:hover,
+        .written-works a:hover {
             text-decoration: underline;
-        }
-        
-        .compact-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
         }
         
         .two-column-section {
@@ -201,105 +211,25 @@
         }
         
         @media print {
-            .download-buttons {
-                display: none;
-            }
-            
+            .download-buttons { display: none; }
             body {
                 background: white;
                 padding: 0;
                 font-size: 12px;
             }
-            
-            .cv-container {
-                box-shadow: none;
-                padding: 15px;
-            }
-            
-            .name {
-                font-size: 24px;
-            }
-            
-            .title {
-                font-size: 16px;
-            }
-            
-            .section-title {
-                font-size: 16px;
-            }
-            
-            .position {
-                font-size: 13px;
-            }
-            
-            .company {
-                font-size: 13px;
-            }
-            
-            .date {
-                font-size: 12px;
-            }
-            
-            .contact-info {
-                font-size: 11px;
-                gap: 8px;
-            }
-            
-            li {
-                margin-bottom: 4px;
-                font-size: 11px;
-            }
-            
-            .print-optimized {
-                display: block;
-            }
+            .cv-container { box-shadow: none; padding: 15px; }
+            .name { font-size: 24px; }
+            .title { font-size: 16px; }
+            .section-title { font-size: 16px; }
+            .position, .company { font-size: 13px; }
+            .date { font-size: 12px; }
+            .contact-info { font-size: 11px; gap: 8px; }
+            li { margin-bottom: 4px; font-size: 11px; }
+            .print-optimized { display: block; }
+            /* Underline links in print for clarity */
+            a { text-decoration: underline !important; color: black !important; }
         }
-        
-        /* Updated Technical Proficiencies */
-        .tech-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        
-        .tech-column {
-            background-color: #f8fafc;
-            border-radius: 6px;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .tech-column h4 {
-            margin-top: 0;
-            margin-bottom: 12px;
-            color: var(--secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        /* New horizontal layout for Technical Proficiencies */
-        .tech-proficiencies-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        
-        .tech-skill-category {
-            margin-bottom: 10px;
-        }
-        
-        .tech-skill-category h4 {
-            margin: 0 0 5px 0;
-            color: var(--primary);
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
+
         /* Hobby projects styling */
         .hobby-projects {
             display: grid;
@@ -326,21 +256,26 @@
         .project-card p {
             margin: 8px 0;
         }
-        
-        .language-grid {
+
+        /* Written works layout */
+        .written-works {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-top: 15px;
         }
-        
-        .language-item {
+        .written-work strong {
+            color: var(--dark);
+            display: block;
+            margin-bottom: 6px;
+        }
+        .written-work p {
+            margin: 6px 0 8px;
+        }
+        .written-work .link-row {
             display: flex;
-            align-items: center;
-        }
-        
-        .language-level {
-            margin-left: 8px;
-            font-weight: 500;
+            flex-wrap: wrap;
+            gap: 10px 14px;
         }
     </style>
 </head>
@@ -349,34 +284,34 @@
         <!-- Header Section -->
         <div class="header">
             <h1 class="name">Gene Boo Ee Jin</h1>
-            <div class="title">Quantitative Risk & Analytics Specialist</div>
+            <div class="title">Quantitative Risk &amp; Analytics Specialist</div>
             
             <div class="contact-info">
                 <div class="contact-item">
                     <i class="fas fa-envelope"></i>
-                    gene.boo@aol.com | gene.boo@gmail.com
+                    <span>gene.boo@aol.com | gene.boo@gmail.com</span>
                 </div>
                 <div class="contact-item">
                     <i class="fas fa-phone"></i>
-                    +60-17-293 5647 (WhatsApp)
+                    <span>+60-17-293 5647 (WhatsApp)</span>
                 </div>
                 <div class="contact-item">
                     <i class="fas fa-phone"></i>
-                    +852-6507 8429 (HK)
+                    <span>+852-6507 8429 (HK)</span>
                 </div>
                 <div class="contact-item">
                     <i class="fas fa-map-marker-alt"></i>
-                    Kuala Lumpur, Malaysia
+                    <span>Kuala Lumpur, Malaysia</span>
                 </div>
                 <div class="contact-item">
                     <i class="fab fa-linkedin"></i>
-                    <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank" class="website-link">
+                    <a href="https://www.linkedin.com/in/gene-boo-007/" target="_blank" rel="noopener noreferrer" class="website-link">
                         linkedin.com/in/gene-boo-007
                     </a>
                 </div>
                 <div class="contact-item">
                     <i class="fas fa-globe"></i>
-                    <a href="https://geneboo.github.io/GBnfo/" target="_blank" class="website-link">
+                    <a href="https://geneboo.github.io/GBnfo/" target="_blank" rel="noopener noreferrer" class="website-link">
                         geneboo.github.io/GBnfo
                     </a>
                 </div>
@@ -405,7 +340,7 @@
                         <li>Financial Derivatives Pricing</li>
                         <li>Monte Carlo Simulation</li>
                         <li>Copula Modeling</li>
-                        <li>Gradient Boosting/FFT/PCA/Hybrid Modeling</li>
+                        <li>Gradient Boosting / FFT / PCA / Hybrid Modeling</li>
                         <li>Risk Metrics (VaR, ES)</li>
                     </ul>
                 </div>
@@ -416,7 +351,7 @@
                         <li>Python (Pandas, NumPy)</li>
                         <li>VBA/Excel Financial Modeling</li>
                         <li>C++ Quantitative Libraries</li>
-                        <li>SQL & Database Management</li>
+                        <li>SQL &amp; Database Management</li>
                         <li>RESTful API Integration</li>
                     </ul>
                 </div>
@@ -424,16 +359,16 @@
                 <div class="skill-category">
                     <h4>Risk Management</h4>
                     <ul>
-                        <li>Market & Operational Risk</li>
-                        <li>Traded & Non-traded Risk</li>
-                        <li>IRRBB & Liquidity Risk</li>
+                        <li>Market &amp; Operational Risk</li>
+                        <li>Traded &amp; Non-traded Risk</li>
+                        <li>IRRBB &amp; Liquidity Risk</li>
                         <li>Model Validation Frameworks</li>
                         <li>Basel Compliance</li>
                     </ul>
                 </div>
                 
                 <div class="skill-category">
-                    <h4>Leadership & Strategy</h4>
+                    <h4>Leadership &amp; Strategy</h4>
                     <ul>
                         <li>Team Leadership (5+ members regionally)</li>
                         <li>Pre/Post-Sales Engagement</li>
@@ -442,7 +377,6 @@
                         <li>Policy/Model/Technical Documentation</li>
                     </ul>
                 </div>
-                
             </div>
         </div>
         
@@ -495,11 +429,11 @@
                     <div class="date">Sep 2019 - Aug 2021</div>
                 </div>
                 <ul>
-                    <li>Designed Monte Carlo+bootstrap models for Operational Risk capital allocation</li>
-                    <li>Implemented Gaussian & T-copulae for tail-risk aggregation and Euler Allocation to quantify risk across 8 business units</li>
+                    <li>Designed Monte Carlo + bootstrap models for Operational Risk capital allocation</li>
+                    <li>Implemented Gaussian &amp; t-copulae for tail-risk aggregation and Euler Allocation across 8 business units</li>
                     <li>Built COVID-19 R₀ prediction model using polynomial regression (92% accuracy)</li>
                     <li>Built FFT-based convolution tools for joint distribution modeling</li>
-                    <li>Developed Python based custom distribution (multi-modal) distribution fitting tools</li>
+                    <li>Developed Python-based custom multimodal distribution fitting tools</li>
                 </ul>
                 <p><strong>Technologies:</strong> Python, Excel VBA, SQL</p>
             </div>
@@ -546,8 +480,8 @@
                     <div class="date">Jun 2007 - Jan 2008</div>
                 </div>
                 <ul>
-                    <li>Developed staging tools for reading XML based formulae into C# proprietary software for Credit Risk</li>
-                    <li>Implemented logistic regression based tools for PD</li>
+                    <li>Developed staging tools for reading XML-based formulae into C# proprietary software for Credit Risk</li>
+                    <li>Implemented logistic regression-based tools for PD</li>
                 </ul>
             </div>
             
@@ -560,7 +494,7 @@
                     <div class="date">Aug 2006 - Jan 2007</div>
                 </div>
                 <ul>
-                    <li>Developed Asian Basket option pricing and greek models for the market risk department</li>
+                    <li>Developed Asian Basket option pricing and Greek models for the market risk department</li>
                 </ul>
             </div>
             
@@ -573,9 +507,9 @@
                     <div class="date">Aug 2000 - May 2006</div>
                 </div>
                 <ul>
-                    <li>Developed spark spread and crack spread pricers in VBA & C++ for the Middle Office</li>
+                    <li>Developed spark spread and crack spread pricers in VBA &amp; C++ for the Middle Office</li>
                     <li>Worked with Murex to incorporate Energy Derivatives into the risk engine</li>
-                    <li>Developed Winter method based hourly profiling tool in SAS to capture hourly power profiles</li>
+                    <li>Developed Winter method-based hourly profiling tool in SAS to capture hourly power profiles</li>
                 </ul>
             </div>
         </div>
@@ -602,52 +536,10 @@
             <div>
                 <h2 class="section-title">Certifications</h2>
                 <ul>
-                    <li><i class="fas fa-certificate"></i> AICB - Risk Management: Principles & Framework</li>
-                    <li><i class="fas fa-certificate"></i> AICB - Risk Models, Capital & ALM</li>
+                    <li><i class="fas fa-certificate"></i> AICB - Risk Management: Principles &amp; Framework</li>
+                    <li><i class="fas fa-certificate"></i> AICB - Risk Models, Capital &amp; ALM</li>
                     <li><i class="fas fa-certificate"></i> Microsoft Visual Basic 6</li>
                 </ul>
-            </div>
-        </div>
-        
-        <!-- Technical Proficiencies - Horizontal Layout -->
-        <div class="section">
-            <h2 class="section-title">Technical Proficiencies</h2>
-            <div class="tech-proficiencies-container">
-                <div class="tech-skill-category">
-                    <h4><i class="fas fa-code"></i> Languages & Frameworks</h4>
-                    <ul>
-                        <li>Python (Pandas, NumPy, SciPy, Scikitlearn)</li>
-                        <li>VBA/Excel (Advanced)</li>
-                        <li>C++ (Boost)</li>
-                        <li>SQL (MySQL, T-SQL)</li>
-                        <li>R, MATLAB</li>
-                        <li>JavaScript/Node.js</li>
-                    </ul>
-                </div>
-                
-                <div class="tech-skill-category">
-                    <h4><i class="fas fa-tools"></i> Platforms & Tools</h4>
-                    <ul>
-                        <li>AxiomaRisk, RiskMetrics</li>
-                        <li>Murex, Algorithmics</li>
-                        <li>Front Arena, Bloomberg</li>
-                        <li>Microsoft Azure Cloud</li>
-                        <li>Git, Docker, REST APIs</li>
-                        <li>Jira, Salesforce, Postman</li>
-                    </ul>
-                </div>
-                
-                <div class="tech-skill-category">
-                    <h4><i class="fas fa-project-diagram"></i> Methodologies</h4>
-                    <ul>
-                        <li>Derivative Pricing Models</li>
-                        <li>Copula-based Risk Aggregation</li>
-                        <li>FFT Convolution Techniques</li>
-                        <li>Monte Carlo Simulation</li>
-                        <li>Machine Learning Basics</li>
-                        <li>Time Series Analysis</li>
-                    </ul>
-                </div>
             </div>
         </div>
         
@@ -660,31 +552,151 @@
                     <div class="project-card">
                         <h4><i class="fas fa-chart-line"></i> FunkyGraffy</h4>
                         <p>Edutainment math visualization platform</p>
-                        <a href="https://funkygraffy.onrender.com" target="_blank" class="website-link">
-                            funkygraffy.onrender.com
+                        <a href="https://funkygraffy.onrender.com" target="_blank" rel="noopener noreferrer" class="website-link">
+                            <i class="fas fa-external-link-alt"></i> funkygraffy.onrender.com
+                        </a><br>
+                        <a href="https://my-cloud-run-service-324349391188.asia-southeast1.run.app/" target="_blank" rel="noopener noreferrer" class="website-link">
+                            <i class="fas fa-external-link-alt"></i> Google Cloud mirror
                         </a>
                     </div>
-                    
+
                     <div class="project-card">
                         <h4><i class="fas fa-calculator"></i> Convolve!</h4>
                         <p>Empirical convolution tool for joint distribution modeling</p>
+                        <span class="website-link"><i class="fas fa-clock"></i> Coming Soon</span>
                     </div>
-                    
+
                     <div class="project-card">
                         <h4><i class="fas fa-chart-bar"></i> Fit_it!</h4>
                         <p>Continuous distribution fitting engine</p>
-                    </div>
-                    
-                    <div class="project-card">
-                        <h4><i class="fas fa-book"></i> Technical Publications</h4>
-                        <a href="assets/FFT_Convolution_GB2020_Excerpt.pdf" target="_blank" class="website-link">
-                            FFT Convolution for PDFs and Option Pricing
+                        <a href="https://fit-it-app-29330439259.asia-southeast1.run.app/#top" target="_blank" rel="noopener noreferrer" class="website-link">
+                            <i class="fas fa-external-link-alt"></i> fit-it-app.../run.app
                         </a>
+                    </div>
+
+                    <div class="project-card">
+                        <h4><i class="fas fa-eye"></i> Cermin Mata Ho</h4>
+                        <p>Client‑side business site editable directly via Excel</p>
+                        <a href="https://geneboo.github.io/GBnfo/OptiStyle.html" target="_blank" rel="noopener noreferrer" class="website-link">
+                            <i class="fas fa-external-link-alt"></i> geneboo.github.io/GBnfo/OptiStyle.html
+                        </a>
+                    </div>
+
+                    <div class="project-card">
+                        <h4><i class="fas fa-wave-square"></i> Fourier Epicycle</h4>
+                        <p>Upload SVGs to generate animated Fourier vector drawings</p>
+                        <span class="website-link"><i class="fas fa-clock"></i> Coming Soon</span>
+                    </div>
+
+                    <div class="project-card">
+                        <h4><i class="fas fa-puzzle-piece"></i> Gene’s SaaS Universe</h4>
+                        <p>Mini SaaS REST endpoints supporting derivative pricing, quant analysis, Kalman filter &amp; gradient boosting-based forecasting tools</p>
+                        <span class="website-link"><i class="fas fa-clock"></i> Coming Soon</span>
                     </div>
                 </div>
             </div>
-            
-            <!-- Right Column: Linguistics -->
+
+            <!-- Right Column: Written Works -->
+            <div>
+                <h2 class="section-title">Written Works</h2>
+                <div class="written-works">
+
+                    <div class="written-work">
+                        <strong>Understanding Fourier Transform</strong>
+                        <p>
+                            Deep foundations of Fourier Transform and its application in
+                            convolution-based option pricing, with Python implementations.
+                        </p>
+                        <div class="link-row">
+                            <a href="https://geneboo.github.io/GBnfo/assets/Gene%20Boo%20-%20FFT%20Convolution%20PDF%20BlackScholes%20Python3%20v5.pdf"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="written-work">
+                        <strong>FFT Cross Correlation vs Pearson Correlation</strong>
+                        <p>
+                            Demonstrates FFT-based correlation as a fast alternative to Pearson correlation.
+                            Includes Python code &amp; quant examples.
+                        </p>
+                        <div class="link-row">
+                            <a href="https://geneboo.github.io/GBnfo/assets/GB_FFT_Pearson_NP_Correl.html"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-file-alt"></i> HTML
+                            </a>
+                            <a href="https://geneboo.github.io/GBnfo/assets/GB_FFT_Pearson_NP_Correl.pdf"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                            <a href="https://geneboo.github.io/GBnfo/assets/GB_FFT_Pearson_NP_Correl.ipynb"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-flask"></i> IPYNB
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="written-work">
+                        <strong>Analytical Black-Scholes-like Pricing for European Options under Any Distribution</strong>
+                        <p>
+                            Applying moment-generating functions to derive drift corrections
+                            under the risk-neutral measure. A bridge between probability and pricing under any distribution.
+                        </p>
+                        <div class="link-row">
+                            <a href="https://geneboo.github.io/GBnfo/assets/GB_Risk-Neutral_Pricing_via_MGF_v3.html"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-file-alt"></i> HTML
+                            </a>
+                            <a href="https://geneboo.github.io/GBnfo/assets/GB_Risk-Neutral_Pricing_via_MGF_v3.pdf"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="written-work">
+                        <strong>Art of Buy-Side Arbitrage Strategy</strong>
+                        <p>
+                           Arbitrage strategies from the perspective of buy-side quant operations.
+                        </p>
+                        <div class="link-row">
+                            <a href="https://geneboo.github.io/GBnfo/assets/GB_Buy-side_Arbitrage.html"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-file-alt"></i> HTML
+                            </a>
+                            <a href="https://geneboo.github.io/GBnfo/assets/GB_Buy-side_Arbitrage.pdf"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="written-work">
+                        <strong>Mind the Gap (Under the Curve)</strong>
+                        <p>
+                            A comprehensive personal compendium on numerical integration, quadrature, and applications
+                            in financial engineering.
+                        </p>
+                        <div class="link-row">
+                            <a href="https://geneboo.github.io/GBnfo/assets/GB_Mind_the_Gap_Under_the_Curve_with_sidebar.html"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-file-alt"></i> HTML
+                            </a>
+                            <a href="https://geneboo.github.io/GBnfo/assets/GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf"
+                               target="_blank" rel="noopener noreferrer">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Linguistics & Portfolio (separate section for clarity) -->
+        <div class="section two-column-section">
+            <!-- Left: Linguistics -->
             <div>
                 <h2 class="section-title">Linguistics</h2>
                 <div class="language-grid">
@@ -709,11 +721,15 @@
                         <span class="language-level">Flemish - Basic</span>
                     </div>
                 </div>
-                
-                <div class="project-card" style="margin-top: 20px;">
+            </div>
+
+            <!-- Right: Portfolio link -->
+            <div>
+                <h2 class="section-title">Portfolio</h2>
+                <div class="project-card">
                     <h4><i class="fas fa-globe"></i> Personal Portfolio</h4>
-                    <a href="https://geneboo.github.io/GBnfo/" target="_blank" class="website-link">
-                        geneboo.github.io/GBnfo
+                    <a href="https://geneboo.github.io/GBnfo/" target="_blank" rel="noopener noreferrer" class="website-link">
+                        <i class="fas fa-external-link-alt"></i> geneboo.github.io/GBnfo
                     </a>
                 </div>
             </div>
@@ -727,7 +743,13 @@
         </div>
     </div>
 
-    <!-- Font Awesome for icons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <!-- (Optional) Font Awesome JS for advanced features; CSS above is sufficient -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"
+        integrity="sha512-Cnb1YQdQk3NQbQynhYHq7pCw1gH5Z8kqUQW0H2y9fV9C4f7rT8Hj5q2oGv7u1a+2kzNeCkq0qj3n9v8g3rO1hA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+        defer>
+    </script>
 </body>
 </html>
