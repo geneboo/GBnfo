@@ -93,30 +93,28 @@
             background-image: url('https://www.transparenttextures.com/patterns/cartographer.png');
         }
         
-        vogue-bg::before {
+        /* FIX: add missing dot so rule applies */
+        .vogue-bg::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background: var(--bg-overlay-gradient);
         }
         
-		/* ----------------------------------------------------
-		   2. Sub‑tle “grid” that looks like a Vogue magazine
-		   ---------------------------------------------------- */
-		.vogue-grid {
-			position: fixed;
-			inset: 0;
-			z-index: -1;
-			background-image:
-				linear-gradient(var(--primary-color) 1px, transparent 1px),
-				linear-gradient(90deg, var(--primary-color) 1px, transparent 1px);
-			background-size: 40px 40px;
-			opacity: 0.08;                 /* small hint of the pattern */
-			pointer-events: none;
-		}
+        /* ----------------------------------------------------
+           2. Sub‑tle “grid” that looks like a Vogue magazine
+           ---------------------------------------------------- */
+        .vogue-grid {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image:
+                linear-gradient(var(--primary-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--primary-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.08;                 /* small hint of the pattern */
+            pointer-events: none;
+        }
 
         /* Shape Animations from Initial Design */
         .shape {
@@ -218,7 +216,7 @@
             }
         }
         
-        /* Vogue Magazine Style Grid */
+        /* Vogue Magazine Style Grid (duplicate kept intentionally, harmless) */
         .vogue-grid {
             position: fixed;
             top: 0;
@@ -441,6 +439,8 @@
             display: flex;
             align-items: center;
             width: 100%;
+            /* Make anchor scrolling with fixed header land cleanly */
+            scroll-margin-top: 120px;
         }
         
         .section-container {
@@ -853,11 +853,13 @@
         }
         
         .projects-grid {
+            /* Improved minimum for small phones; keeps cards tidy */
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 40px;
             position: relative;
             z-index: 1;
+            align-items: stretch;
         }
         
         .project-card {
@@ -867,6 +869,8 @@
             border-radius: 0;
             overflow: hidden;
             transition: all 0.5s ease;
+            display: flex;
+            flex-direction: column; /* equalize heights across cards */
         }
         
         .project-card:hover {
@@ -895,6 +899,9 @@
             padding: 40px;
             position: relative;
             z-index: 1;
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
         }
         
         .project-icon {
@@ -938,8 +945,10 @@
         .project-description {
             color: rgba(255, 255, 255, 0.7);
             margin-bottom: 30px;
-            line-height: 1.6;
+            line-height: 1.65;
             font-family: 'Lato', sans-serif;
+            font-size: clamp(0.95rem, 1vw + 0.5rem, 1.05rem);
+            overflow-wrap: anywhere; /* prevents overflow on small screens */
         }
         
         .project-links {
@@ -952,13 +961,14 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 15px 25px;
+            padding: 12px 18px; /* slightly more compact; better on mobile */
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
             text-decoration: none;
             transition: all 0.3s ease;
             font-family: 'Lato', sans-serif;
+            font-size: clamp(0.9rem, 1vw + 0.4rem, 1rem);
         }
         
         .project-link:hover {
@@ -975,7 +985,58 @@
         .project-link:hover i {
             transform: translateX(5px);
         }
-        
+
+        /* Modal (ExcelBridge “Learn more”) */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: none; /* toggled to flex when open */
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.open { display: flex; }
+        .modal::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            position: relative;
+            z-index: 1;
+            width: min(900px, 92%);
+            max-height: 80vh;
+            overflow: auto;
+            background: var(--container-background-color);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.55);
+            padding: 28px 28px 20px 28px;
+        }
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.4rem, 2.5vw, 2rem);
+            margin-bottom: 12px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 26px;
+            cursor: pointer;
+        }
+        .modal-body p {
+            color: rgba(255,255,255,0.85);
+            line-height: 1.7;
+            font-family: 'Lato', sans-serif;
+            margin: 0 0 16px 0;
+        }
+        .modal-body a { color: var(--accent-color); text-decoration: none; }
+
         /* Written Works Section */
         .written-works {
             margin-top: 80px;
@@ -1273,10 +1334,10 @@
         
         /* Responsive adjustments */
         @media (max-width: 768px) {
-			nav {
-				/* The nav still sits right below the header */
-				margin-top: 0;
-			}
+            nav {
+                /* The nav still sits right below the header */
+                margin-top: 0;
+            }
             .nav-items {
                 gap: 20px;
             }
@@ -1327,6 +1388,9 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Media safety */
+        img, video, canvas, iframe { max-width: 100%; height: auto; }
         
         /* Preloader */
         .preloader {
@@ -1445,16 +1509,16 @@
             </select>
             <button class="layout-toggle" onclick="toggleLayout()">Layout: Classic</button>
         </div>
-		<!-- ======== NEW NAVIGATION ======== -->
-		<nav>
-			<ul class="nav-items">
-				<li class="nav-item" data-section="about">About</li>
-				<li class="nav-item" data-section="resume">Résumé</li>
-				<li class="nav-item" data-section="projects">Projects</li>
-				<li class="nav-item" data-section="contact">Contact</li>
-			</ul>
-		</nav>
-		<!-- ======== END OF NAVIGATION ======== -->
+        <!-- ======== NEW NAVIGATION ======== -->
+        <nav>
+            <ul class="nav-items">
+                <li class="nav-item" data-section="about">About</li>
+                <li class="nav-item" data-section="resume">Résumé</li>
+                <li class="nav-item" data-section="projects">Projects</li>
+                <li class="nav-item" data-section="contact">Contact</li>
+            </ul>
+        </nav>
+        <!-- ======== END OF NAVIGATION ======== -->
     </header>
     
     <!-- Main Content -->
@@ -1480,7 +1544,7 @@
                     <div class="about-card fade-in-up">
                         <div class="card-header">
                             <div class="card-icon">📊</div>
-                            <h3 class="card-title">Math & Analytics</h3>
+                            <h3 class="card-title">Math &amp; Analytics</h3>
                         </div>
                         <div class="card-content">
                             <p>With two decades of experience in mathematical modeling and risk analysis, I've contributed to the banking, fintech, and energy sectors by solving complex problems through creative approaches to data interpretation and risk assessment.</p>
@@ -1581,51 +1645,34 @@
                 <p class="section-subtitle">Where creativity meets functionality</p>
                 
                 <div class="projects-grid">
-					<!-- ExcelBridge project card -->
-					<div class="project-card fade-in-up">
-					  <div class="project-header">
-					    <div class="project-icon">🧰</div>
-					    <h3 class="project-title">ExcelBridge</h3>
-							<p class="project-description">
-							  ExcelBridge is a high‑performance, quant‑ready extension stack for Excel that I’ve been building since 2023 — 
-							  a lightweight local REST host that <strong>loads Python plugins at runtime</strong> and transforms Excel into a 
-							  seamless front‑end for modern numerical computing.
-							  Designed as a clean, low‑friction alternative to traditional add‑ins, it offers the convenience of tools like 
-							  PyXLL, xlwings, and COM add‑ins without the installation overhead, heavy dependencies, or fragility that often 
-							  accompany them. With years of experience building C++ XLLs over XLW — the framework pioneered by 
-							  Jérôme Lecomte and later extended by the late quant author Mark Joshi [1](https://www.excelpython.org/xlwt/)[2](http://xlwt.readthedocs.io/en/latest/) — 
-							  I found many commercial and open‑source solutions to be bloated, slow to start, overly complex to configure, 
-							  prone to environment conflicts, or easily broken when Python or Conda environments drift. ExcelBridge was born out of my woes from all of that.
-							  <br><br>
-							  And while Excel was the initial target, ExcelBridge is <strong>not limited to Excel</strong>. Its clean, lightweight 
-							  REST API means any system capable of making <em>cURL</em> or <em>HTTP</em> requests — dashboards, schedulers, backend 
-							  services, lightweight UIs, or automated workflows — can call the same Python plugins. This makes it just as suitable 
-							  outside Excel as it is inside it, especially for environments that need fast numerical computation without deploying 
-							  a full Python runtime everywhere.
-							  <br><br>
-							  Built for quants and data scientists, ExcelBridge ships with the libraries that matter: NumPy, SciPy, Pandas, 
-							  Polars, SymPy, scikit‑learn, XGBoost, mpmath, and more — enabling advanced models, analytics, and numerical workflows 
-							  to run instantly with zero additional setup. Excel calls your Python functions over lightweight HTTP via the 
-							  <code>GBPY</code> add‑in and receives spill‑ready scalars, vectors, tables, or multi‑table outputs effortlessly.
-							  <br><br>
-							  The workflow remains beautifully simple: 
-							  <em>Excel → GBPY VBA add‑in → ExcelBridge → plugin → JSON → Excel spill</em>. 
-							  No COM registration, no Office scripting layers, and no full Python installation required for end‑users once packaged.
-							</p>
-					    <div class="project-links">
-					      <!-- Adjust paths to where you host these files (e.g., assets/...) -->
-					      <a href="README.md" target="_blank" class="project-link">
-					        <span>README (Overview)</span>
-					        <i class="fas fa-external-link-alt"></i>
-					      </a>
-					      <a href="ExcelBridge_plugin_developer_guide.md" target="_blank" class="project-link">
-					        <span>Plugin Developer Guide</span>
-					        <i class="fas fa-external-link-alt"></i>
-					      </a>
-					    </div>
-					  </div>
-					</div>
-					
+                    <!-- ExcelBridge project card -->
+                    <div class="project-card fade-in-up">
+                      <div class="project-header">
+                        <div class="project-icon">🧰</div>
+                        <h3 class="project-title">ExcelBridge</h3>
+                        <!-- Micro description for the card -->
+                        <p class="project-description">
+                          ExcelBridge turns Excel into a seamless front‑end for modern numerical computing — a lightweight local REST host that 
+                          <strong>loads Python plugins at runtime</strong> and returns spill‑ready results. Quant‑ready out of the box, with the libraries that matter.
+                        </p>
+                        <div class="project-links">
+                          <a href="#" class="project-link" id="excelbridge-learn-more">
+                            <span>Learn more</span>
+                            <i class="fas fa-info-circle"></i>
+                          </a>
+                          <!-- Adjust paths to where you host these files (e.g., assets/...) -->
+                          <a href="README.md" target="_blank" class="project-link">
+                            <span>README (Overview)</span>
+                            <i class="fas fa-external-link-alt"></i>
+                          </a>
+                          <a href="ExcelBridge_plugin_developer_guide.md" target="_blank" class="project-link">
+                            <span>Plugin Developer Guide</span>
+                            <i class="fas fa-external-link-alt"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div class="project-card fade-in-up">
                         <div class="project-header">
                             <div class="project-icon">🎨</div>
@@ -1715,75 +1762,75 @@
                     </div>
                 </div>
 
-				<div class="written-works fade-in-up">
-				    <h3 class="written-works-title">📝 Written Works</h3>
-				    <p class="written-works-subtitle">Explore my articles</p>
-				
-				    <div class="written-works-item">
-				        <span><strong>Understanding Fourier Transform</strong></span>
-				        <p class="written-works-description">
-				            A deep dive into the mathematical foundations of the Fourier Transform and its application in option pricing via convolution methods. Includes Python implementations and Black-Scholes extensions. Note that this is not the same as Carr-Madan's formulation.
-				        </p>
-				        <a href="assets/Gene%20Boo%20-%20FFT%20Convolution%20PDF%20BlackScholes%20Python3%20v5.pdf" download="FFT_Convolution_GB2020_Excerpt.pdf" class="written-works-link">
-				            <i class="fas fa-file-pdf"></i> PDF
-				        </a>
-				    </div>
+                <div class="written-works fade-in-up">
+                    <h3 class="written-works-title">📝 Written Works</h3>
+                    <p class="written-works-subtitle">Explore my articles</p>
+                
+                    <div class="written-works-item">
+                        <span><strong>Understanding Fourier Transform</strong></span>
+                        <p class="written-works-description">
+                            A deep dive into the mathematical foundations of the Fourier Transform and its application in option pricing via convolution methods. Includes Python implementations and Black-Scholes extensions. Note that this is not the same as Carr-Madan's formulation.
+                        </p>
+                        <a href="assets/Gene%20Boo%20-%20FFT%20Convolution%20PDF%20BlackScholes%20Python3%20v5.pdf" download="FFT_Convolution_GB2020_Excerpt.pdf" class="written-works-link">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
 
-				    <div class="written-works-item">
-				        <span><strong>FFT Cross Correlation and How it Compares to Pearson Correlation</strong></span>
-				        <p class="written-works-description">
-				            A dip into the Fast Fourier Transform as a cross-correlation tool and how it relates to the Pearson correlation. Includes Python implementations and Black-Scholes extensions.
-				        </p>
-				        <a href="assets/GB_FFT_Pearson_NP_Correl.html" class="written-works-link" target="_blank">
-				            <i class="fas fa-file-alt"></i> HTML
-				        </a>
-				        <a href="assets/GB_FFT_Pearson_NP_Correl.pdf" download="GB_FFT_Pearson_NP_Correl.pdf" class="written-works-link">
-				            <i class="fas fa-file-pdf"></i> PDF
-				        </a>
-				        <a href="assets/GB_FFT_Pearson_NP_Correl.ipynb" download="GB_FFT_Pearson_NP_Correl.ipynb" class="written-works-link">
-				            <i class="fas fa-flask"></i> IPYNB
-				        </a>						
-				    </div>
-				
-				    <div class="written-works-item">
-				        <span><strong>Risk Neutral Pricing via MGF Functions</strong></span>
-				        <p class="written-works-description">
-				            Explores the use of moment generating functions (MGFs) in deriving drift correction in risk-neutral pricing formulas. A modern approach to valuation that bridges probability theory and financial modeling.
-				        </p>
-				        <a href="assets/GB_Risk-Neutral_Pricing_via_MGF_v3.html" class="written-works-link" target="_blank">
-				            <i class="fas fa-file-alt"></i> HTML
-				        </a>
-				        <a href="assets/GB_Risk-Neutral_Pricing_via_MGF_v3.pdf" download="GB_Risk-Neutral_Pricing_via_MGF_v3.pdf" class="written-works-link">
-				            <i class="fas fa-file-pdf"></i> PDF
-				        </a>
-				    </div>
-				
-				    <div class="written-works-item">
-				        <span><strong>Art of Buy-Side Arbitrage Strategy</strong></span>
-				        <p class="written-works-description">
-				            A strategic overview of arbitrage techniques employed by modern buy-side institutions. Covers pricing inefficiencies, execution tactics, and risk-adjusted return optimization.
-				        </p>
-				        <a href="assets/GB_Buy-side_Arbitrage.html" class="written-works-link" target="_blank">
-				            <i class="fas fa-file-alt"></i> HTML
-				        </a>
-				        <a href="assets/GB_Buy-side_Arbitrage.pdf" download="GB_Buy-side_Arbitrage.pdf" class="written-works-link">
-				            <i class="fas fa-file-pdf"></i> PDF
-				        </a>
-				    </div>
-				
-				    <div class="written-works-item">
-				        <span><strong>Mind the Gap (Under the Curve)</strong></span>
-				        <p class="written-works-description">
-				            A personal compendium on numerical integration and quadrature methods. Includes visualizations and practical applications in financial engineering.
-				        </p>
-				        <a href="assets/GB_Mind_the_Gap_Under_the_Curve_with_sidebar.html" class="written-works-link" target="_blank">
-				            <i class="fas fa-file-alt"></i> HTML
-				        </a>
-				        <a href="assets/GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf" download="GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf" class="written-works-link">
-				            <i class="fas fa-file-pdf"></i> PDF
-				        </a>
-				    </div>
-				</div>				
+                    <div class="written-works-item">
+                        <span><strong>FFT Cross Correlation and How it Compares to Pearson Correlation</strong></span>
+                        <p class="written-works-description">
+                            A dip into the Fast Fourier Transform as a cross-correlation tool and how it relates to the Pearson correlation. Includes Python implementations and Black-Scholes extensions.
+                        </p>
+                        <a href="assets/GB_FFT_Pearson_NP_Correl.html" class="written-works-link" target="_blank">
+                            <i class="fas fa-file-alt"></i> HTML
+                        </a>
+                        <a href="assets/GB_FFT_Pearson_NP_Correl.pdf" download="GB_FFT_Pearson_NP_Correl.pdf" class="written-works-link">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                        <a href="assets/GB_FFT_Pearson_NP_Correl.ipynb" download="GB_FFT_Pearson_NP_Correl.ipynb" class="written-works-link">
+                            <i class="fas fa-flask"></i> IPYNB
+                        </a>                        
+                    </div>
+                
+                    <div class="written-works-item">
+                        <span><strong>Risk Neutral Pricing via MGF Functions</strong></span>
+                        <p class="written-works-description">
+                            Explores the use of moment generating functions (MGFs) in deriving drift correction in risk-neutral pricing formulas. A modern approach to valuation that bridges probability theory and financial modeling.
+                        </p>
+                        <a href="assets/GB_Risk-Neutral_Pricing_via_MGF_v3.html" class="written-works-link" target="_blank">
+                            <i class="fas fa-file-alt"></i> HTML
+                        </a>
+                        <a href="assets/GB_Risk-Neutral_Pricing_via_MGF_v3.pdf" download="GB_Risk-Neutral_Pricing_via_MGF_v3.pdf" class="written-works-link">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                
+                    <div class="written-works-item">
+                        <span><strong>Art of Buy-Side Arbitrage Strategy</strong></span>
+                        <p class="written-works-description">
+                            A strategic overview of arbitrage techniques employed by modern buy-side institutions. Covers pricing inefficiencies, execution tactics, and risk-adjusted return optimization.
+                        </p>
+                        <a href="assets/GB_Buy-side_Arbitrage.html" class="written-works-link" target="_blank">
+                            <i class="fas fa-file-alt"></i> HTML
+                        </a>
+                        <a href="assets/GB_Buy-side_Arbitrage.pdf" download="GB_Buy-side_Arbitrage.pdf" class="written-works-link">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                
+                    <div class="written-works-item">
+                        <span><strong>Mind the Gap (Under the Curve)</strong></span>
+                        <p class="written-works-description">
+                            A personal compendium on numerical integration and quadrature methods. Includes visualizations and practical applications in financial engineering.
+                        </p>
+                        <a href="assets/GB_Mind_the_Gap_Under_the_Curve_with_sidebar.html" class="written-works-link" target="_blank">
+                            <i class="fas fa-file-alt"></i> HTML
+                        </a>
+                        <a href="assets/GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf" download="GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf" class="written-works-link">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </div>
+                </div>                
             </div>
         </section>
         
@@ -1844,6 +1891,43 @@
         </section>
     </main>
     
+    <!-- ExcelBridge Modal -->
+    <div id="excelbridge-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="excelbridge-modal-title">
+        <div class="modal-content" role="document">
+            <button class="modal-close" aria-label="Close">&times;</button>
+            <h3 id="excelbridge-modal-title" class="modal-title">ExcelBridge — More Details</h3>
+            <div class="modal-body">
+                <p>
+                    <strong>ExcelBridge</strong> is a high‑performance, quant‑ready extension stack for Excel that I’ve been building since 2023 —
+                    a lightweight local REST host that <strong>loads Python plugins at runtime</strong> and transforms Excel into a seamless front‑end
+                    for modern numerical computing. Designed as a clean, low‑friction alternative to traditional add‑ins, it offers the convenience
+                    of tools like PyXLL, xlwings, and COM add‑ins without the installation overhead, heavy dependencies, or fragility that often accompany them.
+                </p>
+                <p>
+                    With years of experience building C++ XLLs over <a href="https://xlw.github.io/" target="_blank" rel="noopener">XLW</a>,
+                    I found many commercial and open‑source solutions to be bloated, slow to start, overly complex to configure, prone to environment
+                    conflicts, or easily broken when Python/Conda environments drift. ExcelBridge was my answer to all of that.
+                </p>
+                <p>
+                    And while Excel was the initial target, ExcelBridge is <strong>not limited to Excel</strong>. Its clean, lightweight REST API means any system
+                    capable of making <em>cURL</em> or <em>HTTP</em> requests — dashboards, schedulers, backend services, lightweight UIs, or automated workflows —
+                    can call the same Python plugins. This makes it just as suitable outside Excel as it is inside it, especially for environments that need fast
+                    numerical computation without deploying a full Python runtime everywhere.
+                </p>
+                <p>
+                    Built for quants and data scientists, ExcelBridge ships with the libraries that matter: NumPy, SciPy, Pandas, Polars, SymPy,
+                    scikit‑learn, XGBoost, mpmath, and more — enabling advanced models, analytics, and numerical workflows to run instantly with zero
+                    additional setup. Excel calls your Python functions over lightweight HTTP via the <code>GBPY</code> add‑in and receives spill‑ready scalars,
+                    vectors, tables, or multi‑table outputs effortlessly.
+                </p>
+                <p>
+                    The workflow remains beautifully simple: <em>Excel → GBPY VBA add‑in → ExcelBridge → plugin → JSON → Excel spill</em>. No COM registration,
+                    no Office scripting layers, and no full Python installation required for end‑users once packaged.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="fade-in-up">
         <div class="footer-content">
@@ -1890,13 +1974,45 @@
             document.querySelectorAll('.fade-in-up').forEach(el => {
                 observer.observe(el);
             });
+
+            // ExcelBridge modal wiring
+            const ebOpen = document.getElementById('excelbridge-learn-more');
+            const ebModal = document.getElementById('excelbridge-modal');
+            const ebClose = ebModal.querySelector('.modal-close');
+
+            function openModal() {
+                ebModal.classList.add('open');
+                ebModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                ebClose.focus();
+            }
+            function closeModal() {
+                ebModal.classList.remove('open');
+                ebModal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                ebOpen.focus();
+            }
+
+            if (ebOpen) {
+                ebOpen.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+            }
+            if (ebClose) {
+                ebClose.addEventListener('click', closeModal);
+            }
+            ebModal.addEventListener('click', (e) => {
+                // close if clicking outside content
+                if (e.target === ebModal) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && ebModal.classList.contains('open')) closeModal();
+            });
         });
         
-        // Hide preloader when page is loaded
+        // Hide preloader when page is loaded (slightly faster for snappier UX)
         window.addEventListener('load', function() {
             setTimeout(function() {
                 document.getElementById('preloader').classList.add('hidden');
-            }, 1200);
+            }, 800);
         });
         
         // Theme selection function with background updates
@@ -1943,7 +2059,7 @@
                 projectsGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
             } else {
                 aboutGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
-                projectsGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
+                projectsGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
             }
         }
         
@@ -1970,7 +2086,7 @@
                 } else if (resumeType === 'cv2024') {
                     titleElement.textContent = 'CV 2024';
                     downloadLink.href = 'assets/CV of Gene Boo (2024 v3-s).pdf';
-                    downloadLink.setAttribute('download', 'CV of Gene Boo (2024 v3-sm).pdf');
+                    downloadLink.setAttribute('download', 'CV of Gene Boo (2024 v3-s).pdf');
                 } else if (resumeType === 'cv2025') {
                     titleElement.textContent = 'CV 2025';
                     downloadLink.href = 'assets/CV of Gene Boo (2025 v1-s).pdf';
@@ -2044,7 +2160,7 @@
                             <div style="font-size: 0.9rem;">View in browser</div>
                         </div>
                     </a>
-                    <a href="assets/CV of Gene Boo (2025 v1-s).pdf" download="CV of Gene Boo (2025 v1-sm).pdf" class="pdf-link">
+                    <a href="assets/CV of Gene Boo (2025 v1-s).pdf" download="CV of Gene Boo (2025 v1-s).pdf" class="pdf-link">
                         <i class="fas fa-download pdf-link-icon"></i>
                         <div>
                             <div style="font-weight: 700; font-size: 1.1rem;">Download PDF</div>
