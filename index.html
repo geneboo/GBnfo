@@ -1581,6 +1581,51 @@
                 <p class="section-subtitle">Where creativity meets functionality</p>
                 
                 <div class="projects-grid">
+					<!-- ExcelBridge project card -->
+					<div class="project-card fade-in-up">
+					  <div class="project-header">
+					    <div class="project-icon">🧰</div>
+					    <h3 class="project-title">ExcelBridge</h3>
+							<p class="project-description">
+							  ExcelBridge is a high‑performance, quant‑ready extension stack for Excel that I’ve been building since 2023 — 
+							  a lightweight local REST host that <strong>loads Python plugins at runtime</strong> and transforms Excel into a 
+							  seamless front‑end for modern numerical computing.
+							  Designed as a clean, low‑friction alternative to traditional add‑ins, it offers the convenience of tools like 
+							  PyXLL, xlwings, and COM add‑ins without the installation overhead, heavy dependencies, or fragility that often 
+							  accompany them. With years of experience building C++ XLLs over XLW — the framework pioneered by 
+							  Jérôme Lecomte and later extended by the late quant author Mark Joshi [1](https://www.excelpython.org/xlwt/)[2](http://xlwt.readthedocs.io/en/latest/) — 
+							  I found many commercial and open‑source solutions to be bloated, slow to start, overly complex to configure, 
+							  prone to environment conflicts, or easily broken when Python or Conda environments drift. ExcelBridge was born out of my woes from all of that.
+							  <br><br>
+							  And while Excel was the initial target, ExcelBridge is <strong>not limited to Excel</strong>. Its clean, lightweight 
+							  REST API means any system capable of making <em>cURL</em> or <em>HTTP</em> requests — dashboards, schedulers, backend 
+							  services, lightweight UIs, or automated workflows — can call the same Python plugins. This makes it just as suitable 
+							  outside Excel as it is inside it, especially for environments that need fast numerical computation without deploying 
+							  a full Python runtime everywhere.
+							  <br><br>
+							  Built for quants and data scientists, ExcelBridge ships with the libraries that matter: NumPy, SciPy, Pandas, 
+							  Polars, SymPy, scikit‑learn, XGBoost, mpmath, and more — enabling advanced models, analytics, and numerical workflows 
+							  to run instantly with zero additional setup. Excel calls your Python functions over lightweight HTTP via the 
+							  <code>GBPY</code> add‑in and receives spill‑ready scalars, vectors, tables, or multi‑table outputs effortlessly.
+							  <br><br>
+							  The workflow remains beautifully simple: 
+							  <em>Excel → GBPY VBA add‑in → ExcelBridge → plugin → JSON → Excel spill</em>. 
+							  No COM registration, no Office scripting layers, and no full Python installation required for end‑users once packaged.
+							</p>
+					    <div class="project-links">
+					      <!-- Adjust paths to where you host these files (e.g., assets/...) -->
+					      <a href="README.md" target="_blank" class="project-link">
+					        <span>README (Overview)</span>
+					        <i class="fas fa-external-link-alt"></i>
+					      </a>
+					      <a href="ExcelBridge_plugin_developer_guide.md" target="_blank" class="project-link">
+					        <span>Plugin Developer Guide</span>
+					        <i class="fas fa-external-link-alt"></i>
+					      </a>
+					    </div>
+					  </div>
+					</div>
+					
                     <div class="project-card fade-in-up">
                         <div class="project-header">
                             <div class="project-icon">🎨</div>
