@@ -1,0 +1,857 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExcelBridge_plugin_developer_guide.md</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="excelbridge-v2.0.0-by-gene-boo---plugin-developer-guide">ExcelBridge v2.0.0 by Gene Boo - Plugin Developer Guide</h1>
+<blockquote>
+<p><strong>Author:</strong> Gene Boo.<br>
+<strong>Development Date:</strong> 9 September 2023.<br>
+<strong>Audience:</strong> Anyone aiming to build Python plugins super simply using Gene’s robust ExcelBridge v2 (from beginners to quant/dev).<br>
+<strong>Goal:</strong> You should be able to go from <strong>zero</strong> to a working plugin that reads <strong>Excel cells/ranges</strong> and returns <strong>scalars/vectors/matrices/multi-tables</strong>.</p>
+</blockquote>
+<p>This guide has two layers:</p>
+<ol>
+<li><strong>Layman explanation</strong>: what happens when Excel calls Python.</li>
+<li><strong>Developer recipes</strong>: copy-paste templates for common tasks:
+<ul>
+<li>“Hello World”</li>
+<li>Power / arithmetic</li>
+<li>Vectors &amp; tables (spills)</li>
+<li>QR decomposition / matrix utilities</li>
+<li>Business-day date ladders</li>
+<li>Toeplitz matrix</li>
+<li>Binomial tree option pricing</li>
+<li>GBM Monte Carlo that outputs price <strong>and</strong> stores/returns simulated returns</li>
+<li>Swap PV (simple fixed vs floating) as a starter template</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="the-call-flow-what-happens-when-you-type-gbpy...">0) The call flow (what happens when you type <code>=GBPY(...)</code>)</h2>
+<p><strong>Excel</strong> → <strong>GBPY/PYINVOKE add-in</strong> → <strong>HTTP request</strong> → <strong>ExcelBridge server</strong> → <strong>plugin function executes</strong> → <strong>JSON response</strong> → <strong>Excel spills the result</strong>.</p>
+<h3 id="key-implication-ranges-become-python-lists">Key implication: ranges become Python lists</h3>
+<p>Excel ranges usually arrive in Python as:</p>
+<ul>
+<li>scalar → <code>int/float/str/bool</code></li>
+<li>2D range → <code>list-of-lists</code></li>
+</ul>
+<h3 id="key-implication-avoid-none-in-spill-outputs">Key implication: avoid <code>None</code> in spill outputs</h3>
+<p>Python <code>None</code> becomes JSON <code>null</code>, which often becomes VBA <code>Null</code>, and Excel can’t spill <code>Null</code> → you may see <code>#VALUE!</code>.<br>
+So: return <code>""</code> (blank string) instead of <code>None</code> in tables.</p>
+<blockquote>
+<p>✅ <strong>Good news:</strong> <code>simple_plugin.py</code> automatically “scrubs” <code>None → ""</code> inside tables by default, so you hit fewer <code>#VALUE!</code> surprises.</p>
+</blockquote>
+<hr>
+<h2 id="two-ways-to-author-plugins">1) Two ways to author plugins</h2>
+<h3 id="option-a-—-directly-on-host_sdk-canonical">Option A — Directly on <code>host_sdk</code> (canonical)</h3>
+<p>Use <code>@excel_function</code> for scalars and <code>@excel_array_function</code> for spill tables.</p>
+<h3 id="option-b-—-use-simple_plugin.py-convenience-layer">Option B — Use <code>simple_plugin.py</code> (convenience layer)</h3>
+<p>A thin wrapper that:</p>
+<ul>
+<li>converts inputs based on <strong>type hints</strong> (scalar vs 1D list vs 2D list, DataFrame, NumPy array, etc.)</li>
+<li>formats common outputs automatically (DataFrame, arrays, dict-of-tables “multi-table”, etc.)</li>
+<li>scrubs <code>None</code> in spill tables → <code>""</code> to prevent Excel spill errors</li>
+</ul>
+<p><strong>Recommendation:</strong> Start with Option A for clarity, then adopt Option B once you’re comfortable.</p>
+<hr>
+<h2 id="what-simple_plugin.py-does-in-plain-english-but-detailed">1.1 What <code>simple_plugin.py</code> does (in plain English, but detailed)</h2>
+<blockquote>
+<p>Think of <code>simple_plugin.py</code> as a <strong>smart adapter</strong> sitting on top of <code>host_sdk.py</code>. It still registers functions via <code>host_sdk</code> decorators, but it reduces boilerplate.</p>
+</blockquote>
+<h3 id="a-how-it-decides-input-shapes-type-hint-driven">A) How it decides input shapes (type-hint driven)</h3>
+<p>When Excel calls your function, inputs arrive as scalars/lists/list-of-lists. <code>simple_plugin.py</code> inspects your function signature and type hints and converts inputs accordingly:</p>
+<ul>
+<li>If parameter is hinted as <code>float/int/str/bool</code>: it tries to extract a single scalar (<code>as_scalar</code>)</li>
+<li>If parameter is hinted as <code>list[T]</code>: it produces a <strong>flattened 1D list</strong> (<code>as_array(..., flatten=True)</code>)</li>
+<li>If parameter is hinted as <code>list[list[T]]</code>: it produces a <strong>2D list-of-lists</strong> (<code>as_array(..., flatten=False)</code>)</li>
+<li>If parameter is hinted as <code>pandas.DataFrame</code>: it builds a DataFrame (optionally with header inference)</li>
+<li>If parameter is hinted as <code>numpy.ndarray</code>: it builds a NumPy array</li>
+<li>If you hint <code>ExcelRange</code>, it passes through the value (expecting an <code>ExcelRange</code> object) ,</li>
+</ul>
+<blockquote>
+<p><strong>Important practical note:</strong> <code>simple_plugin.py</code>’s wrapper converts <strong>positional args</strong> (the <code>*args</code> Excel sends). It does <strong>not</strong> deeply coerce <code>**kwargs</code> the same way—kwargs are passed through after conversions.<br>
+In Excel usage (<code>=GBPY(...)</code>) you typically pass positional args anyway, so this is usually fine.</p>
+</blockquote>
+<h3 id="b-how-it-formats-outputs-for-excel-spills">B) How it formats outputs for Excel spills</h3>
+<p>Whatever your function returns, <code>simple_plugin.py</code> runs it through <code>format_for_excel(result)</code> so it becomes “Excel spill friendly”:</p>
+<ul>
+<li><strong>Scalar</strong> → returned as-is</li>
+<li><strong>1D list</strong> → automatically converted to a <strong>column table</strong> with header <code>["value"]</code></li>
+<li><strong>2D list</strong> → returned as a spill table (and <code>None</code> values scrubbed to <code>""</code>)</li>
+<li><strong>NumPy arrays</strong> → 1D becomes a column table; 2D becomes list-of-lists</li>
+<li><strong>pandas DataFrame</strong> → becomes table with header row + data rows</li>
+<li><strong>dict</strong> → treated as <strong>multi-table output</strong>; each value is formatted recursively</li>
+<li><strong>list of dicts</strong> → converted into a table with columns inferred from dict keys</li>
+</ul>
+<h3 id="c-how-it-handles-errors">C) How it handles errors</h3>
+<p>If your function throws, <code>simple_plugin.py</code> catches it and returns either:</p>
+<ul>
+<li>a single error <strong>string</strong> (for scalar functions), or</li>
+<li>a 1-cell <strong>table</strong> like <code>[[ "Error in func: ..." ]]</code> (for table-returning functions).</li>
+</ul>
+<h3 id="d-registration-still-uses-host_sdk">D) Registration still uses <code>host_sdk</code></h3>
+<p>Under the hood, <code>simple_plugin.py</code> still registers your function using:</p>
+<ul>
+<li><code>host_sdk.excel_function(...)</code> for scalars, or</li>
+<li><code>host_sdk.excel_array_function(...)</code> for tables ,</li>
+</ul>
+<p>It decides “table vs scalar” using:</p>
+<ul>
+<li>an explicit <code>returns_table=True</code>, <strong>or</strong></li>
+<li>your return type hint contains things like <code>list[list...]</code>, <code>DataFrame</code>, <code>ndarray</code>, <code>dict</code>, etc. (auto-detection).</li>
+</ul>
+<hr>
+<h2 id="output-“return-contracts”-cheat-sheet">2) Output “return contracts” (cheat sheet)</h2>
+<p>Here are the standard return shapes that Excel understands.</p>
+<h3 id="a-scalar">A) Scalar</h3>
+<p>Return a Python scalar (<code>float/int/str/bool</code>).</p>
+<h3 id="b-vector-no-header">B) Vector (no header)</h3>
+<p>Return a 2D column:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">[</span>x<span class="token punctuation">]</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> values<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="c-vector-with-header">C) Vector (with header)</h3>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"value"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">*</span><span class="token punctuation">[</span><span class="token punctuation">[</span>x<span class="token punctuation">]</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> values<span class="token punctuation">]</span><span class="token punctuation">]</span>
+</code></pre>
+<h3 id="d-matrixtable-no-header">D) Matrix/Table (no header)</h3>
+<p>Return list-of-lists:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+</code></pre>
+<h3 id="e-matrixtable-with-header">E) Matrix/Table (with header)</h3>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">,</span> <span class="token string">"c1"</span><span class="token punctuation">,</span> <span class="token string">"c2"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">"r1"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">"r2"</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+</code></pre>
+<h3 id="f-multi-table-in-one-call">F) Multi-table in one call</h3>
+<p>Return a dict of named tables:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">return</span> <span class="token punctuation">{</span>
+  <span class="token string">"summary"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"Metric"</span><span class="token punctuation">,</span><span class="token string">"Value"</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token string">"Price"</span><span class="token punctuation">,</span> <span class="token number">12.34</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token string">"details"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"k"</span><span class="token punctuation">,</span><span class="token string">"v"</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token string">"alpha"</span><span class="token punctuation">,</span> <span class="token number">0.1</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<blockquote>
+<p>✅ With <code>simple_plugin.py</code>, you can often return higher-level objects (NumPy arrays / pandas DataFrames / dict-of-DataFrames) and it will convert them into one of the above shapes automatically.</p>
+</blockquote>
+<hr>
+<h2 id="from-scratch-your-first-plugin-hello--power">3) From scratch: your first plugin (Hello + power)</h2>
+<p>Create <code>plugins/tutorial_01_hello.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> host_sdk <span class="token keyword">import</span> excel_function<span class="token punctuation">,</span> excel_array_function
+
+@excel_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"hello"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Hello world"</span><span class="token punctuation">,</span> return_format<span class="token operator">=</span><span class="token string">"scalar"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">hello</span><span class="token punctuation">(</span>name<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"World"</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">str</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> f<span class="token string">"Hello, {name}!"</span>
+
+@excel_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"pow"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"x^n"</span><span class="token punctuation">,</span> return_format<span class="token operator">=</span><span class="token string">"scalar"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">pow</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> n<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">float</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> <span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">**</span> <span class="token builtin">int</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span>
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"hello_vec"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Vector demo"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">hello_vec</span><span class="token punctuation">(</span>n<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    n <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"i"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">*</span><span class="token punctuation">[</span><span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> n<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+</code></pre>
+<p>Excel usage:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_01_hello.py","hello","Gene")
+=GBPY("tutorial_01_hello.py","pow",A1,3)
+=GBPY("tutorial_01_hello.py","hello_vec",10)
+</code></pre>
+<h3 id="b-the-same-plugin-using-simple_plugin.py-less-boilerplate">3B) The <em>same</em> plugin using <code>simple_plugin.py</code> (less boilerplate)</h3>
+<p>Create <code>plugins/tutorial_01_hello_simple.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> simple_plugin <span class="token keyword">import</span> excel_plugin<span class="token punctuation">,</span> excel_table
+
+@excel_plugin<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"hello"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Hello world"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">hello</span><span class="token punctuation">(</span>name<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"World"</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">str</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> f<span class="token string">"Hello, {name}!"</span>
+
+@excel_plugin<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"pow"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"x^n"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">pow</span><span class="token punctuation">(</span>x<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> n<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">float</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> <span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">**</span> <span class="token builtin">int</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span>
+
+@excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"hello_vec"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Vector demo"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">hello_vec</span><span class="token punctuation">(</span>n<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">int</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+    <span class="token comment"># Return a 1D list; simple_plugin will format into a column table with header ["value"] automatically</span>
+    n <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token builtin">list</span><span class="token punctuation">(</span><span class="token builtin">range</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> n <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<p>Excel usage:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_01_hello_simple.py","hello","Gene")
+=GBPY("tutorial_01_hello_simple.py","pow",A1,3)
+=GBPY("tutorial_01_hello_simple.py","hello_vec",10)
+</code></pre>
+<p>What got simpler?</p>
+<ul>
+<li>No need to choose <code>excel_function</code> vs <code>excel_array_function</code> manually if you use <code>excel_plugin</code> + <code>excel_table</code>.</li>
+<li>Returning a plain <code>list[int]</code> automatically becomes a spill column with a header row.</li>
+</ul>
+<hr>
+<h2 id="reading-ranges-tables-from-excel">4) Reading ranges (tables) from Excel</h2>
+<p>A 2D Excel range arrives as a <strong>list-of-lists</strong>. Example: if Excel range is <code>A1:C4</code>, Python receives:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+</code></pre>
+<h3 id="example-multiply-all-cells-by-2">Example: multiply all cells by 2</h3>
+<p>Create <code>plugins/tutorial_02_ranges.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> typing <span class="token keyword">import</span> Any<span class="token punctuation">,</span> List
+<span class="token keyword">from</span> host_sdk <span class="token keyword">import</span> excel_array_function
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"double_table"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Multiply every numeric cell by 2"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">double_table</span><span class="token punctuation">(</span>table<span class="token punctuation">:</span> Any<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># Expect list-of-lists</span>
+    out<span class="token punctuation">:</span> List<span class="token punctuation">[</span>List<span class="token punctuation">[</span>Any<span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> row <span class="token keyword">in</span> table<span class="token punctuation">:</span>
+        new_row <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> v <span class="token keyword">in</span> row<span class="token punctuation">:</span>
+            <span class="token keyword">try</span><span class="token punctuation">:</span>
+                new_row<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">float</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2.0</span><span class="token punctuation">)</span>
+            <span class="token keyword">except</span> Exception<span class="token punctuation">:</span>
+                new_row<span class="token punctuation">.</span>append<span class="token punctuation">(</span>v<span class="token punctuation">)</span>  <span class="token comment"># keep text as-is</span>
+        out<span class="token punctuation">.</span>append<span class="token punctuation">(</span>new_row<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> out
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_02_ranges.py","double_table",A1:C10)
+</code></pre>
+<h3 id="b-same-example-using-simple_plugin.py-type-hints-do-the-coercion">4B) Same example using <code>simple_plugin.py</code> (type-hints do the coercion)</h3>
+<p>Create <code>plugins/tutorial_02_ranges_simple.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> typing <span class="token keyword">import</span> Any
+<span class="token keyword">from</span> simple_plugin <span class="token keyword">import</span> excel_table
+
+@excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"double_table"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Multiply every numeric cell by 2"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">double_table</span><span class="token punctuation">(</span>table<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span>Any<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span>Any<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+    <span class="token comment"># Here, the 2D Excel range is coerced into list-of-lists based on the type hint. </span>
+    out<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span>Any<span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> row <span class="token keyword">in</span> table<span class="token punctuation">:</span>
+        new_row<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span>Any<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> v <span class="token keyword">in</span> row<span class="token punctuation">:</span>
+            <span class="token keyword">try</span><span class="token punctuation">:</span>
+                new_row<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">float</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">2.0</span><span class="token punctuation">)</span>
+            <span class="token keyword">except</span> Exception<span class="token punctuation">:</span>
+                new_row<span class="token punctuation">.</span>append<span class="token punctuation">(</span>v<span class="token punctuation">)</span>
+        out<span class="token punctuation">.</span>append<span class="token punctuation">(</span>new_row<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> out
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_02_ranges_simple.py","double_table",A1:C10)
+</code></pre>
+<p>Bonus:</p>
+<ul>
+<li>If any cell becomes <code>None</code>, <code>simple_plugin.py</code> will scrub that to <code>""</code> in tables automatically.</li>
+</ul>
+<hr>
+<h2 id="matrix-decomposition-example-qr">5) Matrix decomposition example: QR</h2>
+<p>Create <code>plugins/tutorial_03_qr.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> typing <span class="token keyword">import</span> Any
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token keyword">from</span> host_sdk <span class="token keyword">import</span> excel_array_function
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"qr_decomposition"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"QR decomposition of a matrix"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">qr_decomposition</span><span class="token punctuation">(</span>matrix<span class="token punctuation">:</span> Any<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    A <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span>matrix<span class="token punctuation">,</span> dtype<span class="token operator">=</span><span class="token builtin">float</span><span class="token punctuation">)</span>
+    Q<span class="token punctuation">,</span> R <span class="token operator">=</span> np<span class="token punctuation">.</span>linalg<span class="token punctuation">.</span>qr<span class="token punctuation">(</span>A<span class="token punctuation">)</span>
+
+    <span class="token comment"># Multi-table output: Q and R</span>
+    Q_table <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"Q"</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token punctuation">[</span>f<span class="token string">"c{j+1}"</span> <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>Q<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>Q<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        Q_table<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">[</span>f<span class="token string">"r{i+1}"</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> Q<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    R_table <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"R"</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token punctuation">[</span>f<span class="token string">"c{j+1}"</span> <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>R<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>R<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        R_table<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">[</span>f<span class="token string">"r{i+1}"</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> R<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">"Q"</span><span class="token punctuation">:</span> Q_table<span class="token punctuation">,</span> <span class="token string">"R"</span><span class="token punctuation">:</span> R_table<span class="token punctuation">}</span>
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_03_qr.py","qr_decomposition",A1:C3)
+</code></pre>
+<h3 id="b-same-qr-using-simple_plugin.py-return-numpy-arrays-directly">5B) Same QR using <code>simple_plugin.py</code> (return NumPy arrays directly)</h3>
+<p>Create <code>plugins/tutorial_03_qr_simple.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token keyword">from</span> simple_plugin <span class="token keyword">import</span> excel_plugin
+
+@excel_plugin<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"qr_decomposition"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"QR decomposition of a matrix"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">qr_decomposition</span><span class="token punctuation">(</span>matrix<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">dict</span><span class="token punctuation">:</span>
+    A <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span>matrix<span class="token punctuation">,</span> dtype<span class="token operator">=</span><span class="token builtin">float</span><span class="token punctuation">)</span>
+    Q<span class="token punctuation">,</span> R <span class="token operator">=</span> np<span class="token punctuation">.</span>linalg<span class="token punctuation">.</span>qr<span class="token punctuation">(</span>A<span class="token punctuation">)</span>
+
+    <span class="token comment"># Return raw numpy arrays; simple_plugin formats them into Excel tables automatically. </span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">"Q"</span><span class="token punctuation">:</span> Q<span class="token punctuation">,</span> <span class="token string">"R"</span><span class="token punctuation">:</span> R<span class="token punctuation">}</span>
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_03_qr_simple.py","qr_decomposition",A1:C3)
+</code></pre>
+<p>What got simpler?</p>
+<ul>
+<li>No manual table-building required.</li>
+<li>Dict-of-arrays becomes multi-table output via recursive formatting.</li>
+</ul>
+<hr>
+<h2 id="dates-business-days--date-ladder">6) Dates: business days + date ladder</h2>
+<h3 id="business-days-weekday-only">6.1 Business days (weekday-only)</h3>
+<p>Create <code>plugins/tutorial_04_dates.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> datetime <span class="token keyword">import</span> date<span class="token punctuation">,</span> datetime<span class="token punctuation">,</span> timedelta
+<span class="token keyword">from</span> host_sdk <span class="token keyword">import</span> excel_array_function
+
+<span class="token keyword">def</span> <span class="token function">_to_date</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> date<span class="token punctuation">:</span>
+    <span class="token comment"># Accept YYYY-MM-DD strings; you can extend for Excel serials if needed.</span>
+    <span class="token keyword">if</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> date<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> x
+    <span class="token keyword">return</span> datetime<span class="token punctuation">.</span>strptime<span class="token punctuation">(</span><span class="token builtin">str</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"%Y-%m-%d"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>date<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"business_days"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Generate weekday business days"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">business_days</span><span class="token punctuation">(</span>start<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> end<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    d0 <span class="token operator">=</span> _to_date<span class="token punctuation">(</span>start<span class="token punctuation">)</span>
+    d1 <span class="token operator">=</span> _to_date<span class="token punctuation">(</span>end<span class="token punctuation">)</span>
+    out <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"date"</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    d <span class="token operator">=</span> d0
+    <span class="token keyword">while</span> d <span class="token operator">&lt;=</span> d1<span class="token punctuation">:</span>
+        <span class="token keyword">if</span> d<span class="token punctuation">.</span>weekday<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">5</span><span class="token punctuation">:</span>
+            out<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">[</span>d<span class="token punctuation">.</span>isoformat<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        d <span class="token operator">+=</span> timedelta<span class="token punctuation">(</span>days<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> out
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"date_ladder"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Generate a date ladder with step in days"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">date_ladder</span><span class="token punctuation">(</span>start<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> n<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">,</span> step_days<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    d0 <span class="token operator">=</span> _to_date<span class="token punctuation">(</span>start<span class="token punctuation">)</span>
+    n <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span>
+    step_days <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>step_days<span class="token punctuation">)</span>
+    out <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"idx"</span><span class="token punctuation">,</span><span class="token string">"date"</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        out<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">[</span>i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>d0 <span class="token operator">+</span> timedelta<span class="token punctuation">(</span>days<span class="token operator">=</span>i<span class="token operator">*</span>step_days<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>isoformat<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> out
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_04_dates.py","business_days","2026-01-01","2026-01-31")
+=GBPY("tutorial_04_dates.py","date_ladder","2026-01-01",12,30)
+</code></pre>
+<blockquote>
+<p>For holiday calendars, extend this by passing a holiday table from Excel and skipping those dates.</p>
+</blockquote>
+<h3 id="b-same-dates-plugin-using-simple_plugin.py-return-1d-list-directly">6B) Same dates plugin using <code>simple_plugin.py</code> (return 1D list directly)</h3>
+<p>Create <code>plugins/tutorial_04_dates_simple.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> datetime <span class="token keyword">import</span> date<span class="token punctuation">,</span> datetime<span class="token punctuation">,</span> timedelta
+<span class="token keyword">from</span> simple_plugin <span class="token keyword">import</span> excel_table
+
+<span class="token keyword">def</span> <span class="token function">_to_date</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> date<span class="token punctuation">:</span>
+    <span class="token keyword">if</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>x<span class="token punctuation">,</span> date<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">return</span> x
+    <span class="token keyword">return</span> datetime<span class="token punctuation">.</span>strptime<span class="token punctuation">(</span><span class="token builtin">str</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"%Y-%m-%d"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>date<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+@excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"business_days"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Generate weekday business days"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">business_days</span><span class="token punctuation">(</span>start<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> end<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">str</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+    d0 <span class="token operator">=</span> _to_date<span class="token punctuation">(</span>start<span class="token punctuation">)</span>
+    d1 <span class="token operator">=</span> _to_date<span class="token punctuation">(</span>end<span class="token punctuation">)</span>
+    out<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">str</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    d <span class="token operator">=</span> d0
+    <span class="token keyword">while</span> d <span class="token operator">&lt;=</span> d1<span class="token punctuation">:</span>
+        <span class="token keyword">if</span> d<span class="token punctuation">.</span>weekday<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">5</span><span class="token punctuation">:</span>
+            out<span class="token punctuation">.</span>append<span class="token punctuation">(</span>d<span class="token punctuation">.</span>isoformat<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        d <span class="token operator">+=</span> timedelta<span class="token punctuation">(</span>days<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token comment"># 1D list -&gt; auto formatted into a column table with header ["value"] </span>
+    <span class="token keyword">return</span> out
+
+@excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"date_ladder"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Generate a date ladder with step in days"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">date_ladder</span><span class="token punctuation">(</span>start<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">,</span> n<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">,</span> step_days<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">7</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">str</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+    d0 <span class="token operator">=</span> _to_date<span class="token punctuation">(</span>start<span class="token punctuation">)</span>
+    n <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span>
+    step_days <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>step_days<span class="token punctuation">)</span>
+    out<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">str</span><span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"idx"</span><span class="token punctuation">,</span> <span class="token string">"date"</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        out<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token builtin">str</span><span class="token punctuation">(</span>i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>d0 <span class="token operator">+</span> timedelta<span class="token punctuation">(</span>days<span class="token operator">=</span>i <span class="token operator">*</span> step_days<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span>isoformat<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> out
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_04_dates_simple.py","business_days","2026-01-01","2026-01-31")
+=GBPY("tutorial_04_dates_simple.py","date_ladder","2026-01-01",12,30)
+</code></pre>
+<hr>
+<h2 id="toeplitz-matrix">7) Toeplitz matrix</h2>
+<p>Create <code>plugins/tutorial_05_toeplitz.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> typing <span class="token keyword">import</span> Any<span class="token punctuation">,</span> List
+<span class="token keyword">from</span> host_sdk <span class="token keyword">import</span> excel_array_function
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"toeplitz"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Build a Toeplitz matrix from first column and first row"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">toeplitz</span><span class="token punctuation">(</span>first_col<span class="token punctuation">:</span> Any<span class="token punctuation">,</span> first_row<span class="token punctuation">:</span> Any <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># Expect 1D lists or column ranges; Excel often sends vectors as list or list-of-lists</span>
+    <span class="token keyword">def</span> <span class="token function">_as_1d</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>v<span class="token punctuation">,</span> <span class="token builtin">list</span><span class="token punctuation">)</span> <span class="token operator">and</span> v <span class="token operator">and</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>v<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token builtin">list</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token punctuation">[</span>r<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token keyword">for</span> r <span class="token keyword">in</span> v<span class="token punctuation">]</span>
+        <span class="token keyword">if</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>v<span class="token punctuation">,</span> <span class="token builtin">list</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">return</span> v
+        <span class="token keyword">return</span> <span class="token punctuation">[</span>v<span class="token punctuation">]</span>
+
+    c <span class="token operator">=</span> _as_1d<span class="token punctuation">(</span>first_col<span class="token punctuation">)</span>
+    r <span class="token operator">=</span> _as_1d<span class="token punctuation">(</span>first_row<span class="token punctuation">)</span> <span class="token keyword">if</span> first_row <span class="token keyword">is</span> <span class="token operator">not</span> <span class="token boolean">None</span> <span class="token keyword">else</span> c
+
+    n <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>c<span class="token punctuation">)</span>
+    m <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span>
+
+    out<span class="token punctuation">:</span> List<span class="token punctuation">[</span>List<span class="token punctuation">[</span>Any<span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        row <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>m<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            row<span class="token punctuation">.</span>append<span class="token punctuation">(</span>r<span class="token punctuation">[</span>j<span class="token operator">-</span>i<span class="token punctuation">]</span> <span class="token keyword">if</span> j <span class="token operator">&gt;=</span> i <span class="token keyword">else</span> c<span class="token punctuation">[</span>i<span class="token operator">-</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        out<span class="token punctuation">.</span>append<span class="token punctuation">(</span>row<span class="token punctuation">)</span>
+
+    <span class="token keyword">return</span> out
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_05_toeplitz.py","toeplitz",A1:A5,B1:F1)
+</code></pre>
+<h3 id="b-toeplitz-using-simple_plugin.py-let-hints-define-1d-vs-2d">7B) Toeplitz using <code>simple_plugin.py</code> (let hints define 1D vs 2D)</h3>
+<p>Create <code>plugins/tutorial_05_toeplitz_simple.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> simple_plugin <span class="token keyword">import</span> excel_table
+
+@excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"toeplitz"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Build a Toeplitz matrix from first column and first row"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">toeplitz</span><span class="token punctuation">(</span>first_col<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">,</span> first_row<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span> <span class="token operator">|</span> <span class="token boolean">None</span> <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+    <span class="token comment"># list[float] parameters mean: treat Excel inputs as 1D vectors (flattened). </span>
+    c <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> first_col<span class="token punctuation">]</span>
+    r <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> <span class="token punctuation">(</span>first_row <span class="token keyword">if</span> first_row <span class="token keyword">is</span> <span class="token operator">not</span> <span class="token boolean">None</span> <span class="token keyword">else</span> first_col<span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+    n <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>c<span class="token punctuation">)</span>
+    m <span class="token operator">=</span> <span class="token builtin">len</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span>
+
+    out<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        row<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>m<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            row<span class="token punctuation">.</span>append<span class="token punctuation">(</span>r<span class="token punctuation">[</span>j <span class="token operator">-</span> i<span class="token punctuation">]</span> <span class="token keyword">if</span> j <span class="token operator">&gt;=</span> i <span class="token keyword">else</span> c<span class="token punctuation">[</span>i <span class="token operator">-</span> j<span class="token punctuation">]</span><span class="token punctuation">)</span>
+        out<span class="token punctuation">.</span>append<span class="token punctuation">(</span>row<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> out
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_05_toeplitz_simple.py","toeplitz",A1:A5,B1:F1)
+</code></pre>
+<hr>
+<h2 id="binomial-tree-option-pricing-simple">8) Binomial tree option pricing (simple)</h2>
+<p>A classic beginner-friendly quant model.</p>
+<p>Create <code>plugins/tutorial_06_binomial.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">import</span> math
+<span class="token keyword">from</span> host_sdk <span class="token keyword">import</span> excel_function<span class="token punctuation">,</span> excel_array_function
+
+@excel_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"binomial_call"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"European call via CRR binomial tree"</span><span class="token punctuation">,</span> return_format<span class="token operator">=</span><span class="token string">"scalar"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">binomial_call</span><span class="token punctuation">(</span>S0<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> K<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> r<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> sigma<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> T<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> steps<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">float</span><span class="token punctuation">:</span>
+    steps <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>steps<span class="token punctuation">)</span>
+    dt <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>T<span class="token punctuation">)</span> <span class="token operator">/</span> steps
+    u <span class="token operator">=</span> math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span>sigma <span class="token operator">*</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>dt<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    d <span class="token operator">=</span> <span class="token number">1.0</span> <span class="token operator">/</span> u
+    disc <span class="token operator">=</span> math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span><span class="token operator">-</span>r <span class="token operator">*</span> dt<span class="token punctuation">)</span>
+    p <span class="token operator">=</span> <span class="token punctuation">(</span>math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span>r <span class="token operator">*</span> dt<span class="token punctuation">)</span> <span class="token operator">-</span> d<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token punctuation">(</span>u <span class="token operator">-</span> d<span class="token punctuation">)</span>
+
+    <span class="token comment"># terminal payoffs</span>
+    payoffs <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>steps <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        ST <span class="token operator">=</span> S0 <span class="token operator">*</span> <span class="token punctuation">(</span>u <span class="token operator">**</span> j<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>d <span class="token operator">**</span> <span class="token punctuation">(</span>steps <span class="token operator">-</span> j<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        payoffs<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">max</span><span class="token punctuation">(</span>ST <span class="token operator">-</span> K<span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token comment"># backward induction</span>
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>steps<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        payoffs <span class="token operator">=</span> <span class="token punctuation">[</span>disc <span class="token operator">*</span> <span class="token punctuation">(</span>p <span class="token operator">*</span> payoffs<span class="token punctuation">[</span>j<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token number">1</span><span class="token operator">-</span>p<span class="token punctuation">)</span> <span class="token operator">*</span> payoffs<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">return</span> <span class="token builtin">float</span><span class="token punctuation">(</span>payoffs<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"binomial_tree_prices"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Return terminal node prices for inspection"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">binomial_tree_prices</span><span class="token punctuation">(</span>S0<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> sigma<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> T<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> steps<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">25</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">import</span> math
+    steps <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>steps<span class="token punctuation">)</span>
+    dt <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>T<span class="token punctuation">)</span><span class="token operator">/</span>steps
+    u <span class="token operator">=</span> math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span>sigma <span class="token operator">*</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>dt<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    d <span class="token operator">=</span> <span class="token number">1.0</span><span class="token operator">/</span>u
+    out <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"j"</span><span class="token punctuation">,</span><span class="token string">"S_T"</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>steps<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        ST <span class="token operator">=</span> S0 <span class="token operator">*</span> <span class="token punctuation">(</span>u <span class="token operator">**</span> j<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>d <span class="token operator">**</span> <span class="token punctuation">(</span>steps <span class="token operator">-</span> j<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        out<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">[</span>j<span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>ST<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> out
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_06_binomial.py","binomial_call",100,100,0.05,0.2,1,200)
+=GBPY("tutorial_06_binomial.py","binomial_tree_prices",100,0.2,1,25)
+</code></pre>
+<h3 id="b-binomial-using-simple_plugin.py">8B) Binomial using <code>simple_plugin.py</code></h3>
+<p>Create <code>plugins/tutorial_06_binomial_simple.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">import</span> math
+<span class="token keyword">from</span> simple_plugin <span class="token keyword">import</span> excel_plugin<span class="token punctuation">,</span> excel_table
+
+@excel_plugin<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"binomial_call"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"European call via CRR binomial tree"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">binomial_call</span><span class="token punctuation">(</span>S0<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> K<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> r<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> sigma<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> T<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> steps<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">float</span><span class="token punctuation">:</span>
+    steps <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>steps<span class="token punctuation">)</span>
+    dt <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>T<span class="token punctuation">)</span> <span class="token operator">/</span> steps
+    u <span class="token operator">=</span> math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span>sigma <span class="token operator">*</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>dt<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    d <span class="token operator">=</span> <span class="token number">1.0</span> <span class="token operator">/</span> u
+    disc <span class="token operator">=</span> math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span><span class="token operator">-</span>r <span class="token operator">*</span> dt<span class="token punctuation">)</span>
+    p <span class="token operator">=</span> <span class="token punctuation">(</span>math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span>r <span class="token operator">*</span> dt<span class="token punctuation">)</span> <span class="token operator">-</span> d<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token punctuation">(</span>u <span class="token operator">-</span> d<span class="token punctuation">)</span>
+
+    payoffs <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>steps <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        ST <span class="token operator">=</span> S0 <span class="token operator">*</span> <span class="token punctuation">(</span>u <span class="token operator">**</span> j<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>d <span class="token operator">**</span> <span class="token punctuation">(</span>steps <span class="token operator">-</span> j<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        payoffs<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token builtin">max</span><span class="token punctuation">(</span>ST <span class="token operator">-</span> K<span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>steps<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        payoffs <span class="token operator">=</span> <span class="token punctuation">[</span>disc <span class="token operator">*</span> <span class="token punctuation">(</span>p <span class="token operator">*</span> payoffs<span class="token punctuation">[</span>j <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token punctuation">(</span><span class="token number">1</span> <span class="token operator">-</span> p<span class="token punctuation">)</span> <span class="token operator">*</span> payoffs<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">return</span> <span class="token builtin">float</span><span class="token punctuation">(</span>payoffs<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+@excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"binomial_tree_prices"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Return terminal node prices for inspection"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">binomial_tree_prices</span><span class="token punctuation">(</span>S0<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> sigma<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> T<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> steps<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">25</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+    steps <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>steps<span class="token punctuation">)</span>
+    dt <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>T<span class="token punctuation">)</span> <span class="token operator">/</span> steps
+    u <span class="token operator">=</span> math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span>sigma <span class="token operator">*</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>dt<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    d <span class="token operator">=</span> <span class="token number">1.0</span> <span class="token operator">/</span> u
+    out<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"j"</span><span class="token punctuation">,</span> <span class="token string">"S_T"</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> j <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>steps <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        ST <span class="token operator">=</span> S0 <span class="token operator">*</span> <span class="token punctuation">(</span>u <span class="token operator">**</span> j<span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token punctuation">(</span>d <span class="token operator">**</span> <span class="token punctuation">(</span>steps <span class="token operator">-</span> j<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        out<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>j<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>ST<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> out
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_06_binomial_simple.py","binomial_call",100,100,0.05,0.2,1,200)
+=GBPY("tutorial_06_binomial_simple.py","binomial_tree_prices",100,0.2,1,25)
+</code></pre>
+<hr>
+<h2 id="gbm-monte-carlo-price--storereturn-simulated-returns">9) GBM Monte Carlo (price + store/return simulated returns)</h2>
+<h3 id="what-we-want">9.1 What we want</h3>
+<ul>
+<li><strong>price</strong> a European call/put under GBM</li>
+<li><strong>also output</strong> the simulated returns (or store them and retrieve later)</li>
+</ul>
+<h3 id="a-simple-approach-return-everything-multi-table">9.2 A simple approach: return everything (multi-table)</h3>
+<p>Create <code>plugins/tutorial_07_gbm_mc.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">import</span> math
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token keyword">from</span> host_sdk <span class="token keyword">import</span> excel_array_function
+
+<span class="token comment"># In-memory store (optional): keep last simulated returns for later retrieval</span>
+_LAST <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"gbm_mc"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"GBM Monte Carlo: returns price + sampled returns"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">gbm_mc</span><span class="token punctuation">(</span>S0<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> K<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> r<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> sigma<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> T<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> option_type<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"call"</span><span class="token punctuation">,</span>
+           n_paths<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">20000</span><span class="token punctuation">,</span> seed<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">12345</span><span class="token punctuation">,</span> store_key<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"last"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+
+    n_paths <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>n_paths<span class="token punctuation">)</span>
+    rng <span class="token operator">=</span> np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>default_rng<span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">(</span>seed<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token comment"># One-step terminal simulation (closed form)</span>
+    Z <span class="token operator">=</span> rng<span class="token punctuation">.</span>standard_normal<span class="token punctuation">(</span>n_paths<span class="token punctuation">)</span>
+    ST <span class="token operator">=</span> S0 <span class="token operator">*</span> np<span class="token punctuation">.</span>exp<span class="token punctuation">(</span><span class="token punctuation">(</span>r <span class="token operator">-</span> <span class="token number">0.5</span><span class="token operator">*</span>sigma<span class="token operator">*</span>sigma<span class="token punctuation">)</span><span class="token operator">*</span>T <span class="token operator">+</span> sigma<span class="token operator">*</span>math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>T<span class="token punctuation">)</span><span class="token operator">*</span>Z<span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> option_type<span class="token punctuation">.</span>lower<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">"call"</span><span class="token punctuation">:</span>
+        payoff <span class="token operator">=</span> np<span class="token punctuation">.</span>maximum<span class="token punctuation">(</span>ST <span class="token operator">-</span> K<span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        payoff <span class="token operator">=</span> np<span class="token punctuation">.</span>maximum<span class="token punctuation">(</span>K <span class="token operator">-</span> ST<span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span>
+
+    disc <span class="token operator">=</span> math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span><span class="token operator">-</span>r<span class="token operator">*</span>T<span class="token punctuation">)</span>
+    disc_payoff <span class="token operator">=</span> disc <span class="token operator">*</span> payoff
+    price <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>disc_payoff<span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    stderr <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>disc_payoff<span class="token punctuation">.</span>std<span class="token punctuation">(</span>ddof<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">/</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>n_paths<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    <span class="token comment"># log-returns</span>
+    returns <span class="token operator">=</span> np<span class="token punctuation">.</span>log<span class="token punctuation">(</span>ST <span class="token operator">/</span> S0<span class="token punctuation">)</span>
+
+    <span class="token comment"># store for later retrieval (optional)</span>
+    _LAST<span class="token punctuation">[</span><span class="token builtin">str</span><span class="token punctuation">(</span>store_key<span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> returns
+
+    summary <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">[</span><span class="token string">"Metric"</span><span class="token punctuation">,</span><span class="token string">"Value"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"price"</span><span class="token punctuation">,</span> price<span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"stderr"</span><span class="token punctuation">,</span> stderr<span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"paths"</span><span class="token punctuation">,</span> n_paths<span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"seed"</span><span class="token punctuation">,</span> <span class="token builtin">int</span><span class="token punctuation">(</span>seed<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span>
+
+    <span class="token comment"># Return a sample of returns (to avoid huge Excel spills)</span>
+    sample_n <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span><span class="token number">2000</span><span class="token punctuation">,</span> n_paths<span class="token punctuation">)</span>
+    ret_table <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"log_return"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">*</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> returns<span class="token punctuation">[</span><span class="token punctuation">:</span>sample_n<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">"summary"</span><span class="token punctuation">:</span> summary<span class="token punctuation">,</span> <span class="token string">"returns_sample"</span><span class="token punctuation">:</span> ret_table<span class="token punctuation">}</span>
+
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"gbm_mc_get_returns"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Retrieve stored returns by key"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">gbm_mc_get_returns</span><span class="token punctuation">(</span>store_key<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"last"</span><span class="token punctuation">,</span> max_rows<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    key <span class="token operator">=</span> <span class="token builtin">str</span><span class="token punctuation">(</span>store_key<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> key <span class="token operator">not</span> <span class="token keyword">in</span> _LAST<span class="token punctuation">:</span>
+        <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"Error"</span><span class="token punctuation">]</span><span class="token punctuation">,</span><span class="token punctuation">[</span>f<span class="token string">"No stored returns for key='{key}'"</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+    r <span class="token operator">=</span> _LAST<span class="token punctuation">[</span>key<span class="token punctuation">]</span>
+    max_rows <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>max_rows<span class="token punctuation">)</span>
+    n <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span>max_rows<span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"log_return"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">*</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> r<span class="token punctuation">[</span><span class="token punctuation">:</span>n<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_07_gbm_mc.py","gbm_mc",100,100,0.05,0.2,1,"call",50000,12345,"run1")
+=GBPY("tutorial_07_gbm_mc.py","gbm_mc_get_returns","run1",2000)
+</code></pre>
+<blockquote>
+<p>Note: Storing huge arrays and spilling them into Excel is usually impractical. Return a sample, and keep the full array in memory for retrieval.</p>
+</blockquote>
+<h3 id="b-gbm-mc-using-simple_plugin.py-return-numpy--dict-of-tables-naturally">9B) GBM MC using <code>simple_plugin.py</code> (return NumPy + dict-of-tables naturally)</h3>
+<p>Create <code>plugins/tutorial_07_gbm_mc_simple.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">import</span> math
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token keyword">from</span> simple_plugin <span class="token keyword">import</span> excel_plugin<span class="token punctuation">,</span> excel_table
+
+_LAST <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+@excel_plugin<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"gbm_mc"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"GBM Monte Carlo: returns price + sampled returns"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">gbm_mc</span><span class="token punctuation">(</span>
+    S0<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span>
+    K<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span>
+    r<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span>
+    sigma<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span>
+    T<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span>
+    option_type<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"call"</span><span class="token punctuation">,</span>
+    n_paths<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">20000</span><span class="token punctuation">,</span>
+    seed<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">12345</span><span class="token punctuation">,</span>
+    store_key<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"last"</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">dict</span><span class="token punctuation">:</span>
+    n_paths <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>n_paths<span class="token punctuation">)</span>
+    rng <span class="token operator">=</span> np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>default_rng<span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">(</span>seed<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    Z <span class="token operator">=</span> rng<span class="token punctuation">.</span>standard_normal<span class="token punctuation">(</span>n_paths<span class="token punctuation">)</span>
+    ST <span class="token operator">=</span> S0 <span class="token operator">*</span> np<span class="token punctuation">.</span>exp<span class="token punctuation">(</span><span class="token punctuation">(</span>r <span class="token operator">-</span> <span class="token number">0.5</span> <span class="token operator">*</span> sigma <span class="token operator">*</span> sigma<span class="token punctuation">)</span> <span class="token operator">*</span> T <span class="token operator">+</span> sigma <span class="token operator">*</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>T<span class="token punctuation">)</span> <span class="token operator">*</span> Z<span class="token punctuation">)</span>
+
+    <span class="token keyword">if</span> option_type<span class="token punctuation">.</span>lower<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token string">"call"</span><span class="token punctuation">:</span>
+        payoff <span class="token operator">=</span> np<span class="token punctuation">.</span>maximum<span class="token punctuation">(</span>ST <span class="token operator">-</span> K<span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span>
+    <span class="token keyword">else</span><span class="token punctuation">:</span>
+        payoff <span class="token operator">=</span> np<span class="token punctuation">.</span>maximum<span class="token punctuation">(</span>K <span class="token operator">-</span> ST<span class="token punctuation">,</span> <span class="token number">0.0</span><span class="token punctuation">)</span>
+
+    disc <span class="token operator">=</span> math<span class="token punctuation">.</span>exp<span class="token punctuation">(</span><span class="token operator">-</span>r <span class="token operator">*</span> T<span class="token punctuation">)</span>
+    disc_payoff <span class="token operator">=</span> disc <span class="token operator">*</span> payoff
+    price <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>disc_payoff<span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    stderr <span class="token operator">=</span> <span class="token builtin">float</span><span class="token punctuation">(</span>disc_payoff<span class="token punctuation">.</span>std<span class="token punctuation">(</span>ddof<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">/</span> math<span class="token punctuation">.</span>sqrt<span class="token punctuation">(</span>n_paths<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    returns <span class="token operator">=</span> np<span class="token punctuation">.</span>log<span class="token punctuation">(</span>ST <span class="token operator">/</span> S0<span class="token punctuation">)</span>
+    _LAST<span class="token punctuation">[</span><span class="token builtin">str</span><span class="token punctuation">(</span>store_key<span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> returns
+
+    summary <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">[</span><span class="token string">"Metric"</span><span class="token punctuation">,</span> <span class="token string">"Value"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"price"</span><span class="token punctuation">,</span> price<span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"stderr"</span><span class="token punctuation">,</span> stderr<span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"paths"</span><span class="token punctuation">,</span> n_paths<span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"seed"</span><span class="token punctuation">,</span> <span class="token builtin">int</span><span class="token punctuation">(</span>seed<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span>
+
+    sample_n <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span><span class="token number">2000</span><span class="token punctuation">,</span> n_paths<span class="token punctuation">)</span>
+    <span class="token comment"># Return a 1D list sample; it will become a column table automatically. </span>
+    returns_sample <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> returns<span class="token punctuation">[</span><span class="token punctuation">:</span>sample_n<span class="token punctuation">]</span><span class="token punctuation">]</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">"summary"</span><span class="token punctuation">:</span> summary<span class="token punctuation">,</span> <span class="token string">"returns_sample"</span><span class="token punctuation">:</span> returns_sample<span class="token punctuation">}</span>
+
+@excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"gbm_mc_get_returns"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Retrieve stored returns by key"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">gbm_mc_get_returns</span><span class="token punctuation">(</span>store_key<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"last"</span><span class="token punctuation">,</span> max_rows<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+    key <span class="token operator">=</span> <span class="token builtin">str</span><span class="token punctuation">(</span>store_key<span class="token punctuation">)</span>
+    <span class="token keyword">if</span> key <span class="token operator">not</span> <span class="token keyword">in</span> _LAST<span class="token punctuation">:</span>
+        <span class="token comment"># returning a 1x1 table error is simplest in Excel</span>
+        <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token string">"No stored returns for key="</span> <span class="token operator">+</span> key<span class="token punctuation">]</span>
+    r <span class="token operator">=</span> _LAST<span class="token punctuation">[</span>key<span class="token punctuation">]</span>
+    n <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">(</span>max_rows<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>r<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> r<span class="token punctuation">[</span><span class="token punctuation">:</span>n<span class="token punctuation">]</span><span class="token punctuation">]</span>
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_07_gbm_mc_simple.py","gbm_mc",100,100,0.05,0.2,1,"call",50000,12345,"run1")
+=GBPY("tutorial_07_gbm_mc_simple.py","gbm_mc_get_returns","run1",2000)
+</code></pre>
+<p>Why this is simpler:</p>
+<ul>
+<li>Returning a dict with a mix of list-of-lists and 1D lists is fine; it gets formatted recursively into Excel spill-safe tables.</li>
+</ul>
+<hr>
+<h2 id="swap-pv-starter-template">10) Swap PV (starter template)</h2>
+<p>A <em>full</em> swap pricer needs curves, day-count conventions, calendars, and schedules. Here’s a <strong>starter template</strong> that demonstrates the mechanics:</p>
+<ul>
+<li>Inputs: notional, fixed rate, payment dates, discount factors, and forward rates (all passed in from Excel)</li>
+<li>Output: PV of fixed leg, PV of float leg, net PV</li>
+</ul>
+<p>Create <code>plugins/tutorial_08_swap.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> typing <span class="token keyword">import</span> Any<span class="token punctuation">,</span> List
+<span class="token keyword">from</span> host_sdk <span class="token keyword">import</span> excel_array_function
+
+@excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"swap_pv_simple"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Simple swap PV from date ladder + DFs + forwards"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">swap_pv_simple</span><span class="token punctuation">(</span>notional<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> fixed_rate<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> yearfracs<span class="token punctuation">:</span> Any<span class="token punctuation">,</span> dfs<span class="token punctuation">:</span> Any<span class="token punctuation">,</span> fwds<span class="token punctuation">:</span> Any<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># yearfracs, dfs, fwds expected as column vectors from Excel</span>
+    <span class="token keyword">def</span> <span class="token function">_col</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>v<span class="token punctuation">,</span> <span class="token builtin">list</span><span class="token punctuation">)</span> <span class="token operator">and</span> v <span class="token operator">and</span> <span class="token builtin">isinstance</span><span class="token punctuation">(</span>v<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token builtin">list</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>r<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">for</span> r <span class="token keyword">in</span> v<span class="token punctuation">]</span>
+        <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> v<span class="token punctuation">]</span>
+
+    tau <span class="token operator">=</span> _col<span class="token punctuation">(</span>yearfracs<span class="token punctuation">)</span>
+    df <span class="token operator">=</span> _col<span class="token punctuation">(</span>dfs<span class="token punctuation">)</span>
+    fwd <span class="token operator">=</span> _col<span class="token punctuation">(</span>fwds<span class="token punctuation">)</span>
+
+    n <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>tau<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>df<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>fwd<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    pv_fixed <span class="token operator">=</span> <span class="token number">0.0</span>
+    pv_float <span class="token operator">=</span> <span class="token number">0.0</span>
+
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        pv_fixed <span class="token operator">+=</span> notional <span class="token operator">*</span> fixed_rate <span class="token operator">*</span> tau<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> df<span class="token punctuation">[</span>i<span class="token punctuation">]</span>
+        pv_float <span class="token operator">+=</span> notional <span class="token operator">*</span> fwd<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> tau<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> df<span class="token punctuation">[</span>i<span class="token punctuation">]</span>
+
+    out <span class="token operator">=</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">[</span><span class="token string">"Leg"</span><span class="token punctuation">,</span><span class="token string">"PV"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"Fixed"</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>pv_fixed<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"Float"</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>pv_float<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"Net (Float-Fixed)"</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>pv_float <span class="token operator">-</span> pv_fixed<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span>
+    <span class="token keyword">return</span> out
+</code></pre>
+<p>Excel (example):</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_08_swap.py","swap_pv_simple",1000000,0.04,YearFracRange,DFRange,FwdRange)
+</code></pre>
+<h3 id="b-swap-pv-using-simple_plugin.py-no-_col-helper-needed">10B) Swap PV using <code>simple_plugin.py</code> (no <code>_col</code> helper needed)</h3>
+<p>Create <code>plugins/tutorial_08_swap_simple.py</code>:</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">from</span> __future__ <span class="token keyword">import</span> annotations
+
+<span class="token keyword">from</span> simple_plugin <span class="token keyword">import</span> excel_table
+
+@excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"swap_pv_simple"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Simple swap PV from date ladder + DFs + forwards"</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">swap_pv_simple</span><span class="token punctuation">(</span>
+    notional<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span>
+    fixed_rate<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span>
+    yearfracs<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    dfs<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    fwds<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+    <span class="token comment"># list[float] parameters =&gt; Excel column ranges get flattened to 1D automatically. </span>
+    tau <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> yearfracs<span class="token punctuation">]</span>
+    df <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> dfs<span class="token punctuation">]</span>
+    fwd <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> fwds<span class="token punctuation">]</span>
+
+    n <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>tau<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>df<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token builtin">len</span><span class="token punctuation">(</span>fwd<span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    pv_fixed <span class="token operator">=</span> <span class="token number">0.0</span>
+    pv_float <span class="token operator">=</span> <span class="token number">0.0</span>
+
+    <span class="token keyword">for</span> i <span class="token keyword">in</span> <span class="token builtin">range</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        pv_fixed <span class="token operator">+=</span> notional <span class="token operator">*</span> fixed_rate <span class="token operator">*</span> tau<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> df<span class="token punctuation">[</span>i<span class="token punctuation">]</span>
+        pv_float <span class="token operator">+=</span> notional <span class="token operator">*</span> fwd<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> tau<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> df<span class="token punctuation">[</span>i<span class="token punctuation">]</span>
+
+    <span class="token keyword">return</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">[</span><span class="token string">"Leg"</span><span class="token punctuation">,</span> <span class="token string">"PV"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"Fixed"</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>pv_fixed<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"Float"</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>pv_float<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token punctuation">[</span><span class="token string">"Net (Float-Fixed)"</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">(</span>pv_float <span class="token operator">-</span> pv_fixed<span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token punctuation">]</span>
+</code></pre>
+<p>Excel:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_08_swap_simple.py","swap_pv_simple",1000000,0.04,YearFracRange,DFRange,FwdRange)
+</code></pre>
+<hr>
+<h2 id="“matrix-decomposition-or-qr”-vs-using-eigenval_plugin">11) “Matrix decomposition or QR” vs using eigenval_plugin</h2>
+<p>You already have a rich linear algebra plugin (<code>eigenval_plugin.py</code>) that returns multi-tables (diagnostics, reconstructions, etc.). When writing new plugins, start with a minimal QR template (Section 5). If you need production-grade outputs, follow the same multi-table style.</p>
+<blockquote>
+<p>With <code>simple_plugin.py</code>, returning <code>{"Q": Q, "R": R}</code> (NumPy arrays) is a quick path to multi-table outputs without hand-building tables.</p>
+</blockquote>
+<hr>
+<h2 id="practical-debugging-checklist">12) Practical debugging checklist</h2>
+<ol>
+<li><code>=PYBRIDGE_PING()</code> — server alive</li>
+<li><code>=PYBRIDGE_FUNCTIONS(TRUE)</code> — function exists &amp; name matches</li>
+<li><code>=PYINVOKE_JSON(...)</code> — debug raw JSON (server side)</li>
+<li><code>=GBPY(...)</code> — spill result</li>
+</ol>
+<p>If JSON works but GBPY fails:</p>
+<ul>
+<li>check for <code>None/null</code> values in outputs</li>
+<li>check that your range inputs don’t include header strings (e.g., <code>x1</code>, <code>x2</code>) when you are converting to float</li>
+</ul>
+<blockquote>
+<p>If you are using <code>simple_plugin.py</code>, table outputs get <code>None → ""</code> scrubbed automatically, which removes one common failure mode.</p>
+</blockquote>
+<hr>
+<h2 id="llm-prompt-for-quickly-generating-new-plugins">13) LLM prompt for quickly generating new plugins</h2>
+<p>Copy/paste into your LLM:</p>
+<pre class=" language-text"><code class="prism  language-text">You are writing a Python plugin for ExcelBridge (FastAPI host) called by Excel via GBPY.
+
+Constraints:
+- Functions must be decorated with host_sdk decorators (excel_function / excel_array_function / finance_function / math_function) to appear in the catalog.
+- Inputs from Excel arrive as scalars or list/list-of-lists.
+- Outputs must be Excel-safe: avoid Python None inside spill outputs; use "" for blanks.
+
+Return contracts:
+- Scalar: return float/int/str/bool
+- Vector: return [[x],[y],[z]] (optionally add header row)
+- Matrix: return list-of-lists
+- Multi-table: return dict of named tables
+
+Task:
+- Implement &lt;FILENAME&gt;.py with functions &lt;NAMES&gt;.
+- Provide Excel examples: =GBPY("&lt;FILENAME&gt;.py","&lt;FUNC&gt;",...) and =PYINVOKE_JSON(...) for debugging.
+- Include input normalization for 1D vs 2D ranges.
+</code></pre>
+<h3 id="b-alternate-prompt-if-you-want-the-simple_plugin.py-style">13B) Alternate prompt if you want the <em>simple_plugin.py</em> style</h3>
+<pre class=" language-text"><code class="prism  language-text">You are writing a Python plugin for ExcelBridge called by Excel via GBPY.
+
+Use the convenience wrapper `simple_plugin.py`.
+
+Constraints:
+- Decorate with @excel_plugin for scalars and @excel_table for spill tables.
+- Use type hints to control input coercion:
+  - float/int/str/bool for scalars
+  - list[T] for 1D vectors (Excel columns/rows)
+  - list[list[T]] for 2D ranges (tables)
+  - pandas.DataFrame or numpy.ndarray if needed
+- Return Excel-safe outputs:
+  - Scalars: float/int/str/bool
+  - 1D list: will auto-format to a column table
+  - 2D list: spill directly
+  - dict: becomes multi-table
+  - DataFrame/ndarray: auto-converted to tables
+- Avoid None in spill tables (wrapper scrubs None-&gt;"" automatically).
+
+Task:
+- Implement &lt;FILENAME&gt;.py with functions &lt;NAMES&gt;.
+- Provide Excel examples:
+  =GBPY("&lt;FILENAME&gt;.py","&lt;FUNC&gt;",...)
+  and =PYINVOKE_JSON(...) for debugging.
+</code></pre>
+<hr>
+<h2 id="integrity-check--limitations">Integrity Check &amp; Limitations</h2>
+<ul>
+<li>✅ <strong>Original <code>host_sdk</code> content preserved:</strong> All provided <code>host_sdk.py</code> examples remain unchanged; additions are in new “B” subsections.</li>
+<li>✅ <strong><code>simple_plugin.py</code> behavior described from the actual file:</strong> Input coercion, output formatting, <code>None</code> scrubbing, and error handling are based on the uploaded <code>simple_plugin.py</code>.</li>
+<li>⚠️ <strong>Positional vs keyword args:</strong> <code>simple_plugin.py</code> primarily coerces positional args (<code>*args</code>) by iterating over signature parameters and zipping them with args; kwargs are passed through without the same coercion pass.</li>
+<li>⚠️ <strong>ExcelRange hint:</strong> If you annotate <code>ExcelRange</code>, the wrapper does not build an <code>ExcelRange</code> itself; it passes through whatever it receives. If you want <code>ExcelRange</code> methods, rely on upstream conversion (from <code>host_sdk</code>/loader), or prefer list/list-of-lists hints. ,</li>
+</ul>
+<hr>
+<h2 id="bibliography-internal-system-files">Bibliography (internal system files)</h2>
+<ol>
+<li><strong><code>host_sdk.py</code></strong> — defines <code>ExcelRange</code>, decorators (<code>excel_function</code>, <code>excel_array_function</code>), and return-format metadata. <strong>Locator:</strong> <code>class ExcelRange</code>, <code>def excel_function</code>, <code>def excel_array_function</code>.</li>
+<li><strong><code>simple_plugin.py</code></strong> — convenience wrapper over <code>host_sdk</code>: type-hint input coercion (<code>as_scalar</code>, <code>as_array</code>, <code>as_dataframe</code>, <code>as_numpy</code>), output formatting (<code>format_for_excel</code>), <code>None → ""</code> scrubbing, error handling, and decorators (<code>excel_plugin</code>, <code>excel_table</code>, etc.). <strong>Locator:</strong> module docstring “Super-simple…”, sections “Input conversion helpers”, “Output formatting helpers”, “Main decorator”.</li>
+<li><strong><code>main.py</code></strong> — ExcelBridge server endpoints and output conversion pipeline (invocation + conversion for output formats). <strong>Locator:</strong> <code>/invoke</code> endpoint, <code>convert_for_output</code>, <code>sanitize_for_json</code>.</li>
+</ol>
+<hr>
+</div>
+</body>
+
+</html>
