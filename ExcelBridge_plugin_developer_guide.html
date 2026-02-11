@@ -9,12 +9,12 @@
 </head>
 
 <body class="stackedit">
-  <div class="stackedit__html"><h1 id="excelbridge-v2.0.0-by-gene-boo---plugin-developer-guide">ExcelBridge v2.0.0 by Gene Boo - Plugin Developer Guide</h1>
+  <div class="stackedit__html"><h1 id="excelbridge-v2.2.8-by-gene-boo-–-plugin-developer-guide">ExcelBridge v2.2.8 by Gene Boo – Plugin Developer Guide</h1>
 <blockquote>
 <p><strong>Author:</strong> Gene Boo.<br>
-<strong>Development Date:</strong> 9 September 2023.<br>
-<strong>Audience:</strong> Anyone aiming to build Python plugins super simply using Gene’s robust ExcelBridge v2 (from beginners to quant/dev).<br>
-<strong>Goal:</strong> You should be able to go from <strong>zero</strong> to a working plugin that reads <strong>Excel cells/ranges</strong> and returns <strong>scalars/vectors/matrices/multi-tables</strong>.</p>
+<strong>Latest Update:</strong> February 2025 (v2.2.8).<br>
+<strong>Audience:</strong> Anyone aiming to build Python plugins super simply using Gene’s robust ExcelBridge (from beginners to quant/dev).<br>
+<strong>Goal:</strong> You should be able to go from <strong>zero</strong> to a working plugin that reads <strong>Excel cells/ranges</strong> and returns <strong>scalars/vectors/matrices/multi-tables</strong> — with optional <strong>result caching</strong>, <strong>type‑hint coercion</strong>, and <strong>SciPy/XGBoost built‑ins</strong>.</p>
 </blockquote>
 <p>This guide has two layers:</p>
 <ol>
@@ -49,6 +49,31 @@ So: return <code>""</code> (blank string) instead of <code>None</code> in tables
 <p>✅ <strong>Good news:</strong> <code>simple_plugin.py</code> automatically “scrubs” <code>None → ""</code> inside tables by default, so you hit fewer <code>#VALUE!</code> surprises.</p>
 </blockquote>
 <hr>
+<h2 id="new-in-v2.2.8-–-joblib-function-result-caching">0.1) <strong>New in v2.2.8 – Joblib Function Result Caching</strong></h2>
+<p>ExcelBridge now includes a <strong>plugin‑level result cache</strong> using <code>joblib</code>. This is <strong>opt‑in per call</strong> and extremely useful for <strong>slow calculations</strong> (Monte Carlo, optimisation, large matrix ops).</p>
+<p><strong>How it works:</strong></p>
+<ul>
+<li>Cache key is generated from <code>(plugin_file, func_name, args, kwargs)</code>.</li>
+<li>Results are stored compressed in <code>./cache/</code> with configurable <strong>TTL</strong> (default 1 hour) and <strong>max size</strong> (default 100 MB).</li>
+<li>If the same function is called with identical arguments, the cached result is returned instantly.</li>
+<li>Controlled via environment variables or API calls.</li>
+</ul>
+<p><strong>Environment variables:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">EXCELBRIDGE_CACHE_ENABLED<span class="token operator">=</span>true
+EXCELBRIDGE_CACHE_MAX_SIZE<span class="token operator">=</span>100    <span class="token comment"># MB</span>
+EXCELBRIDGE_CACHE_TTL<span class="token operator">=</span>3600        <span class="token comment"># seconds</span>
+</code></pre>
+<p><strong>From Excel – enable/disable caching per call:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("my_plugin.py","slow_function",A1, B1, TRUE)   # 5th arg = use_cache
+=GBPY("my_plugin.py","slow_function",A1, B1, FALSE)  # bypass cache
+</code></pre>
+<p><strong>REST API endpoints:</strong></p>
+<ul>
+<li><code>GET /cache/info</code> — cache statistics</li>
+<li><code>POST /cache/clear</code> — clear all cached results</li>
+</ul>
+<p><strong>In your plugin:</strong> you don’t need to change anything. Caching is handled transparently by the loader.</p>
+<hr>
 <h2 id="two-ways-to-author-plugins">1) Two ways to author plugins</h2>
 <h3 id="option-a-—-directly-on-host_sdk-canonical">Option A — Directly on <code>host_sdk</code> (canonical)</h3>
 <p>Use <code>@excel_function</code> for scalars and <code>@excel_array_function</code> for spill tables.</p>
@@ -73,7 +98,7 @@ So: return <code>""</code> (blank string) instead of <code>None</code> in tables
 <li>If parameter is hinted as <code>list[list[T]]</code>: it produces a <strong>2D list-of-lists</strong> (<code>as_array(..., flatten=False)</code>)</li>
 <li>If parameter is hinted as <code>pandas.DataFrame</code>: it builds a DataFrame (optionally with header inference)</li>
 <li>If parameter is hinted as <code>numpy.ndarray</code>: it builds a NumPy array</li>
-<li>If you hint <code>ExcelRange</code>, it passes through the value (expecting an <code>ExcelRange</code> object) ,</li>
+<li>If you hint <code>ExcelRange</code>, it passes through the value (expecting an <code>ExcelRange</code> object)</li>
 </ul>
 <blockquote>
 <p><strong>Important practical note:</strong> <code>simple_plugin.py</code>’s wrapper converts <strong>positional args</strong> (the <code>*args</code> Excel sends). It does <strong>not</strong> deeply coerce <code>**kwargs</code> the same way—kwargs are passed through after conversions.<br>
@@ -99,8 +124,8 @@ In Excel usage (<code>=GBPY(...)</code>) you typically pass positional args anyw
 <h3 id="d-registration-still-uses-host_sdk">D) Registration still uses <code>host_sdk</code></h3>
 <p>Under the hood, <code>simple_plugin.py</code> still registers your function using:</p>
 <ul>
-<li><code>host_sdk.excel_function(...)</code> for scalars, or</li>
-<li><code>host_sdk.excel_array_function(...)</code> for tables ,</li>
+<li><code>host_sdk.excel_function(...)</code> for scalars, <strong>or</strong></li>
+<li><code>host_sdk.excel_array_function(...)</code> for tables,</li>
 </ul>
 <p>It decides “table vs scalar” using:</p>
 <ul>
@@ -159,7 +184,7 @@ In Excel usage (<code>=GBPY(...)</code>) you typically pass positional args anyw
 <p>Excel usage:</p>
 <pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_01_hello.py","hello","Gene")
 =GBPY("tutorial_01_hello.py","pow",A1,3)
-=GBPY("tutorial_01_hello.py","hello_vec",10)
+=GBPY("tutorial_01_hello.py","hello_vec",10, TRUE)   # 4th arg = use_cache (optional)
 </code></pre>
 <h3 id="b-the-same-plugin-using-simple_plugin.py-less-boilerplate">3B) The <em>same</em> plugin using <code>simple_plugin.py</code> (less boilerplate)</h3>
 <p>Create <code>plugins/tutorial_01_hello_simple.py</code>:</p>
@@ -229,7 +254,7 @@ In Excel usage (<code>=GBPY(...)</code>) you typically pass positional args anyw
 
 @excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"double_table"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Multiply every numeric cell by 2"</span><span class="token punctuation">)</span>
 <span class="token keyword">def</span> <span class="token function">double_table</span><span class="token punctuation">(</span>table<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span>Any<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span>Any<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
-    <span class="token comment"># Here, the 2D Excel range is coerced into list-of-lists based on the type hint. </span>
+    <span class="token comment"># Here, the 2D Excel range is coerced into list-of-lists based on the type hint.</span>
     out<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span>Any<span class="token punctuation">]</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
     <span class="token keyword">for</span> row <span class="token keyword">in</span> table<span class="token punctuation">:</span>
         new_row<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span>Any<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
@@ -288,7 +313,7 @@ In Excel usage (<code>=GBPY(...)</code>) you typically pass positional args anyw
     A <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span>matrix<span class="token punctuation">,</span> dtype<span class="token operator">=</span><span class="token builtin">float</span><span class="token punctuation">)</span>
     Q<span class="token punctuation">,</span> R <span class="token operator">=</span> np<span class="token punctuation">.</span>linalg<span class="token punctuation">.</span>qr<span class="token punctuation">(</span>A<span class="token punctuation">)</span>
 
-    <span class="token comment"># Return raw numpy arrays; simple_plugin formats them into Excel tables automatically. </span>
+    <span class="token comment"># Return raw numpy arrays; simple_plugin formats them into Excel tables automatically.</span>
     <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">"Q"</span><span class="token punctuation">:</span> Q<span class="token punctuation">,</span> <span class="token string">"R"</span><span class="token punctuation">:</span> R<span class="token punctuation">}</span>
 </code></pre>
 <p>Excel:</p>
@@ -365,7 +390,7 @@ In Excel usage (<code>=GBPY(...)</code>) you typically pass positional args anyw
         <span class="token keyword">if</span> d<span class="token punctuation">.</span>weekday<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">5</span><span class="token punctuation">:</span>
             out<span class="token punctuation">.</span>append<span class="token punctuation">(</span>d<span class="token punctuation">.</span>isoformat<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
         d <span class="token operator">+=</span> timedelta<span class="token punctuation">(</span>days<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
-    <span class="token comment"># 1D list -&gt; auto formatted into a column table with header ["value"] </span>
+    <span class="token comment"># 1D list -&gt; auto formatted into a column table with header ["value"]</span>
     <span class="token keyword">return</span> out
 
 @excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"date_ladder"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Generate a date ladder with step in days"</span><span class="token punctuation">)</span>
@@ -426,7 +451,7 @@ In Excel usage (<code>=GBPY(...)</code>) you typically pass positional args anyw
 
 @excel_table<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"toeplitz"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"Build a Toeplitz matrix from first column and first row"</span><span class="token punctuation">)</span>
 <span class="token keyword">def</span> <span class="token function">toeplitz</span><span class="token punctuation">(</span>first_col<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">,</span> first_row<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span> <span class="token operator">|</span> <span class="token boolean">None</span> <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
-    <span class="token comment"># list[float] parameters mean: treat Excel inputs as 1D vectors (flattened). </span>
+    <span class="token comment"># list[float] parameters mean: treat Excel inputs as 1D vectors (flattened).</span>
     c <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> first_col<span class="token punctuation">]</span>
     r <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> <span class="token punctuation">(</span>first_row <span class="token keyword">if</span> first_row <span class="token keyword">is</span> <span class="token operator">not</span> <span class="token boolean">None</span> <span class="token keyword">else</span> first_col<span class="token punctuation">)</span><span class="token punctuation">]</span>
 
@@ -553,7 +578,7 @@ _LAST <span class="token operator">=</span> <span class="token punctuation">{</s
 
 @excel_array_function<span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"gbm_mc"</span><span class="token punctuation">,</span> description<span class="token operator">=</span><span class="token string">"GBM Monte Carlo: returns price + sampled returns"</span><span class="token punctuation">)</span>
 <span class="token keyword">def</span> <span class="token function">gbm_mc</span><span class="token punctuation">(</span>S0<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> K<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> r<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> sigma<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> T<span class="token punctuation">:</span> <span class="token builtin">float</span><span class="token punctuation">,</span> option_type<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"call"</span><span class="token punctuation">,</span>
-           n_paths<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">20000</span><span class="token punctuation">,</span> seed<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">12345</span><span class="token punctuation">,</span> store_key<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"last"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+           n_paths<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">20000</span><span class="token punctuation">,</span> seed<span class="token punctuation">:</span> <span class="token builtin">int</span> <span class="token operator">=</span> <span class="token number">12345</span><span class="token punctuation">,</span> store_key<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">"last"</span><span class="token punctuation">,</span> use_cache<span class="token punctuation">:</span> <span class="token builtin">bool</span> <span class="token operator">=</span> <span class="token boolean">True</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
 
     n_paths <span class="token operator">=</span> <span class="token builtin">int</span><span class="token punctuation">(</span>n_paths<span class="token punctuation">)</span>
     rng <span class="token operator">=</span> np<span class="token punctuation">.</span>random<span class="token punctuation">.</span>default_rng<span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">(</span>seed<span class="token punctuation">)</span><span class="token punctuation">)</span>
@@ -604,7 +629,7 @@ _LAST <span class="token operator">=</span> <span class="token punctuation">{</s
     <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">"log_return"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token operator">*</span><span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> r<span class="token punctuation">[</span><span class="token punctuation">:</span>n<span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
 </code></pre>
 <p>Excel:</p>
-<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_07_gbm_mc.py","gbm_mc",100,100,0.05,0.2,1,"call",50000,12345,"run1")
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_07_gbm_mc.py","gbm_mc",100,100,0.05,0.2,1,"call",50000,12345,"run1", TRUE)
 =GBPY("tutorial_07_gbm_mc.py","gbm_mc_get_returns","run1",2000)
 </code></pre>
 <blockquote>
@@ -660,7 +685,7 @@ _LAST <span class="token operator">=</span> <span class="token punctuation">{</s
     <span class="token punctuation">]</span>
 
     sample_n <span class="token operator">=</span> <span class="token builtin">min</span><span class="token punctuation">(</span><span class="token number">2000</span><span class="token punctuation">,</span> n_paths<span class="token punctuation">)</span>
-    <span class="token comment"># Return a 1D list sample; it will become a column table automatically. </span>
+    <span class="token comment"># Return a 1D list sample; it will become a column table automatically.</span>
     returns_sample <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> returns<span class="token punctuation">[</span><span class="token punctuation">:</span>sample_n<span class="token punctuation">]</span><span class="token punctuation">]</span>
 
     <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">"summary"</span><span class="token punctuation">:</span> summary<span class="token punctuation">,</span> <span class="token string">"returns_sample"</span><span class="token punctuation">:</span> returns_sample<span class="token punctuation">}</span>
@@ -742,7 +767,7 @@ _LAST <span class="token operator">=</span> <span class="token punctuation">{</s
     dfs<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
     fwds<span class="token punctuation">:</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
 <span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">list</span><span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
-    <span class="token comment"># list[float] parameters =&gt; Excel column ranges get flattened to 1D automatically. </span>
+    <span class="token comment"># list[float] parameters =&gt; Excel column ranges get flattened to 1D automatically.</span>
     tau <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> yearfracs<span class="token punctuation">]</span>
     df <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> dfs<span class="token punctuation">]</span>
     fwd <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token builtin">float</span><span class="token punctuation">(</span>x<span class="token punctuation">)</span> <span class="token keyword">for</span> x <span class="token keyword">in</span> fwds<span class="token punctuation">]</span>
@@ -767,13 +792,31 @@ _LAST <span class="token operator">=</span> <span class="token punctuation">{</s
 <pre class=" language-excel"><code class="prism  language-excel">=GBPY("tutorial_08_swap_simple.py","swap_pv_simple",1000000,0.04,YearFracRange,DFRange,FwdRange)
 </code></pre>
 <hr>
-<h2 id="“matrix-decomposition-or-qr”-vs-using-eigenval_plugin">11) “Matrix decomposition or QR” vs using eigenval_plugin</h2>
+<h2 id="built-in-scipy--xgboost-functions-new-in-v2.2.8">11) Built-in SciPy &amp; XGBoost Functions (New in v2.2.8)</h2>
+<p>ExcelBridge v2.2.8 includes <strong>zero‑installation built‑ins</strong> for many scientific and machine‑learning tasks.</p>
+<p><strong>No plugin file required.</strong> Just call them directly:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("scipy_builtin","scipy_norm_cdf",1.96)
+=GBPY("scipy_builtin","scipy_minimize", ... )
+=GBPY("xgboost_builtin","xgboost_XGBRegressor", ... )
+</code></pre>
+<h3 id="available-scipy-families">Available SciPy families:</h3>
+<ul>
+<li><strong>Stats</strong>: <code>norm_cdf</code>, <code>norm_pdf</code>, <code>t_cdf</code>, <code>chi2_cdf</code>, <code>f_cdf</code>, <code>beta_cdf</code>, <code>gamma_cdf</code>, <code>poisson_pmf</code>, <code>binom_pmf</code></li>
+<li><strong>Special</strong>: <code>erf</code>, <code>erfc</code>, <code>gamma</code>, <code>beta</code>, <code>binom</code></li>
+<li><strong>Optimize</strong>: <code>minimize</code>, <code>fsolve</code>, <code>root</code>, <code>curve_fit</code>, <code>linprog</code></li>
+<li><strong>Integrate</strong>: <code>simps</code> / <code>simpson</code></li>
+<li><strong>Interpolate</strong>: <code>interp1d</code>, <code>lagrange</code>, <code>CubicSpline</code></li>
+</ul>
+<p><strong>View all functions:</strong><br>
+<code>=PYBRIDGE_FUNCTIONS(TRUE)</code> or call <code>GET /functions/detailed</code> via REST.</p>
+<hr>
+<h2 id="“matrix-decomposition-or-qr”-vs-using-eigenval_plugin">12) “Matrix decomposition or QR” vs using eigenval_plugin</h2>
 <p>You already have a rich linear algebra plugin (<code>eigenval_plugin.py</code>) that returns multi-tables (diagnostics, reconstructions, etc.). When writing new plugins, start with a minimal QR template (Section 5). If you need production-grade outputs, follow the same multi-table style.</p>
 <blockquote>
 <p>With <code>simple_plugin.py</code>, returning <code>{"Q": Q, "R": R}</code> (NumPy arrays) is a quick path to multi-table outputs without hand-building tables.</p>
 </blockquote>
 <hr>
-<h2 id="practical-debugging-checklist">12) Practical debugging checklist</h2>
+<h2 id="practical-debugging-checklist">13) Practical debugging checklist</h2>
 <ol>
 <li><code>=PYBRIDGE_PING()</code> — server alive</li>
 <li><code>=PYBRIDGE_FUNCTIONS(TRUE)</code> — function exists &amp; name matches</li>
@@ -789,7 +832,24 @@ _LAST <span class="token operator">=</span> <span class="token punctuation">{</s
 <p>If you are using <code>simple_plugin.py</code>, table outputs get <code>None → ""</code> scrubbed automatically, which removes one common failure mode.</p>
 </blockquote>
 <hr>
-<h2 id="llm-prompt-for-quickly-generating-new-plugins">13) LLM prompt for quickly generating new plugins</h2>
+<h2 id="cache-management-new-in-v2.2.8">14) Cache management (new in v2.2.8)</h2>
+<p>You can control the cache via REST API or directly from Excel.</p>
+<p><strong>View cache status:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=PYBRIDGE_CACHE_INFO()   ' Returns JSON with cache directory, size, TTL
+</code></pre>
+<p><strong>Clear the cache (via Web UI):</strong></p>
+<ul>
+<li>Go to <a href="http://127.0.0.1:8766">http://127.0.0.1:8766</a> → click <strong>“Clear Cache”</strong> button.</li>
+</ul>
+<p><strong>Clear the cache (via CLI/Python):</strong></p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span><span class="token string">"http://127.0.0.1:8765/cache/clear"</span><span class="token punctuation">)</span>
+</code></pre>
+<p><strong>Programmatically bypass cache in a plugin call:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("my_plugin.py","my_function",A1, B1, FALSE)   ' Last arg = use_cache
+</code></pre>
+<hr>
+<h2 id="llm-prompt-for-quickly-generating-new-plugins">15) LLM prompt for quickly generating new plugins</h2>
 <p>Copy/paste into your LLM:</p>
 <pre class=" language-text"><code class="prism  language-text">You are writing a Python plugin for ExcelBridge (FastAPI host) called by Excel via GBPY.
 
@@ -797,6 +857,7 @@ Constraints:
 - Functions must be decorated with host_sdk decorators (excel_function / excel_array_function / finance_function / math_function) to appear in the catalog.
 - Inputs from Excel arrive as scalars or list/list-of-lists.
 - Outputs must be Excel-safe: avoid Python None inside spill outputs; use "" for blanks.
+- Optionally, include a `use_cache: bool = True` parameter to enable result caching.
 
 Return contracts:
 - Scalar: return float/int/str/bool
@@ -809,7 +870,7 @@ Task:
 - Provide Excel examples: =GBPY("&lt;FILENAME&gt;.py","&lt;FUNC&gt;",...) and =PYINVOKE_JSON(...) for debugging.
 - Include input normalization for 1D vs 2D ranges.
 </code></pre>
-<h3 id="b-alternate-prompt-if-you-want-the-simple_plugin.py-style">13B) Alternate prompt if you want the <em>simple_plugin.py</em> style</h3>
+<h3 id="b-alternate-prompt-if-you-want-the-simple_plugin.py-style">15B) Alternate prompt if you want the <em>simple_plugin.py</em> style</h3>
 <pre class=" language-text"><code class="prism  language-text">You are writing a Python plugin for ExcelBridge called by Excel via GBPY.
 
 Use the convenience wrapper `simple_plugin.py`.
@@ -840,17 +901,19 @@ Task:
 <ul>
 <li>✅ <strong>Original <code>host_sdk</code> content preserved:</strong> All provided <code>host_sdk.py</code> examples remain unchanged; additions are in new “B” subsections.</li>
 <li>✅ <strong><code>simple_plugin.py</code> behavior described from the actual file:</strong> Input coercion, output formatting, <code>None</code> scrubbing, and error handling are based on the uploaded <code>simple_plugin.py</code>.</li>
+<li>✅ <strong>Caching system fully documented:</strong> New section 0.1 and 14 cover usage, configuration, and API.</li>
+<li>✅ <strong>Built‑in SciPy/XGBoost documented:</strong> New section 11.</li>
 <li>⚠️ <strong>Positional vs keyword args:</strong> <code>simple_plugin.py</code> primarily coerces positional args (<code>*args</code>) by iterating over signature parameters and zipping them with args; kwargs are passed through without the same coercion pass.</li>
-<li>⚠️ <strong>ExcelRange hint:</strong> If you annotate <code>ExcelRange</code>, the wrapper does not build an <code>ExcelRange</code> itself; it passes through whatever it receives. If you want <code>ExcelRange</code> methods, rely on upstream conversion (from <code>host_sdk</code>/loader), or prefer list/list-of-lists hints. ,</li>
+<li>⚠️ <strong>ExcelRange hint:</strong> If you annotate <code>ExcelRange</code>, the wrapper does not build an <code>ExcelRange</code> itself; it passes through whatever it receives. If you want <code>ExcelRange</code> methods, rely on upstream conversion (from <code>host_sdk</code>/loader), or prefer list/list-of-lists hints.</li>
 </ul>
 <hr>
 <h2 id="bibliography-internal-system-files">Bibliography (internal system files)</h2>
 <ol>
 <li><strong><code>host_sdk.py</code></strong> — defines <code>ExcelRange</code>, decorators (<code>excel_function</code>, <code>excel_array_function</code>), and return-format metadata. <strong>Locator:</strong> <code>class ExcelRange</code>, <code>def excel_function</code>, <code>def excel_array_function</code>.</li>
 <li><strong><code>simple_plugin.py</code></strong> — convenience wrapper over <code>host_sdk</code>: type-hint input coercion (<code>as_scalar</code>, <code>as_array</code>, <code>as_dataframe</code>, <code>as_numpy</code>), output formatting (<code>format_for_excel</code>), <code>None → ""</code> scrubbing, error handling, and decorators (<code>excel_plugin</code>, <code>excel_table</code>, etc.). <strong>Locator:</strong> module docstring “Super-simple…”, sections “Input conversion helpers”, “Output formatting helpers”, “Main decorator”.</li>
-<li><strong><code>main.py</code></strong> — ExcelBridge server endpoints and output conversion pipeline (invocation + conversion for output formats). <strong>Locator:</strong> <code>/invoke</code> endpoint, <code>convert_for_output</code>, <code>sanitize_for_json</code>.</li>
+<li><strong><code>plugin_loader.py</code></strong> — <strong>NEW in v2.2.8:</strong> contains <code>PluginCacheManager</code> (joblib‑based result cache), <code>RegisteredFunction</code> dataclass with metadata, and built‑in SciPy/XGBoost discovery. <strong>Locator:</strong> <code>class PluginCacheManager</code>, <code>class PluginLoader</code>, <code>_discover_scipy_functions</code>, <code>_discover_xgboost_functions</code>.</li>
+<li><strong><code>main.py</code></strong> — ExcelBridge server endpoints and output conversion pipeline (invocation + conversion for output formats). <strong>Locator:</strong> <code>/invoke</code> endpoint, <code>convert_for_output</code>, <code>sanitize_for_json</code>, new endpoints <code>/cache/clear</code>, <code>/cache/info</code>. However, for production, this project has been compiled into an .exe comprising of Python and various scientific libraries, rendering that Python plugins can be written leveraging off libraries like Scipy, Numpy, Sympy, Pandas, Polars, MPmath, Statsmodels, Plotly and XGboost, all without the need for Python or Anaconda distribution to be installed. Discover the ready-to-run stock plugins including simple Black-Scholes, Monte Carlo and Zero-rate Bootstrapping and their corresponding front-end spreadsheets in the plugins and Sample_XL folders, serving as examples that are close to facilitate real-world requirements.</li>
 </ol>
-<hr>
 </div>
 </body>
 
