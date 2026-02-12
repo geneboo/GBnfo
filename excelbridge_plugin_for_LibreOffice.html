@@ -1,0 +1,770 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>excelbridge_plugin_for_LibreOffice</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="gbpy-for-libreoffice-calc---excelbridge-python-integration">GBPY for LibreOffice Calc - ExcelBridge Python Integration</h1>
+<h2 id="⚠️-status-proof-of-concept---limited-support">⚠️ <strong>STATUS: PROOF OF CONCEPT - LIMITED SUPPORT</strong></h2>
+<p><strong>This integration is provided as a demonstration that REST-based ExcelBridge can work across different platforms with appropriate bridging code. LibreOffice Basic is NOT a supported development environment like VBA. Documentation is scarce, the IDE is clunky, and the latest version (26.2.0.3, build 19045) has known bugs.</strong></p>
+<p><strong>The code is provided “as-is” in the ExcelBridge v2.2.8 portable distribution as <code>excelbridge_gbpy_libreoffice.bas</code>. No further development or support is planned.</strong></p>
+<hr>
+<h2 id="📋-table-of-contents">📋 <strong>TABLE OF CONTENTS</strong></h2>
+<ol>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#quick-start">Quick Start - Black-Scholes Examples</a></li>
+<li><a href="#function-reference">Function Reference</a></li>
+<li><a href="#working-with-ranges">Working with Ranges (HORIZONTAL ONLY)</a></li>
+<li><a href="#array-formulae">Array Formulae - Old Skool Excel Style</a></li>
+<li><a href="#error-handling">Error Handling &amp; Debugging</a></li>
+<li><a href="#caveats">Caveats &amp; Limitations</a></li>
+<li><a href="#sample-ods">Sample ODS File Structure</a></li>
+</ol>
+<hr>
+<h2 id="🔧-prerequisites-a-nameprerequisitesa">🔧 <strong>PREREQUISITES</strong> <a></a></h2>
+
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Version</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Windows OS</strong></td>
+<td>10/11</td>
+<td>MSXML2.XMLHTTP dependency - Linux/Mac NOT supported</td>
+</tr>
+<tr>
+<td><strong>LibreOffice</strong></td>
+<td>7.0+</td>
+<td>Tested on 26.2.0.3 - earlier versions may work</td>
+</tr>
+<tr>
+<td><strong>ExcelBridge Server</strong></td>
+<td>2.2.8+</td>
+<td>Must be running on <code>http://127.0.0.1:8765</code></td>
+</tr>
+<tr>
+<td><strong>curl.exe</strong></td>
+<td>Optional</td>
+<td>Only needed for debugging, not required</td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="📥-installation-a-nameinstallationa">📥 <strong>INSTALLATION</strong> <a></a></h2>
+<h3 id="step-1-start-excelbridge-server"><strong>Step 1: Start ExcelBridge Server</strong></h3>
+<pre class=" language-cmd"><code class="prism  language-cmd">cd C:\Users\YourUsername\GenePython\ExcelBridge_v2_2_8_portable
+ExcelBridge.exe
+</code></pre>
+<p>✅ <strong>Keep this window open</strong></p>
+<h3 id="step-2-import-the-basic-module"><strong>Step 2: Import the Basic Module</strong></h3>
+<ol>
+<li><strong>Open LibreOffice Calc</strong></li>
+<li><strong>Press Alt+F11</strong> to open Basic IDE</li>
+<li><strong>Right-click on “Standard”</strong> → <strong>New Module</strong></li>
+<li><strong>Name it:</strong> <code>ExcelBridge</code></li>
+<li><strong>Delete all default code</strong></li>
+<li><strong>Copy and paste</strong> the entire <code>excelbridge_gbpy_libreoffice.bas</code> file</li>
+<li><strong>Press Ctrl+S</strong> to save</li>
+<li><strong>Close the IDE</strong></li>
+</ol>
+<h3 id="step-3-verify-installation"><strong>Step 3: Verify Installation</strong></h3>
+<p>In any cell, type:</p>
+<pre class=" language-excel"><code class="prism  language-excel">=PYBRIDGE_PING()
+</code></pre>
+<p><strong>Expected:</strong> <code>OK</code></p>
+<hr>
+<h2 id="🚀-quick-start---black-scholes-examples-a-namequick-starta">🚀 <strong>QUICK START - BLACK-SCHOLES EXAMPLES</strong> <a></a></h2>
+<h3 id="important-libreoffice-passes-ranges-as-2d-arrays-with-1-based-indexing"><strong>IMPORTANT: LibreOffice passes ranges as 2D arrays with 1-BASED indexing</strong></h3>
+<ul>
+<li>First row = index 1</li>
+<li>First column = index 1</li>
+<li><strong>ALWAYS use HORIZONTAL ranges for arguments</strong> (single row, multiple columns)</li>
+</ul>
+<hr>
+<h3 id="example-1-black-scholes-single-option"><strong>EXAMPLE 1: Black-Scholes Single Option</strong></h3>
+<p><strong>Setup your sheet (ROW 1):</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+<th>F</th>
+<th>G</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>100</td>
+<td>0.2</td>
+<td>0.05</td>
+<td>0.02</td>
+<td>1</td>
+<td>call</td>
+</tr>
+</tbody>
+</table><p><strong>Formula:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("bs_plugin.py", "black_scholes", A1:G1)
+</code></pre>
+<p><strong>Result:</strong> <code>9.22700550815404</code></p>
+<hr>
+<h3 id="example-2-black-scholes-greeks-table"><strong>EXAMPLE 2: Black-Scholes Greeks Table</strong></h3>
+<p><strong>Setup your sheet (ROW 3):</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+<th>F</th>
+<th>G</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>100</td>
+<td>0.2</td>
+<td>0.05</td>
+<td>0.02</td>
+<td>1</td>
+<td>call</td>
+</tr>
+</tbody>
+</table><p><strong>Formula:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("bs_plugin.py", "black_scholes_greeks", A3:G3)
+</code></pre>
+<p><strong>Result (spills as 8x2 table using array formula):</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>delta</td>
+<td>0.6368</td>
+</tr>
+<tr>
+<td>gamma</td>
+<td>0.0188</td>
+</tr>
+<tr>
+<td>theta</td>
+<td>-0.0173</td>
+</tr>
+<tr>
+<td>vega</td>
+<td>0.3755</td>
+</tr>
+<tr>
+<td>rho</td>
+<td>0.5323</td>
+</tr>
+<tr>
+<td>d1</td>
+<td>0.3500</td>
+</tr>
+<tr>
+<td>d2</td>
+<td>0.1500</td>
+</tr>
+</tbody>
+</table><hr>
+<h3 id="example-3-black-scholes-matrix-multiple-spot-prices"><strong>EXAMPLE 3: Black-Scholes Matrix (Multiple Spot Prices)</strong></h3>
+<p><strong>Setup your sheet (ROWS 5-10):</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+<th>F</th>
+<th>G</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>100</strong></td>
+<td>100</td>
+<td>0.2</td>
+<td>0.05</td>
+<td>0.02</td>
+<td>1</td>
+<td>call</td>
+</tr>
+<tr>
+<td><strong>105</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>110</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>95</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>90</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>85</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table><p><strong>Formula (enter as ARRAY FORMULA):</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("bs_plugin.py", "black_scholes_matrix", A5:G10)
+</code></pre>
+<p><strong>To enter as array formula:</strong></p>
+<ol>
+<li>Select the output range (e.g., J5:K11)</li>
+<li>Type the formula</li>
+<li>Press <strong>Ctrl+Shift+Enter</strong> (NOT just Enter)</li>
+<li>Curly braces <code>{ }</code> will appear around the formula</li>
+</ol>
+<p><strong>Result:</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>Stock Price</th>
+<th>Option Price</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>9.23</td>
+</tr>
+<tr>
+<td>105</td>
+<td>12.55</td>
+</tr>
+<tr>
+<td>110</td>
+<td>16.73</td>
+</tr>
+<tr>
+<td>95</td>
+<td>6.59</td>
+</tr>
+<tr>
+<td>90</td>
+<td>4.45</td>
+</tr>
+<tr>
+<td>85</td>
+<td>2.83</td>
+</tr>
+</tbody>
+</table><hr>
+<h3 id="example-4-implied-volatility"><strong>EXAMPLE 4: Implied Volatility</strong></h3>
+<p><strong>Setup your sheet (ROW 12):</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+<th>F</th>
+<th>G</th>
+<th>H</th>
+<th>I</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9.23</td>
+<td>100</td>
+<td>100</td>
+<td>0.05</td>
+<td>0.02</td>
+<td>1</td>
+<td>call</td>
+<td>100</td>
+<td>0.000001</td>
+</tr>
+</tbody>
+</table><p><strong>Formula:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("bs_plugin.py", "implied_volatility", A12:I12)
+</code></pre>
+<p><strong>Result (7x2 table):</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>Result</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Implied Volatility</td>
+<td>0.2000</td>
+</tr>
+<tr>
+<td>Iterations</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Market Price</td>
+<td>9.23</td>
+</tr>
+<tr>
+<td>Model Price</td>
+<td>9.23</td>
+</tr>
+<tr>
+<td>Difference</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>Converged</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="📚-function-reference-a-namefunction-referencea">📚 <strong>FUNCTION REFERENCE</strong> <a></a></h2>
+
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+<th>Returns</th>
+<th>Spill?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>=GBPY(plugin, func, range)</code></td>
+<td>Universal Python invoker</td>
+<td>2D Array</td>
+<td>No - use array formula</td>
+</tr>
+<tr>
+<td><code>=PYINVOKE(plugin, func, range)</code></td>
+<td>Alias for GBPY</td>
+<td>2D Array</td>
+<td>No - use array formula</td>
+</tr>
+<tr>
+<td><code>=PYINVOKE_ARRAY(plugin, func, range)</code></td>
+<td>Force array output</td>
+<td>2D Array</td>
+<td>No - use array formula</td>
+</tr>
+<tr>
+<td><code>=PYINVOKE_JSON(plugin, func, range)</code></td>
+<td>Raw JSON string</td>
+<td>String</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>=PYINVOKE_JSON_CHUNKS(plugin, func, range)</code></td>
+<td>Chunked JSON</td>
+<td>Column vector</td>
+<td>No - use array formula</td>
+</tr>
+<tr>
+<td><code>=PYBRIDGE_PING()</code></td>
+<td>Test connection</td>
+<td>“OK” / Error</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>=PYBRIDGE_FUNCTIONS()</code></td>
+<td>List available functions</td>
+<td>7-column table</td>
+<td>Yes - spills automatically</td>
+</tr>
+<tr>
+<td><code>=PYBRIDGE_FUNCTIONS_REFRESH(TRUE)</code></td>
+<td>Force refresh</td>
+<td>7-column table</td>
+<td>Yes - spills automatically</td>
+</tr>
+<tr>
+<td><code>=PYBRIDGE_RELOAD()</code></td>
+<td>Reload plugins</td>
+<td>“OK” / Error</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>=IS_PYTHON_READY()</code></td>
+<td>Server status</td>
+<td>“TRUE”/“FALSE”</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>=GBPY_DEBUG(plugin, func, range)</code></td>
+<td>Show JSON payload</td>
+<td>String</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>=TEST_RANGE(range)</code></td>
+<td>Debug range conversion</td>
+<td>String</td>
+<td>No</td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="📐-working-with-ranges---critical-a-nameworking-with-rangesa">📐 <strong>WORKING WITH RANGES - CRITICAL!</strong> <a></a></h2>
+<h3 id="✅-horizontal-ranges-recommended"><strong>✅ HORIZONTAL RANGES (RECOMMENDED)</strong></h3>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("plugin.py", "func", A1:G1)  ← Single row, multiple columns
+</code></pre>
+<h3 id="❌-vertical-ranges-avoid---matrix-only"><strong>❌ VERTICAL RANGES (AVOID - MATRIX ONLY)</strong></h3>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY("plugin.py", "black_scholes_matrix", A1:A10)  ← Only for matrix functions
+</code></pre>
+<h3 id="⚠️-why-horizontal"><strong>⚠️ WHY HORIZONTAL?</strong></h3>
+<p>LibreOffice passes ranges as 2D arrays with <strong>1-based indexing</strong>. The <code>RANGE_TO_JSON</code> function is optimized for <strong>single-row, multiple-column</strong> layouts. This matches how ExcelBridge expects scalar arguments.</p>
+<h3 id="📊-range-layout-templates"><strong>📊 RANGE LAYOUT TEMPLATES</strong></h3>
+
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Required Columns</th>
+<th>Layout</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>black_scholes</code></td>
+<td>7</td>
+<td><code>[S, K, σ, r, q, T, type]</code></td>
+</tr>
+<tr>
+<td><code>black_scholes_greeks</code></td>
+<td>7</td>
+<td><code>[S, K, σ, r, q, T, type]</code></td>
+</tr>
+<tr>
+<td><code>black_scholes_matrix</code></td>
+<td>7+</td>
+<td>Column A: spot prices, B1-G1: params</td>
+</tr>
+<tr>
+<td><code>implied_volatility</code></td>
+<td>7-9</td>
+<td><code>[market, S, K, r, q, T, type, max_iter, tol]</code></td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="📉-array-formulae---old-skool-excel-style-a-namearray-formulaea">📉 <strong>ARRAY FORMULAE - OLD SKOOL EXCEL STYLE</strong> <a></a></h2>
+<p><strong>LibreOffice Calc DOES NOT auto-spill like modern Excel.</strong> You must use <strong>array formulae</strong> for functions that return multiple values.</p>
+<h3 id="how-to-enter-an-array-formula"><strong>How to enter an array formula:</strong></h3>
+<ol>
+<li><strong>Select the entire output range</strong> before typing the formula</li>
+<li><strong>Type the formula</strong> (e.g., <code>=GBPY("bs_plugin.py", "black_scholes_greeks", A1:G1)</code>)</li>
+<li><strong>Press Ctrl+Shift+Enter</strong> (NOT just Enter)</li>
+<li><strong>Curly braces</strong> <code>{ }</code> will appear around the formula</li>
+</ol>
+<h3 id="example-greeks-table-8-rows-×-2-columns"><strong>Example: Greeks Table (8 rows × 2 columns)</strong></h3>
+<pre><code>1. Select cells J1:K8
+2. Type: =GBPY("bs_plugin.py", "black_scholes_greeks", A1:G1)
+3. Press Ctrl+Shift+Enter
+4. Formula appears as: {=GBPY("bs_plugin.py", "black_scholes_greeks", A1:G1)}
+</code></pre>
+<h3 id="resizing-array-formulae"><strong>Resizing array formulae:</strong></h3>
+<ul>
+<li><strong>Cannot</strong> change individual cells</li>
+<li><strong>Must</strong> delete the entire array and re-enter</li>
+<li>Use <strong>Ctrl+Z</strong> to undo mistakes</li>
+</ul>
+<hr>
+<h2 id="🔍-error-handling--debugging-a-nameerror-handlinga">🔍 <strong>ERROR HANDLING &amp; DEBUGGING</strong> <a></a></h2>
+<h3 id="common-errors--solutions"><strong>Common Errors &amp; Solutions</strong></h3>
+
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#ERROR: Connection failed</code></td>
+<td>Server not running</td>
+<td>Start ExcelBridge.exe</td>
+</tr>
+<tr>
+<td><code>#ERROR: Plugin name is empty</code></td>
+<td>Missing plugin</td>
+<td><code>=GBPY("bs_plugin.py", ...)</code></td>
+</tr>
+<tr>
+<td><code>#ERROR: Function name is empty</code></td>
+<td>Missing function</td>
+<td><code>=GBPY(..., "black_scholes", ...)</code></td>
+</tr>
+<tr>
+<td><code>#VALUE!</code></td>
+<td>Wrong argument count</td>
+<td>Check range columns</td>
+</tr>
+<tr>
+<td><code>#NAME?</code></td>
+<td>Function not recognized</td>
+<td>Module not loaded properly</td>
+</tr>
+<tr>
+<td>Empty array <code>[]</code></td>
+<td>Range is empty</td>
+<td>Put values in cells first</td>
+</tr>
+</tbody>
+</table><h3 id="debugging-tools"><strong>Debugging Tools</strong></h3>
+<p><strong>1. Test HTTP connection:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=TEST_HTTP()
+</code></pre>
+<p><strong>2. Inspect range conversion:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=TEST_RANGE(A1:G1)
+</code></pre>
+<p>Shows: dimensions, bounds, and JSON output</p>
+<p><strong>3. View exact JSON payload:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=GBPY_DEBUG("bs_plugin.py", "black_scholes", A1:G1)
+</code></pre>
+<p><strong>4. Check server functions:</strong></p>
+<pre class=" language-excel"><code class="prism  language-excel">=PYBRIDGE_FUNCTIONS()  ← SPILLS automatically!
+</code></pre>
+<hr>
+<h2 id="⚠️-caveats--limitations-a-namecaveatsa">⚠️ <strong>CAVEATS &amp; LIMITATIONS</strong> <a></a></h2>
+<h3 id="🔴-critical-limitations"><strong>🔴 CRITICAL LIMITATIONS</strong></h3>
+<ol>
+<li><strong>WINDOWS ONLY</strong> - Uses <code>MSXML2.XMLHTTP</code> COM object</li>
+<li><strong>NO PARAMARRAY</strong> - Must use ranges for multiple arguments</li>
+<li><strong>NO OPTIONAL PARAMETERS</strong> - Create separate functions or use fixed ranges</li>
+<li><strong>NO AUTO-SPILL</strong> - Must use array formulae (Ctrl+Shift+Enter)</li>
+<li><strong>1-BASED ARRAYS</strong> - Range data starts at index 1,1</li>
+<li><strong>HORIZONTAL RANGES</strong> - Single row, multiple columns is the default pattern</li>
+<li><strong>NO ERROR OBJECT</strong> - <code>Err.Description</code> crashes in cell functions</li>
+<li><strong>NO ISMISSING()</strong> - Doesn’t work without <code>Optional</code> keyword</li>
+</ol>
+<h3 id="🟡-known-bugs-libreoffice-26.2.0.3"><strong>🟡 KNOWN BUGS (LibreOffice 26.2.0.3)</strong></h3>
+<ul>
+<li>Basic IDE crashes when editing large modules</li>
+<li>Array formulae sometimes lose their <code>{ }</code> braces</li>
+<li><code>ThisComponent</code> occasionally returns <code>Nothing</code></li>
+<li>Undo/Redo breaks array formulae</li>
+<li>No proper JSON parser - uses string parsing</li>
+</ul>
+<h3 id="🟢-what-works"><strong>🟢 WHAT WORKS</strong></h3>
+<ul>
+<li>✅ Single scalar results</li>
+<li>✅ 2D tables up to 1000+ rows</li>
+<li>✅ JSON response parsing</li>
+<li>✅ Function catalog with auto-spill</li>
+<li>✅ HTTP POST/GET via MSXML2</li>
+<li>✅ Range conversion to JSON</li>
+</ul>
+<hr>
+<h2 id="📁-sample-ods-file-structure-a-namesample-odsa">📁 <strong>SAMPLE ODS FILE STRUCTURE</strong> <a></a></h2>
+<p>The ExcelBridge v2.2.8 portable distribution includes <code>excelbridge_demo.ods</code> with these sheets:</p>
+<h3 id="sheet1-black-scholes-calculator"><strong>Sheet1: Black-Scholes Calculator</strong></h3>
+<pre><code>    A            B            C            D            E            F            G            H            I
+1   PARAMETERS
+2   Spot         Strike       Volatility   Rate         Div Yield    Time         Type         RESULT      
+3   100          100          0.20         0.05         0.02         1            call         =GBPY(A3:G3)
+4                                                                                                 
+5   GREEKS TABLE
+6   =GBPY("bs_plugin.py", "black_scholes_greeks", A3:G3)  ← Array formula (Ctrl+Shift+Enter)
+7   
+8   Metric       Value
+9   delta        0.6368
+10  gamma        0.0188
+11  theta        -0.0173
+12  vega         0.3755
+13  rho          0.5323
+14  d1           0.3500
+15  d2           0.1500
+</code></pre>
+<h3 id="sheet2-black-scholes-matrix"><strong>Sheet2: Black-Scholes Matrix</strong></h3>
+<pre><code>    A            B            C            D            E            F            G            H            I
+1   SPOT         Strike       Volatility   Rate         Div Yield    Time         Type        
+2   100          100          0.20         0.05         0.02         1            call        
+3   105                                                                                          
+4   110                                                                                          
+5   95                                                                                           
+6   90                                                                                           
+7   85                                                                                           
+8                                                                                               
+9   RESULTS TABLE - Select I9:K15, type: =GBPY("bs_plugin.py", "black_scholes_matrix", A2:G7)
+10  Press Ctrl+Shift+Enter
+11  
+12  Stock Price  Option Price
+13  100          9.23
+14  105          12.55
+15  110          16.73
+16  95           6.59
+17  90           4.45
+18  85           2.83
+</code></pre>
+<h3 id="sheet3-implied-volatility"><strong>Sheet3: Implied Volatility</strong></h3>
+<pre><code>    A            B            C            D            E            F            G            H            I
+1   Market Price Spot         Strike       Rate         Div Yield    Time         Type         Max Iter     Tolerance
+2   9.23         100          100          0.05         0.02         1            call         100          0.000001
+3   
+4   =GBPY("bs_plugin.py", "implied_volatility", A2:I2)  ← Array formula (Ctrl+Shift+Enter)
+5   
+6   Result                 Value
+7   Implied Volatility     0.2000
+8   Iterations             5
+9   Market Price           9.23
+10  Model Price            9.23
+11  Difference             0.0000
+12  Converged              Yes
+</code></pre>
+<h3 id="sheet4-function-catalog"><strong>Sheet4: Function Catalog</strong></h3>
+<pre><code>A1: =PYBRIDGE_FUNCTIONS()  ← SPILLS automatically! No array formula needed.
+</code></pre>
+<hr>
+<h2 id="📚-basic-to-cell-interface---quick-reference">📚 <strong>BASIC TO CELL INTERFACE - QUICK REFERENCE</strong></h2>
+<h3 id="how-libreoffice-basic-interacts-with-cells"><strong>How LibreOffice Basic interacts with cells:</strong></h3>
+<ol>
+<li>
+<p><strong>Input Parameters</strong> - Ranges are passed as <strong>2D Variant arrays</strong> with 1-based indexing</p>
+<pre class=" language-basic"><code class="prism  language-basic"><span class="token keyword">Function</span> GBPY<span class="token punctuation">(</span>plugin<span class="token punctuation">,</span> func<span class="token punctuation">,</span> argsRange <span class="token keyword">As</span> Variant<span class="token punctuation">)</span>
+    <span class="token keyword">Dim</span> <span class="token keyword">data</span> <span class="token keyword">As</span> Variant
+    <span class="token keyword">data</span> <span class="token operator">=</span> argsRange  ' <span class="token keyword">data</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token function">is</span> first cell
+</code></pre>
+</li>
+<li>
+<p><strong>Return Values</strong> - Return a <strong>2D array</strong> for multi-cell results</p>
+<pre class=" language-basic"><code class="prism  language-basic"><span class="token keyword">Dim</span> result<span class="token punctuation">(</span><span class="token number">1</span> <span class="token keyword">To</span> rows<span class="token punctuation">,</span> <span class="token number">1</span> <span class="token keyword">To</span> cols<span class="token punctuation">)</span> <span class="token keyword">As</span> Variant
+result<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token string">"Header1"</span>
+result<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token string">"Header2"</span>
+GBPY <span class="token operator">=</span> result
+</code></pre>
+</li>
+<li>
+<p><strong>Array Formulae</strong> - User must press Ctrl+Shift+Enter</p>
+<ul>
+<li>Your function returns a 2D array</li>
+<li>User selects output range</li>
+<li>User presses Ctrl+Shift+Enter</li>
+<li>LibreOffice fills the range</li>
+</ul>
+</li>
+<li>
+<p><strong>Automatic Spill</strong> - Only works for <code>PYBRIDGE_FUNCTIONS()</code></p>
+<ul>
+<li>Returns a 2D array with known dimensions</li>
+<li>LibreOffice automatically expands</li>
+<li><strong>Does NOT work</strong> for dynamic-sized results</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="🎯-summary">🎯 <strong>SUMMARY</strong></h2>
+
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Method</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single value</td>
+<td>Direct formula</td>
+<td><code>=GBPY("bs_plugin.py", "black_scholes", A1:G1)</code></td>
+</tr>
+<tr>
+<td>Table (fixed size)</td>
+<td>Array formula</td>
+<td>Select range, Ctrl+Shift+Enter</td>
+</tr>
+<tr>
+<td>Table (variable size)</td>
+<td>Array formula with large range</td>
+<td>Select J1:Z100, Ctrl+Shift+Enter</td>
+</tr>
+<tr>
+<td>Function catalog</td>
+<td>Automatic spill</td>
+<td><code>=PYBRIDGE_FUNCTIONS()</code></td>
+</tr>
+<tr>
+<td>Debug</td>
+<td>Test functions</td>
+<td><code>=TEST_RANGE(A1:G1)</code></td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="📄-distribution">📄 <strong>DISTRIBUTION</strong></h2>
+<p>This code is included in the ExcelBridge v2.2.8 portable distribution as:</p>
+<pre><code>excelbridge_gbpy_libreoffice.bas
+</code></pre>
+<p>To import into other ODS files:</p>
+<ol>
+<li>Open the Basic IDE (Alt+F11)</li>
+<li>Right-click “Standard” → “Import Basic”</li>
+<li>Select the <code>.bas</code> file</li>
+<li>Save the ODS file</li>
+</ol>
+<hr>
+<p><strong>End of LibreOffice Calc Integration Guide</strong></p>
+<p><em>ExcelBridge v2.2.8 - Proof of Concept - No Support Provided</em></p>
+</div>
+</body>
+
+</html>
