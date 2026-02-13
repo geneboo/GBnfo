@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gene Boo – Quant Risk & Analytics · print-optimized (no bad breaks)</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts: Inter + JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ----- RESET & GLOBAL (keep futuristic look, but print is critical) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0b1219;
+            --surface: #14222e;
+            --primary-glow: #00d4ff;
+            --accent-neon: #f46b5b;
+            --text-light: #e3eaf0;
+            --text-muted: #a0b8cc;
+            --border-dim: #2a3a4a;
+            --card-bg: #1a2937;
+        }
+
+        /* CRITICAL: A4 print margins – enough space, no content cut */
+        @page {
+            size: A4;
+            margin: 1.8cm 1.5cm;   /* symmetrical and generous */
+        }
+
+        body {
+            background-color: #0f1a24;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            font-size: 13.5px;
+            line-height: 1.45;
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 24px 16px;
+        }
+
+        .cv-container {
+            max-width: 1100px;
+            width: 100%;
+            background: var(--bg-dark);
+            border-radius: 28px;
+            padding: 30px 32px 28px 32px;
+            box-shadow: 0 20px 35px -8px rgba(0,212,255,0.2);
+            border: 1px solid #2d4b5e;
+        }
+
+        /* ----- typography (same refined style) ----- */
+        .name {
+            font-size: 34px;
+            font-weight: 700;
+            background: linear-gradient(130deg, #ffffff, #a7e9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--primary-glow);
+            margin: 6px 0 14px 0;
+            border-bottom: 1px dashed var(--border-dim);
+            padding-bottom: 8px;
+            display: inline-block;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px 24px;
+            margin: 12px 0 8px;
+            font-size: 13px;
+            background: rgba(20,46,64,0.5);
+            padding: 10px 20px;
+            border-radius: 60px;
+            border: 1px solid #2c4b5e;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+        }
+        .contact-item i {
+            color: var(--primary-glow);
+            width: 16px;
+        }
+        .contact-item a {
+            color: #b4d9f0;
+            text-decoration: none;
+            border-bottom: 1px dotted #3a637a;
+        }
+
+        .section-title {
+            font-size: 19px;
+            font-weight: 600;
+            color: white;
+            margin: 20px 0 12px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid;
+            border-image: linear-gradient(90deg, var(--primary-glow), #2e5f7a, transparent) 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i {
+            color: var(--primary-glow);
+        }
+
+        .subsection {
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 16px 18px 12px 18px;
+            border-radius: 18px;
+            border: 1px solid #263e4f;
+            box-shadow: 0 6px 12px -5px rgba(0,0,0,0.7);
+            page-break-inside: avoid;  /* KEEP subsections together */
+        }
+
+        .subsection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            margin-bottom: 10px;
+        }
+        .position {
+            font-weight: 650;
+            font-size: 16px;
+            color: #b3e5ff;
+        }
+        .company {
+            font-weight: 600;
+            color: #93c5e0;
+            margin-left: 5px;
+            font-size: 14.5px;
+        }
+        .date {
+            color: #7f9fb5;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            background: #1b3343;
+            padding: 3px 12px;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+
+        ul {
+            list-style: none;
+            margin: 8px 0 2px;
+        }
+        li {
+            margin-bottom: 6px;
+            padding-left: 20px;
+            position: relative;
+            color: #d1e2ed;
+        }
+        li::before {
+            content: "▹";
+            color: var(--primary-glow);
+            position: absolute;
+            left: 2px;
+        }
+
+        .tool-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            margin: 12px 0 4px;
+        }
+        .tool-tags span {
+            background: #0f2633;
+            border: 1px solid #1e5068;
+            color: #bce5fd;
+            padding: 3px 12px 3px 8px;
+            border-radius: 24px;
+            font-size: 11.5px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .tool-tags i {
+            color: var(--primary-glow);
+        }
+
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 16px 20px;
+            margin-top: 5px;
+        }
+        .skill-category h4 {
+            color: var(--primary-glow);
+            font-size: 15px;
+            margin: 0 0 6px 0;
+        }
+
+        .two-column-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 10px 0 8px;
+        }
+
+        .hobby-projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .project-card {
+            background: #10232f;
+            border: 1px solid #294d5e;
+            border-radius: 18px;
+            padding: 14px 14px 12px;
+            page-break-inside: avoid;
+        }
+        .project-card h4 {
+            color: #c0e6ff;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .website-link {
+            font-size: 11.5px;
+            word-break: break-all;
+            color: #7eb6d0;
+        }
+
+        .written-work {
+            background: #10232f;
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            border: 1px solid #254c5c;
+            page-break-inside: avoid;
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            background: var(--card-bg);
+            padding: 16px 18px;
+            border-radius: 20px;
+            border: 1px solid #2e4a5a;
+        }
+
+        .cloud-ai-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 16px 18px;
+            border: 1px solid #2e4a5a;
+            margin-bottom: 12px;
+            page-break-inside: avoid;
+        }
+
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            margin: 25px 0 10px;
+        }
+        .btn {
+            background: transparent;
+            border: 2px solid var(--primary-glow);
+            color: var(--primary-glow);
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            background: var(--primary-glow);
+            color: #0b1219;
+        }
+
+        /* ========== PRINT OPTIMIZATION – KILL BAD PAGE BREAKS ========== */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                display: block;
+                font-size: 11.8px;  /* slightly compressed but readable */
+            }
+            .cv-container {
+                max-width: 100%;
+                background: white;
+                box-shadow: none;
+                border: none;
+                padding: 0.2cm 0.3cm;   /* minimal extra, margins already from @page */
+                margin: 0 auto;
+                border-radius: 0;
+            }
+            /* reset colors for print */
+            .name {
+                background: none;
+                -webkit-text-fill-color: #0a2a3a;
+                color: #0a2a3a;
+                text-shadow: none;
+            }
+            .title { color: #1a5276; border-bottom: 1px solid #aaa; }
+            .section-title { color: #1a2b3c; border-bottom: 2px solid #2c3e50; }
+            .contact-info { background: #f0f4fa; border: 1px solid #ccc; color: #333; }
+            .subsection { background: #f7fafd; border: 1px solid #b0c4d9; box-shadow: none; }
+            .tool-tags span { background: #e5ecf3; border: 1px solid #96aebb; color: #1f3a4c; }
+            .project-card, .written-work, .language-grid, .cloud-ai-card { background: #f2f6fc; border: 1px solid #bacddc; }
+            .btn { display: none; }
+            a { color: #11557c; }
+            li::before { color: #1177aa; }
+
+            /* ---------- CRITICAL: manual page breaks to avoid the break between pages 3 and 4 ---------- */
+            /* 
+               We need to ensure that the "Hobby Projects & Written Works" two-column section 
+               does not break in the middle. Also the following "Linguistics & Cloud/AI" must stay 
+               connected. We'll use explicit page-break-inside: avoid on containers, and if necessary,
+               force a page break before the last group to keep it whole.
+            */
+
+            /* Force any large two-column section to stay on one page if possible */
+            .two-column-section {
+                page-break-inside: avoid;  /* try to keep both columns together */
+            }
+
+            /* But if the two-column is too tall, it may still break. So we apply soft breaks */
+            .hobby-projects, .written-works {
+                page-break-inside: avoid;
+            }
+
+            /* Specific: the "Hobby Projects" card group might be tall – we let it break only between cards */
+            .project-card {
+                page-break-inside: avoid;
+            }
+
+            /* The real problem spot: after page 3 (typically end of Experience, start of projects).
+               To guarantee no orphan, we tell the browser to avoid breaking inside the .two-column-section
+               that contains hobby+written, AND if needed, start a new page before that section 
+               so that it's together. But we don't want a blank page. We'll use:
+               - avoid inside the whole wrapper
+               - allow page break between major sections only if beneficial.
+            */
+            .section, .two-column-section {
+                page-break-inside: avoid;
+            }
+
+            /* However, the 'Professional Experience' is long and spans multiple pages naturally.
+               We don't want to force it all on one page. So we reset for .subsection inside experience */
+            .section .subsection {
+                page-break-inside: avoid;
+            }
+            /* But the experience section as a whole can break between subsections – that's fine */
+            .section:has(.subsection) {
+                page-break-inside: auto;
+            }
+
+            /* CRITICAL: the two-column section that contains hobby+written (and the following two-col)
+               we want them to be on the same page if possible. But if they must split, we'd rather
+               split at a clean point – but we saw bad break. So we force a page break before the
+               hobby section if it would otherwise break badly. Let's detect: 
+               Actually we'll manually insert a "break-before" on the first two-column section after experience?
+               But we don't know exact pagination. Better: use "page-break-before: avoid" globally,
+               and increase margins a tad.
+            */
+
+            /* last resort: ensure that the hobby+written block starts on a new page only if it would be broken.
+               But the real issue is that the hobby block itself breaks across pages. 
+               We'll apply a soft break inside only if unavoidable, but let's force the hobby projects grid
+               to have 'page-break-inside: avoid' on the container, but it's grid – browsers may still break.
+               So we set 'page-break-before: auto' and keep everything avoid.
+            */
+            
+            /* strengthen: make each project card and written-work avoid break */
+            .project-card, .written-work {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            /* For the two-column layout, we set break-inside: avoid on the parent, 
+               but also on each column's content */
+            .two-column-section {
+                break-inside: avoid;  /* modern property */
+                page-break-inside: avoid;
+            }
+
+            /* If a two-column section is too long, it may still break; in that case,
+               we prefer a break before the whole section rather than inside. 
+               So apply page-break-before: auto but page-break-after: avoid. */
+            .two-column-section {
+                page-break-after: avoid;
+            }
+
+            /* manually ensure the last .two-column-section (linguistics & cloud) stays with previous? */
+            .two-column-section:last-of-type {
+                page-break-before: avoid;
+                break-inside: avoid;
+            }
+
+            /* Additional: set a very small widow/orphan */
+            p, li {
+                widows: 2;
+                orphans: 2;
+            }
+
+            /* reduce gaps slightly to fit more */
+            .subsection { padding: 12px 14px; margin-bottom: 12px; }
+            .project-card { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="cv-container">
+    <!-- HEADER -->
+    <div class="header" style="text-align: center;">
+        <h1 class="name">Gene Boo Ee Jin</h1>
+        <div class="title">Quantitative Risk & Analytics Specialist</div>
+        <div class="contact-info">
+            <div class="contact-item"><i class="fas fa-envelope"></i> gene.boo@aol.com | gene.boo@gmail.com</div>
+            <div class="contact-item"><i class="fas fa-phone-alt"></i> +60-17-2935647 (KL) | +852-65078429 (HK)</div>
+            <div class="contact-item"><i class="fas fa-map-pin"></i> Kuala Lumpur</div>
+            <div class="contact-item"><i class="fab fa-linkedin"></i> <a href="https://www.linkedin.com/in/gene-boo-007/">linkedin.com/in/gene-boo-007</a></div>
+            <div class="contact-item"><i class="fas fa-globe"></i> <a href="https://geneboo.github.io/GBnfo/">geneboo.github.io/GBnfo</a></div>
+        </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-bolt"></i> Professional Summary</h2>
+        <p style="background: #142e3d; padding: 14px 18px; border-radius: 28px; border:1px solid #2a586d;">Quantitative risk specialist with 20+ years of experience in financial derivatives, risk modeling (VaR, ES, Euler Allocation, Copulae), and data analytics. Proven expertise in developing and validating risk models across multiple asset classes, leading technical teams, and delivering client-focused solutions. Adept at Python (numpy, scipy, pandas, polars, mpmath), Rust, VBA/C++, SQL, and cloud platforms (Google Cloud Run). Well-versed in REST API design, Salesforce, Grafana, Postman. Familiar with modern AI/ML (XGBoost, LLMs), having studied foundational concepts 25 years ago. Passionate about optimization, numerical methods (FFT, Quadrature, MGFs), and building innovative tools like ExcelBridge—a fully self-designed plugin system that brings Python-like analytics to Excel, Google Sheets, and LibreOffice without any local pre-installation of Python and its large libraries.</p>
+    </div>
+
+    <!-- CORE COMPETENCIES -->
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-cube"></i> Core Competencies</h2>
+        <div class="skills-container">
+            <div class="skill-category"><h4>Quantitative Analysis</h4><ul><li>Derivatives Pricing (FFT, Quadrature, MGFs, Local Vol, SABR, FD, Variance-Reduced MC, Analytical)</li><li>MC Simulation & Copula Modeling</li><li>Risk Metrics: VaR, ES, Euler Allocation</li><li>Gradient Boosting / PCA / Hybrid Models</li></ul></div>
+            <div class="skill-category"><h4>Technical Expertise</h4><ul><li>Python (Pandas, NumPy, SciPy, Polars, mpmath), Rust (basic)</li><li>VBA/Excel, C++ Quant Libraries, SQL</li><li>Salesforce, Grafana, Postman, REST APIs</li><li>HTML, CSS, JavaScript, Google Cloud Run</li></ul></div>
+            <div class="skill-category"><h4>Risk Management</h4><ul><li>Market, Operational & Liquidity Risk (IRRBB)</li><li>Model Validation (Traded/Non-traded)</li><li>Regulatory Compliance (MAS, BNM, Basel)</li><li>Euler Allocation for OpRisk Capital</li></ul></div>
+            <div class="skill-category"><h4>Leadership & Strategy</h4><ul><li>Team Leadership (Regional 5+ members)</li><li>Pre/Post-Sales Engagement (Qontigo/Simcorp)</li><li>Regulatory & Technical Documentation</li><li>Workflow Automation & Optimization</li></ul></div>
+        </div>
+    </div>
+
+    <!-- PROFESSIONAL EXPERIENCE -->
+    <div class="section">
+        <h2 class="section-title"><i class="fas fa-briefcase"></i> Professional Experience</h2>
+        <!-- (all subsections exactly as before, but I'll keep them concise for space, full content) -->
+        <div class="subsection"><div class="subsection-header"><div><span class="position">IBMR Projects Consultant</span> <span class="company">Ambank Group</span></div><div class="date">Mar 2025 – Present</div></div><ul><li>Optimized Dupire PDE Local Vol surface building & Autocallable valuation in Python (NumPy, SciPy, Numba) for VaR engine.</li><li>Provided SA-CCR implementation guidance for structures that did not fit within the vanilla framework.</li><li>Automated OOC early withdrawal detection using Python (Pandas, Polars) & SQL on a 100GB historical database.</li><li>Created semi-automated spreadsheet and pdf tools for reporting team.</li><li>Developed accelerated Monte Carlo frameworks (mpmath for high-precision) for derivative pricing; advised IRRBB team on prepayment modeling.</li></ul><div class="tool-tags"><span><i class="fas fa-code"></i> Python (NumPy, SciPy, Pandas, Polars, mpmath, duckdb, joblib)</span> <span><i class="fas fa-database"></i> SQL</span> <span><i class="fas fa-file-excel"></i> VBA</span></div></div>
+        <div class="subsection"><div class="subsection-header"><div><span class="position">Product Specialist</span> <span class="company">Qontigo / AxiomaRisk (Simcorp)</span></div><div class="date">Dec 2021 – Jun 2023</div></div><ul><li>Conducted pre/post-sales for AxiomaRisk & Performance Attribution across multi-asset classes (EQ, FX, FI, Crypto).</li><li>Developed Python automation using AxiomaRisk API, reducing report generation time by 70%; created Python and Excel validation tools for clients via XLWings and AxiomaRisk REST API; used Postman for API testing, Grafana for monitoring.</li></ul><div class="tool-tags"><span><i class="fas fa-code"></i> Python (Pandas, XLWings)</span> <span><i class="fas fa-cloud"></i> REST API</span> <span><i class="fas fa-plug"></i> Postman</span> <span><i class="fas fa-file-excel"></i> Excel / VBA</span> <span><i class="fas fa-chart-pie"></i> Salesforce</span> <span><i class="fas fa-plug"></i> Grafana</span></div></div>
+        <div class="subsection"><div class="subsection-header"><div><span class="position">Senior Quantitative Analyst</span> <span class="company">Maybank Group</span></div><div class="date">Sep 2019 – Aug 2021</div></div><ul><li>Designed Monte Carlo + bootstrap models for OpRisk capital; implemented Gaussian & t-copulae on adjusted bootstrapped points for tail-risk aggregation with Euler allocation across 8 main business units. Studied the impacts of cyber risk, climate risk and legislative risk.</li><li>Built FFT-based convolution tools (NumPy, SciPy) for joint distribution modeling; developed Quadratic COVID-19 R₀ prediction model (92% accuracy).</li></ul><div class="tool-tags"><span><i class="fas fa-code"></i> Python (NumPy, SciPy, Pandas)</span> <span><i class="fas fa-calculator"></i> C++ libraries</span></div></div>
+        <div class="subsection"><div class="subsection-header"><div><span class="position">Head of Market Risk Model Validation</span> <span class="company">Maybank Group</span></div><div class="date">Mar 2014 – Mar 2019</div></div><ul><li>Led regional team validating traded/non-traded portfolios; worked with BNM, MAS, HKMA.</li><li>Developed independent pricing engines and validators for FXO, IRO, Commodity, Equity Derivatives (C++/Python); validated IRRBB framework and deposit pre-mature withdrawal modeling approaches.</li></ul><div class="tool-tags"><span><i class="fas fa-code"></i> C++ (xlw)</span> <span><i class="fas fa-code"></i> Python (SciPy, NumPy, xlwings, pyxll)</span> <span><i class="fas fa-file-excel"></i> VBA</span> <span><i class="fas fa-database"></i> SQL</span></div></div>
+        <div class="subsection"><div class="subsection-header"><div><span class="position">Senior Quantitative Analyst</span> <span class="company">Ambank Group</span></div><div class="date">Apr 2009 – Mar 2014</div></div><ul><li>Developed benchmark pricing models for derivatives across FX, EQ, IR; created volatility surface generators (C++/Python/VBA).</li></ul><div class="tool-tags"><span><i class="fas fa-code"></i> C++</span> <span><i class="fas fa-code"></i> Python (early numpy)</span> <span><i class="fas fa-file-excel"></i> VBA</span></div></div>
+        <div class="subsection"><div class="subsection-header"><div><span class="position">Risk Specialist</span> <span class="company">Pilot Multimedia</span></div><div class="date">Jun 2007 – Jan 2008</div></div><ul><li>XML-based staging tools, VB plug-ins for C# credit risk project; logistic regression for PD.</li></ul><div class="tool-tags"><span><i class="fas fa-code"></i> VB6 / VBA</span> <span><i class="fas fa-code"></i> C#</span> <span><i class="fas fa-file-code"></i> XML</span></div></div>
+        <div class="subsection"><div class="subsection-header"><div><span class="position">Market Risk Analyst</span> <span class="company">Fortis Bank (BNP Paribas)</span></div><div class="date">Aug 2006 – Jan 2007</div></div><ul><li>Asian Basket option pricing and Greeks: Deelstra, Curran 2M+, Ju, Gram-Charlier, FFT, MC (C++/Python).</li></ul><div class="tool-tags"><span><i class="fas fa-code"></i> C++</span> <span><i class="fas fa-code"></i> Python (NumPy, FFT)</span></div></div>
+        <div class="subsection"><div class="subsection-header"><div><span class="position">Contracts Analyst</span> <span class="company">Electrabel SA (ENGIE)</span></div><div class="date">Aug 2000 – May 2006</div></div><ul><li>Spark/crack spread pricers in VBA/C++ for Murex; Winter method profiling in SAS.</li></ul><div class="tool-tags"><span><i class="fas fa-code"></i> VBA</span> <span><i class="fas fa-code"></i> C++</span> <span><i class="fas fa-chart-simple"></i> SAS</span> <span><i class="fas fa-cube"></i> Murex</span></div></div>
+    </div>
+
+    <!-- EDUCATION & CERTS (two column) -->
+    <div class="two-column-section">
+        <div><h2 class="section-title"><i class="fas fa-graduation-cap"></i> Education</h2><div style="background:var(--card-bg); padding:14px 18px; border-radius:22px;"><span class="position">MBA, Global Management</span> <span class="company">Hochschule Bremen</span> <div class="date" style="display:inline-block; margin-top:4px;">1999 | Grade: 1.0</div><br><span class="position">BA, Business Administration</span> <span class="company">Hertfordshire, UK</span> <div class="date">1998 | 2nd Upper Honours</div></div></div>
+        <div><h2 class="section-title"><i class="fas fa-certificate"></i> Certifications</h2><div style="background:var(--card-bg); padding:14px 18px; border-radius:22px;"><ul style="margin:0;"><li><i class="fas fa-check-circle" style="color:var(--primary-glow);"></i> AICB – Risk Management: Principles & Framework</li><li><i class="fas fa-check-circle" style="color:var(--primary-glow);"></i> AICB – Risk Models, Capital & ALM</li><li><i class="fas fa-check-circle" style="color:var(--primary-glow);"></i> Microsoft Visual Basic 6</li></ul></div></div>
+    </div>
+
+    <!-- HOBBY PROJECTS & WRITTEN WORKS (the critical two‑column) -->
+    <div class="two-column-section">
+        <div><h2 class="section-title"><i class="fas fa-flask"></i> Hobby Projects</h2>
+            <div class="hobby-projects">
+                <div class="project-card"><h4><i class="fas fa-bolt"></i> ExcelBridge</h4><p>Zero‑install Excel add-in (server-side Python).</p><a href="https://github.com/geneboo/LargeFile/releases/tag/v2.2.8" class="website-link"><i class="fas fa-external-link-alt"></i> github.com/geneboo/LargeFile</a></div>
+                <div class="project-card"><h4><i class="fas fa-chart-bar"></i> Fit_it!</h4><p>Upload data, best‑fit distributions + KDE.</p><a href="https://fit-it-app-29330439259.asia-southeast1.run.app/#top" class="website-link">fit-it-app.run.app</a></div>
+                <div class="project-card"><h4><i class="fas fa-chart-line"></i> FunkyGraffy</h4><p>Math viz on Render.</p><a href="https://funkygraffy.onrender.com" class="website-link">funkygraffy.onrender.com</a></div>
+                <div class="project-card"><h4><i class="fas fa-cloud"></i> SaaS Universe</h4><p>Derivative pricing, Kalman, convolver, etc. <span style="color:#6c9bb8;">(Coming soon)</span></p></div>
+                <div class="project-card"><h4><i class="fas fa-database"></i> PersVa</h4><p>Encrypted storage concept (private).</p></div>
+                <div class="project-card"><h4><i class="fas fa-lock"></i> FileObfuscator</h4><p>AES+XOR+scrambling (private).</p></div>
+                <div class="project-card"><h4><i class="fas fa-lock"></i> VPN</h4><p>Multi‑layer encryption (private).</p></div>
+            </div>
+        </div>
+        <div><h2 class="section-title"><i class="fas fa-pen-fancy"></i> Written Works</h2>
+            <div class="written-works">
+                <div class="written-work"><strong>Risk‑Neutral Pricing via MGFs under Non‑Normality</strong><p>MGF drift corrections.</p><div class="link-row"><a href="https://geneboo.github.io/GBnfo/assets/GB_Risk-Neutral_Pricing_via_MGF_v3.html"><i class="fas fa-file-alt"></i> HTML</a><a href="https://geneboo.github.io/GBnfo/assets/GB_Risk-Neutral_Pricing_via_MGF_v3.pdf"><i class="fas fa-file-pdf"></i> PDF</a></div></div>
+                <div class="written-work"><strong>Mind the Gap (Under the Curve)</strong><p>Quadrature compendium.</p><div class="link-row"><a href="https://geneboo.github.io/GBnfo/assets/GB_Mind_the_Gap_Under_the_Curve_with_sidebar.html">HTML</a><a href="https://geneboo.github.io/GBnfo/assets/GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf">PDF</a></div></div>
+                <div class="written-work"><strong>Understanding Fourier Transform</strong><p>Convolution for Black-Scholes (not Carr-Madan).</p><a href="https://geneboo.github.io/GBnfo/assets/Gene%20Boo%20-%20FFT%20Convolution%20PDF%20BlackScholes%20Python3%20v5_.pdf"><i class="fas fa-file-pdf"></i> PDF</a></div>
+                <div class="written-work"><strong>FFT Cross Correlation vs. Pearson</strong><p>Addendum with Python.</p><div class="link-row"><a href="https://geneboo.github.io/GBnfo/assets/GB_FFT_Pearson_NP_Correl.html">HTML</a><a href="https://geneboo.github.io/GBnfo/assets/GB_FFT_Pearson_NP_Correl.pdf">PDF</a></div></div>
+                <div class="written-work"><strong>Art of Buy‑Side Arbitrage</strong><p>Quant perspective.</p><div class="link-row"><a href="https://geneboo.github.io/GBnfo/assets/GB_Buy-side_Arbitrage.html">HTML</a><a href="https://geneboo.github.io/GBnfo/assets/GB_Buy-side_Arbitrage.pdf">PDF</a></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LINGUISTICS & CLOUD/AI -->
+    <div class="two-column-section">
+        <div><h2 class="section-title"><i class="fas fa-language"></i> Linguistics</h2><div class="language-grid"><div class="language-item"><i class="fas fa-globe"></i> English – Native</div><div class="language-item"><i class="fas fa-globe"></i> Mandarin – Fluent</div><div class="language-item"><i class="fas fa-globe"></i> German – Intermediate</div><div class="language-item"><i class="fas fa-globe"></i> French – Basic</div><div class="language-item"><i class="fas fa-globe"></i> Flemish – Basic</div><div class="language-item"><i class="fas fa-globe"></i> Cantonese – Basic</div><div class="language-item"><i class="fas fa-globe"></i> Malay – Basic</div></div></div>
+        <div><h2 class="section-title"><i class="fas fa-microchip"></i> Cloud & AI</h2><div class="cloud-ai-card"><h4><i class="fas fa-cloud-upload-alt"></i> Cloud Deployment</h4> Google Cloud Run, serverless, REST API, Postman, Grafana.</div><div class="cloud-ai-card"><h4><i class="fas fa-robot"></i> AI/ML Familiarity</h4> LLMs (ChatGPT, Ollama, Grok, Gemini, Deepseek), prompt formulation. Python/Rust/C++ libs: numpy, scipy, pandas, polars, mpmath, cuda-py, pyo3, fastapi, scikit-learn, xgboost, copulae, ARIMA/GARCH, fftw, QuantLib.</div></div>
+    </div>
+
+    <!-- PRINT BUTTON -->
+    <div class="download-buttons">
+        <a href="#" class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print / PDF (A4)</a>
+    </div>
+</div>
+</body>
+</html>
