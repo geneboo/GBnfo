@@ -97,7 +97,7 @@
         .vogue-bg::before {
             content: '';
             position: absolute;
-            inset: 0;
+            inset: 0;c
             background: var(--bg-overlay-gradient);
         }
         
@@ -1591,8 +1591,9 @@
                 
                 <div class="resume-controls">
                     <div class="resume-tab active" data-resume="cover">Cover Letter</div>
-                    <div class="resume-tab" data-resume="cv2024">CV 2024</div>
+                    <div class="resume-tab" data-resume="cv2026">CV 2026</div>
                     <div class="resume-tab" data-resume="cv2025">CV 2025</div>
+                    <div class="resume-tab" data-resume="cv2024">CV 2024</div>
                 </div>
                 
                 <div class="pdf-viewer">
@@ -2090,16 +2091,18 @@
                     titleElement.textContent = 'Cover Letter';
                     downloadLink.href = 'assets/Cover Letter - Gene Boo.pdf';
                     downloadLink.setAttribute('download', 'Cover Letter - Gene Boo.pdf');
-                } else if (resumeType === 'cv2024') {
+                } else if (resumeType === 'cv2026') {
                     titleElement.textContent = 'CV 2024';
-                    downloadLink.href = 'assets/CV of Gene Boo (2024 v3-s).pdf';
-                    downloadLink.setAttribute('download', 'CV of Gene Boo (2024 v3-s).pdf');
+                    downloadLink.href = 'assets/CV of Gene Boo (2026 v2-s).pdf';
+                    downloadLink.setAttribute('download', 'CV of Gene Boo (2026 v2-s).pdf');
                 } else if (resumeType === 'cv2025') {
                     titleElement.textContent = 'CV 2025';
                     downloadLink.href = 'assets/CV of Gene Boo (2025 v1-s).pdf';
                     downloadLink.setAttribute('download', 'CV of Gene Boo (2025 v1-s).pdf');
-                }
-                
+                } else if (resumeType === 'cv2024') {
+                    titleElement.textContent = 'CV 2024';
+                    downloadLink.href = 'assets/CV of Gene Boo (2024 v3-s).pdf';
+                    downloadLink.setAttribute('download', 'CV of Gene Boo (2024 v3-s).pdf');                
                 // Update placeholder content
                 updatePdfPlaceholder(resumeType);
             });
@@ -2133,6 +2136,48 @@
                         </div>
                     </a>
                 `;
+            } else if (resumeType === 'cv2026') {
+                icon.className = 'fas fa-file-pdf pdf-icon pulse';
+                title.textContent = 'CV 2026';
+                description.textContent = 'The latest edition of my professional CV, reflecting recent achievements and growth';
+                
+                links.innerHTML = `
+                    <a href="assets/CV of Gene Boo (2026 v2-s).pdf" target="_blank" class="pdf-link">
+                        <i class="fas fa-external-link-alt pdf-link-icon"></i>
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.1rem;">View in Browser</div>
+                            <div style="font-size: 0.9rem;">PDF viewer in new tab</div>
+                        </div>
+                    </a>
+                    <a href="assets/CV of Gene Boo (2026 v2-s).pdf" download="CV of Gene Boo (2026 v2-s).pdf" class="pdf-link">
+                        <i class="fas fa-download pdf-link-icon"></i>
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.1rem;">Download PDF</div>
+                            <div style="font-size: 0.9rem;">Save to your device</div>
+                        </div>
+                    </a>
+                `;
+            } else if (resumeType === 'cv2025') {
+                icon.className = 'fab fa-html5 pdf-icon pulse';
+                title.textContent = 'CV 2025';
+                description.textContent = 'A comprehensive overview of my experience, skills, and achievements updated for 2025';
+                
+                links.innerHTML = `
+                    <a href="CV_GB_2025_v1-s.html" target="_blank" class="pdf-link">
+                        <i class="fas fa-external-link-alt pdf-link-icon"></i>
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.1rem;">View HTML Version</div>
+                            <div style="font-size: 0.9rem;">View in browser</div>
+                        </div>
+                    </a>
+                    <a href="assets/CV of Gene Boo (2025 v1-s).pdf" download="CV of Gene Boo (2025 v1-s).pdf" class="pdf-link">
+                        <i class="fas fa-download pdf-link-icon"></i>
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.1rem;">Download PDF</div>
+                            <div style="font-size: 0.9rem;">Save to your device</div>
+                        </div>
+                    </a>
+                `;
             } else if (resumeType === 'cv2024') {
                 icon.className = 'fas fa-file-pdf pdf-icon pulse';
                 title.textContent = 'CV 2024';
@@ -2154,28 +2199,6 @@
                         </div>
                     </a>
                 `;
-            } else if (resumeType === 'cv2025') {
-                icon.className = 'fab fa-html5 pdf-icon pulse';
-                title.textContent = 'CV 2025';
-                description.textContent = 'The latest edition of my professional CV, reflecting recent achievements and growth';
-                
-                links.innerHTML = `
-                    <a href="CV_GB_2025_v1-s.html" target="_blank" class="pdf-link">
-                        <i class="fas fa-external-link-alt pdf-link-icon"></i>
-                        <div>
-                            <div style="font-weight: 700; font-size: 1.1rem;">View HTML Version</div>
-                            <div style="font-size: 0.9rem;">View in browser</div>
-                        </div>
-                    </a>
-                    <a href="assets/CV of Gene Boo (2025 v1-s).pdf" download="CV of Gene Boo (2025 v1-s).pdf" class="pdf-link">
-                        <i class="fas fa-download pdf-link-icon"></i>
-                        <div>
-                            <div style="font-weight: 700; font-size: 1.1rem;">Download PDF</div>
-                            <div style="font-size: 0.9rem;">Save to your device</div>
-                        </div>
-                    </a>
-                `;
-            }
         }
         
         function viewInNewTab() {
