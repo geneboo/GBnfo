@@ -17,7 +17,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+    
         :root {
             --bg-dark: #0b1219;
             --surface: #14222e;
@@ -28,13 +28,13 @@
             --border-dim: #2a3a4a;
             --card-bg: #1a2937;
         }
-
+    
         /* CRITICAL: A4 print margins – enough space, no content cut */
         @page {
             size: A4;
             margin: 1.8cm 1.5cm;   /* symmetrical and generous */
         }
-
+    
         body {
             background-color: #0f1a24;
             font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
@@ -47,7 +47,7 @@
             min-height: 100vh;
             padding: 24px 16px;
         }
-
+    
         .cv-container {
             max-width: 1100px;
             width: 100%;
@@ -57,7 +57,7 @@
             box-shadow: 0 20px 35px -8px rgba(0,212,255,0.2);
             border: 1px solid #2d4b5e;
         }
-
+    
         /* ----- typography (same refined style) ----- */
         .name {
             font-size: 34px;
@@ -69,7 +69,7 @@
             letter-spacing: -0.02em;
             margin-bottom: 4px;
         }
-
+    
         .title {
             font-size: 20px;
             font-weight: 500;
@@ -79,7 +79,7 @@
             padding-bottom: 8px;
             display: inline-block;
         }
-
+    
         .contact-info {
             display: flex;
             flex-wrap: wrap;
@@ -92,7 +92,7 @@
             border-radius: 60px;
             border: 1px solid #2c4b5e;
         }
-
+    
         .contact-item {
             display: flex;
             align-items: center;
@@ -108,7 +108,7 @@
             text-decoration: none;
             border-bottom: 1px dotted #3a637a;
         }
-
+    
         .section-title {
             font-size: 19px;
             font-weight: 600;
@@ -124,7 +124,7 @@
         .section-title i {
             color: var(--primary-glow);
         }
-
+    
         .subsection {
             margin-bottom: 20px;
             background: var(--card-bg);
@@ -134,7 +134,7 @@
             box-shadow: 0 6px 12px -5px rgba(0,0,0,0.7);
             page-break-inside: avoid;  /* KEEP subsections together */
         }
-
+    
         .subsection-header {
             display: flex;
             justify-content: space-between;
@@ -163,7 +163,7 @@
             border-radius: 30px;
             white-space: nowrap;
         }
-
+    
         ul {
             list-style: none;
             margin: 8px 0 2px;
@@ -180,7 +180,7 @@
             position: absolute;
             left: 2px;
         }
-
+    
         .tool-tags {
             display: flex;
             flex-wrap: wrap;
@@ -199,7 +199,7 @@
         .tool-tags i {
             color: var(--primary-glow);
         }
-
+    
         .skills-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -211,14 +211,14 @@
             font-size: 15px;
             margin: 0 0 6px 0;
         }
-
+    
         .two-column-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
             margin: 10px 0 8px;
         }
-
+    
         .hobby-projects {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -244,7 +244,7 @@
             word-break: break-all;
             color: #7eb6d0;
         }
-
+    
         .written-work {
             background: #10232f;
             border-radius: 18px;
@@ -253,7 +253,7 @@
             border: 1px solid #254c5c;
             page-break-inside: avoid;
         }
-
+    
         .language-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -263,7 +263,7 @@
             border-radius: 20px;
             border: 1px solid #2e4a5a;
         }
-
+    
         .cloud-ai-card {
             background: var(--card-bg);
             border-radius: 20px;
@@ -272,7 +272,7 @@
             margin-bottom: 12px;
             page-break-inside: avoid;
         }
-
+    
         .download-buttons {
             display: flex;
             justify-content: center;
@@ -294,136 +294,140 @@
             background: var(--primary-glow);
             color: #0b1219;
         }
-
-        /* ========== PRINT OPTIMIZATION – KILL BAD PAGE BREAKS ========== */
+    
+        /* ========== PRINT OPTIMIZATION – COMPLETE REPLACEMENT ========== */
         @media print {
+            /* Page and container */
+            @page {
+                size: A4;
+                margin: 1.8cm 1.5cm;
+            }
+    
             body {
-                background: white;
-                padding: 0;
-                display: block;
-                font-size: 11.8px;  /* slightly compressed but readable */
+                background: white !important;
+                padding: 0 !important;
+                display: block !important;
+                font-size: 11.8px !important; /* slightly compressed but readable */
+                color: #000 !important;
             }
+    
             .cv-container {
-                max-width: 100%;
-                background: white;
-                box-shadow: none;
-                border: none;
-                padding: 0.2cm 0.3cm;   /* minimal extra, margins already from @page */
-                margin: 0 auto;
-                border-radius: 0;
+                max-width: 100% !important;
+                background: white !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;          /* keep zero; margins come from @page */
+                margin: 0 auto !important;
+                border-radius: 0 !important;
             }
-            /* reset colors for print */
+    
+            /* Color resets for print (lighter ink usage, good contrast) */
             .name {
-                background: none;
-                -webkit-text-fill-color: #0a2a3a;
-                color: #0a2a3a;
-                text-shadow: none;
+                background: none !important;
+                -webkit-text-fill-color: #0a2a3a !important;
+                color: #0a2a3a !important;
+                text-shadow: none !important;
             }
-            .title { color: #1a5276; border-bottom: 1px solid #aaa; }
-            .section-title { color: #1a2b3c; border-bottom: 2px solid #2c3e50; }
-            .contact-info { background: #f0f4fa; border: 1px solid #ccc; color: #333; }
-            .subsection { background: #f7fafd; border: 1px solid #b0c4d9; box-shadow: none; }
-            .tool-tags span { background: #e5ecf3; border: 1px solid #96aebb; color: #1f3a4c; }
-            .project-card, .written-work, .language-grid, .cloud-ai-card { background: #f2f6fc; border: 1px solid #bacddc; }
-            .btn { display: none; }
-            a { color: #11557c; }
-            li::before { color: #1177aa; }
-
-            /* ---------- CRITICAL: manual page breaks to avoid the break between pages 3 and 4 ---------- */
-            /* 
-               We need to ensure that the "Hobby Projects & Written Works" two-column section 
-               does not break in the middle. Also the following "Linguistics & Cloud/AI" must stay 
-               connected. We'll use explicit page-break-inside: avoid on containers, and if necessary,
-               force a page break before the last group to keep it whole.
+            .title {
+                color: #1a5276 !important;
+                border-bottom: 1px solid #aaa !important;
+            }
+            .section-title {
+                color: #1a2b3c !important;
+                border-bottom: 2px solid #2c3e50 !important;
+            }
+            .contact-info {
+                background: #f0f4fa !important;
+                border: 1px solid #ccc !important;
+                color: #333 !important;
+            }
+    
+            .subsection {
+                background: #f7fafd !important;
+                border: 1px solid #b0c4d9 !important;
+                box-shadow: none !important;
+                padding: 12px 14px !important;
+                margin-bottom: 10px !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+    
+            .tool-tags span {
+                background: #e5ecf3 !important;
+                border: 1px solid #96aebb !important;
+                color: #1f3a4c !important;
+            }
+            .project-card,
+            .written-work,
+            .language-grid,
+            .cloud-ai-card {
+                background: #f2f6fc !important;
+                border: 1px solid #bacddc !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            .project-card { padding: 10px !important; }
+    
+            .btn { display: none !important; }
+            a { color: #11557c !important; text-decoration: none !important; }
+            li::before { color: #1177aa !important; }
+            p, li { widows: 2; orphans: 2; }
+    
+            /* ======== CRITICAL: Stable two-column print using table layout ======== */
+            /*
+              Grid/flex often paginate poorly for print. Switch only in print to
+              table/table-cell so both columns align and paginate together.
             */
-
-            /* Force any large two-column section to stay on one page if possible */
             .two-column-section {
-                page-break-inside: avoid;  /* try to keep both columns together */
+                /* Replace grid with table for print only */
+                display: table !important;
+                width: 100% !important;
+                table-layout: fixed !important;
+                border-collapse: separate !important;
+                border-spacing: 12px 0 !important;  /* column gutter */
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin: 10px 0 8px !important;       /* keep your original vertical rhythm */
             }
-
-            /* But if the two-column is too tall, it may still break. So we apply soft breaks */
-            .hobby-projects, .written-works {
-                page-break-inside: avoid;
+            .two-column-section > div {
+                display: table-cell !important;
+                vertical-align: top !important;
+                width: 50% !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
             }
-
-            /* Specific: the "Hobby Projects" card group might be tall – we let it break only between cards */
-            .project-card {
-                page-break-inside: avoid;
-            }
-
-            /* The real problem spot: after page 3 (typically end of Experience, start of projects).
-               To guarantee no orphan, we tell the browser to avoid breaking inside the .two-column-section
-               that contains hobby+written, AND if needed, start a new page before that section 
-               so that it's together. But we don't want a blank page. We'll use:
-               - avoid inside the whole wrapper
-               - allow page break between major sections only if beneficial.
-            */
-            .section, .two-column-section {
-                page-break-inside: avoid;
-            }
-
-            /* However, the 'Professional Experience' is long and spans multiple pages naturally.
-               We don't want to force it all on one page. So we reset for .subsection inside experience */
-            .section .subsection {
-                page-break-inside: avoid;
-            }
-            /* But the experience section as a whole can break between subsections – that's fine */
-            .section:has(.subsection) {
-                page-break-inside: auto;
-            }
-
-            /* CRITICAL: the two-column section that contains hobby+written (and the following two-col)
-               we want them to be on the same page if possible. But if they must split, we'd rather
-               split at a clean point – but we saw bad break. So we force a page break before the
-               hobby section if it would otherwise break badly. Let's detect: 
-               Actually we'll manually insert a "break-before" on the first two-column section after experience?
-               But we don't know exact pagination. Better: use "page-break-before: avoid" globally,
-               and increase margins a tad.
-            */
-
-            /* last resort: ensure that the hobby+written block starts on a new page only if it would be broken.
-               But the real issue is that the hobby block itself breaks across pages. 
-               We'll apply a soft break inside only if unavoidable, but let's force the hobby projects grid
-               to have 'page-break-inside: avoid' on the container, but it's grid – browsers may still break.
-               So we set 'page-break-before: auto' and keep everything avoid.
-            */
-            
-            /* strengthen: make each project card and written-work avoid break */
-            .project-card, .written-work {
-                page-break-inside: avoid;
-                break-inside: avoid;
-            }
-
-            /* For the two-column layout, we set break-inside: avoid on the parent, 
-               but also on each column's content */
-            .two-column-section {
-                break-inside: avoid;  /* modern property */
-                page-break-inside: avoid;
-            }
-
-            /* If a two-column section is too long, it may still break; in that case,
-               we prefer a break before the whole section rather than inside. 
-               So apply page-break-before: auto but page-break-after: avoid. */
-            .two-column-section {
+    
+            /* Keep “Hobby Projects & Written Works” together; if it won’t fit,
+               start them together on a fresh page for clean alignment */
+            .two-column-section.hobby-written {
+                break-before: page;
+                page-break-before: always;  /* legacy alias for compatibility */
                 page-break-after: avoid;
             }
-
-            /* manually ensure the last .two-column-section (linguistics & cloud) stays with previous? */
-            .two-column-section:last-of-type {
-                page-break-before: avoid;
-                break-inside: avoid;
+    
+            /* Prevent splits inside lists/cards in the columns */
+            .hobby-projects,
+            .written-works {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
             }
-
-            /* Additional: set a very small widow/orphan */
-            p, li {
-                widows: 2;
-                orphans: 2;
+    
+            /* Avoid grids for the project gallery in print; stack cleanly */
+            .hobby-projects {
+                display: block !important;
             }
-
-            /* reduce gaps slightly to fit more */
-            .subsection { padding: 12px 14px; margin-bottom: 12px; }
-            .project-card { padding: 10px; }
+            .hobby-projects .project-card {
+                display: block !important;
+                width: 100% !important;
+            }
+    
+            /* Experience subsections can break between themselves, but not inside */
+            .section .subsection {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+    
+            /* Remove risky/unsupported selectors for print (e.g., :has()) – intentionally omitted */
         }
     </style>
 </head>
@@ -518,3 +522,4 @@
 </body>
 
 </html>
+
