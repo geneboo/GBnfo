@@ -10,7 +10,7 @@ img.chapter-figure { display:block; margin:6mm auto; max-width:170mm; width:100%
 
 ##### by Gene Boo
 
-_A corrected, fully merged, add-only Markdown chapter with coherent incremental numbering, a single bibliography, a Table of Contents, and A4-ready print layout._
+This paper develops a unified computational framework for estimating, analyzing, and stress-testing distributions of sums of random variables when classical closed-form methods fail, with a particular focus on risk aggregation, dependent structures, and numerical inference. The core contribution is to show how **independent sums** can be handled efficiently through **Empirical Maximum Likelihood Estimation (MLE)** on a numerical grid accelerated by the **Fast Fourier Transform (FFT)**, while **dependent sums** require a principled shift toward **quadrature-based integration**, copula methods, and conditional-factor constructions rather than naive marginal FFT multiplication. The paper further extends this probability engine to include **Laplace-transform formulations** for positive-support variables, **automatic differentiation** for gradient-based calibration and sensitivity analysis, **$t$-copulas** for tail dependence, **vine copulas** for flexible high-dimensional dependence, and integrated **Value-at-Risk (VaR)** and **Expected Shortfall (ES)** workflows as natural outputs of the same fitted distributional system. Taken together, the paper presents a practical, research-grade roadmap for moving from symbolic probability to **computational probability engineering** in finance, insurance, and related quantitative risk applications.
 
 ## Table of Contents
 
