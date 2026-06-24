@@ -40,8 +40,7 @@
 <li><a href="#21-t-copulas-why-correlation-alone-is-not-enough">21. <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.61508em; vertical-align: 0em;"></span><span class="mord mathnormal">t</span></span></span></span></span>-Copulas: Why Correlation Alone Is Not Enough</a></li>
 <li><a href="#22-vine-copulas-flexible-multivariate-dependence-beyond-elliptical-families">22. Vine Copulas: Flexible Multivariate Dependence Beyond Elliptical Families</a></li>
 <li><a href="#23-var-and-expected-shortfall-tail-risk-workflows-that-sit-on-top-of-the-sum-distribution">23. VaR and Expected Shortfall: Tail-Risk Workflows That Sit on Top of the Sum Distribution</a></li>
-<li><a href="#24-suggested-extensions-for-the-next-draft">24. Suggested Extensions for the Next Draft</a></li>
-<li><a href="#25-complete-bibliography">25. Complete Bibliography</a></li>
+<li><a href="#24-complete-bibliography">24. Complete Bibliography</a></li>
 </ul>
 <h2 id="abstract">Abstract</h2>
 <p>This chapter explains how to estimate the distribution of a sum of random variables when classical closed-form probability theory breaks down. The central tool in the independent case is <strong>Empirical Maximum Likelihood Estimation (MLE)</strong> built on a numerical grid and accelerated by the <strong>Fast Fourier Transform (FFT)</strong>. We then extend the framework in three directions that matter in the wild:</p>
@@ -252,7 +251,7 @@ w=\frac{r-x_j}{dx}.
 <p>A few library facts matter in production code:</p>
 <ul>
 <li><code>scipy.stats.t</code> uses degrees of freedom <code>df</code>, plus optional <code>loc</code> and <code>scale</code>. [9]</li>
-<li><code>scipy.stats.expon</code> uses <code>scale = 1/\lambda</code> if you think in terms of a rate <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.69444em; vertical-align: 0em;"></span><span class="mord mathnormal">λ</span></span></span></span></span>. [10]</li>
+<li><code>scipy.stats.expon</code> uses <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>c</mi><mi>a</mi><mi>l</mi><mi>e</mi><mo>=</mo><mn>1</mn><mi mathvariant="normal">/</mi><mi>λ</mi></mrow><annotation encoding="application/x-tex">scale = 1/\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.69444em; vertical-align: 0em;"></span><span class="mord mathnormal">sc</span><span class="mord mathnormal">a</span><span class="mord mathnormal" style="margin-right: 0.01968em;">l</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right: 0.277778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.277778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord">1/</span><span class="mord mathnormal">λ</span></span></span></span></span> if you think in terms of a rate <span class="katex--inline"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi></mrow><annotation encoding="application/x-tex">\lambda</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.69444em; vertical-align: 0em;"></span><span class="mord mathnormal">λ</span></span></span></span></span>. [10]</li>
 <li><code>scipy.stats.weibull_min</code> uses shape parameter <code>c</code> and optional <code>loc</code>, <code>scale</code>. [11]</li>
 <li><code>scipy.stats.genextreme</code> uses a sign convention for the GEV shape parameter <code>c</code> that differs from some texts and software. SciPy says this explicitly. [12]</li>
 </ul>
@@ -1520,18 +1519,8 @@ S = X_1 + \cdots + X_d,
 <li><strong>Operational risk</strong>: ES gives more visibility into “how bad bad gets,” not just “where bad starts.”</li>
 </ul>
 <hr>
-<h2 id="suggested-extensions-for-the-next-draft">24. Suggested Extensions for the Next Draft</h2>
-<p>If you want to turn this chapter into a full research paper or lecture note series, the next clean upgrades are:</p>
-<ol>
-<li>add <strong>automatic differentiation</strong> through the FFT and quadrature pipeline,</li>
-<li>add <strong><span class="katex--inline"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.61508em; vertical-align: 0em;"></span><span class="mord mathnormal">t</span></span></span></span></span>-copula</strong> and vine-copula examples,</li>
-<li>add <strong>Value-at-Risk</strong> and <strong>Expected Shortfall</strong> workflows,</li>
-<li>add <strong>quasi-Monte Carlo</strong> stabilization for simulation-heavy dependent models,</li>
-<li>and benchmark <strong>FFT</strong>, <strong>quadrature</strong>, <strong>cubature</strong>, and <strong>MC</strong> in one reproducible experiment table.</li>
-</ol>
-<hr>
 <p><em>End of chapter.</em></p>
-<h2 id="complete-bibliography">25. Complete Bibliography</h2>
+<h2 id="complete-bibliography">24. Complete Bibliography</h2>
 <p>[1] Taboga, Marco. <em>Sums of Independent Random Variables</em>. StatLect. <a href="https://www.statlect.com/fundamentals-of-probability/sums-of-independent-random-variables">https://www.statlect.com/fundamentals-of-probability/sums-of-independent-random-variables</a></p>
 <p>[2] Knill, Oliver. <em>Characteristic Functions</em>. Harvard lecture notes. <a href="https://abel.math.harvard.edu/~knill/teaching/math154/handouts/lecture08.pdf">https://abel.math.harvard.edu/~knill/teaching/math154/handouts/lecture08.pdf</a></p>
 <p>[3] Pfaffelhuber, Peter. <em>Probability Theory 2: Moments, Characteristic Functions and Laplace Transforms</em> (2024). <a href="https://pfaffelh.github.io/hp/static/2024SS_probability_theory/slides02.pdf">https://pfaffelh.github.io/hp/static/2024SS_probability_theory/slides02.pdf</a></p>

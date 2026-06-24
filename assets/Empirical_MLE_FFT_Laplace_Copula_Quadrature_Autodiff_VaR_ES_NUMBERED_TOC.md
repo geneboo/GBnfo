@@ -39,8 +39,7 @@ This paper develops a unified computational framework for estimating, analyzing,
 - [21. $t$-Copulas: Why Correlation Alone Is Not Enough](#21-t-copulas-why-correlation-alone-is-not-enough)
 - [22. Vine Copulas: Flexible Multivariate Dependence Beyond Elliptical Families](#22-vine-copulas-flexible-multivariate-dependence-beyond-elliptical-families)
 - [23. VaR and Expected Shortfall: Tail-Risk Workflows That Sit on Top of the Sum Distribution](#23-var-and-expected-shortfall-tail-risk-workflows-that-sit-on-top-of-the-sum-distribution)
-- [24. Suggested Extensions for the Next Draft](#24-suggested-extensions-for-the-next-draft)
-- [25. Complete Bibliography](#25-complete-bibliography)
+- [24. Complete Bibliography](#24-complete-bibliography)
 
 ## Abstract
 This chapter explains how to estimate the distribution of a sum of random variables when classical closed-form probability theory breaks down. The central tool in the independent case is **Empirical Maximum Likelihood Estimation (MLE)** built on a numerical grid and accelerated by the **Fast Fourier Transform (FFT)**. We then extend the framework in three directions that matter in the wild:
@@ -358,7 +357,7 @@ Use a small floor such as $\max\{f(r_i),10^{-12}\}$. That is not cheating; it is
 A few library facts matter in production code:
 
 - `scipy.stats.t` uses degrees of freedom `df`, plus optional `loc` and `scale`. [9]
-- `scipy.stats.expon` uses `scale = 1/\lambda` if you think in terms of a rate $\lambda$. [10]
+- `scipy.stats.expon` uses $scale = 1/\lambda$ if you think in terms of a rate $\lambda$. [10]
 - `scipy.stats.weibull_min` uses shape parameter `c` and optional `loc`, `scale`. [11]
 - `scipy.stats.genextreme` uses a sign convention for the GEV shape parameter `c` that differs from some texts and software. SciPy says this explicitly. [12]
 
@@ -1887,21 +1886,9 @@ def var_es_from_density_grid(loss_grid, pdf_grid, alpha=0.975):
 
 ---
 
-## 24. Suggested Extensions for the Next Draft
-
-If you want to turn this chapter into a full research paper or lecture note series, the next clean upgrades are:
-
-1. add **automatic differentiation** through the FFT and quadrature pipeline,
-2. add **$t$-copula** and vine-copula examples,
-3. add **Value-at-Risk** and **Expected Shortfall** workflows,
-4. add **quasi-Monte Carlo** stabilization for simulation-heavy dependent models,
-5. and benchmark **FFT**, **quadrature**, **cubature**, and **MC** in one reproducible experiment table.
-
----
-
 *End of chapter.*
 
-## 25. Complete Bibliography
+## 24. Complete Bibliography
 
 [1] Taboga, Marco. _Sums of Independent Random Variables_. StatLect. <https://www.statlect.com/fundamentals-of-probability/sums-of-independent-random-variables>
 
