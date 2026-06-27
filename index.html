@@ -594,6 +594,116 @@
             transform: translateX(6px);
         }
 
+        /* ========== EASTER EGG OVERLAY ========== */
+        .easter-egg {
+          position: fixed;
+          inset: 0;
+          z-index: 99999;
+          background: rgba(0, 0, 0, 0.92);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: 'Space Mono', monospace;
+          color: #fff;
+          pointer-events: none; /* allow clicks to pass through when hidden */
+          opacity: 0;
+          transition: opacity 0.6s ease;
+        }
+        
+        .easter-egg.active {
+          opacity: 1;
+          pointer-events: auto;
+          animation: glitch-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        .easter-egg.fade-out {
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.8s ease;
+        }
+        
+        .easter-content {
+          text-align: center;
+          max-width: 800px;
+          padding: 2rem;
+        }
+        
+        .easter-title {
+          font-size: clamp(2.5rem, 8vw, 5rem);
+          font-family: 'Playfair Display', serif;
+          background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          margin-bottom: 0.5rem;
+          letter-spacing: 2px;
+          animation: glitch-text 1.2s infinite;
+        }
+        
+        .easter-sub {
+          font-size: 1.2rem;
+          color: var(--secondary-color);
+          letter-spacing: 4px;
+          margin-bottom: 1.5rem;
+          opacity: 0.8;
+        }
+        
+        .easter-mantra {
+          font-size: 1.2rem;
+          line-height: 1.8;
+          color: rgba(255, 255, 255, 0.9);
+          background: rgba(255, 255, 255, 0.05);
+          padding: 1.5rem 2rem;
+          border-left: 4px solid var(--accent-color);
+          border-radius: 4px;
+          margin-bottom: 2rem;
+          white-space: pre-wrap;
+          font-family: 'Roboto Mono', monospace;
+        }
+        
+        .easter-fade-text {
+          font-size: 0.9rem;
+          color: var(--accent-color);
+          opacity: 0.6;
+          letter-spacing: 2px;
+          animation: pulse-text 2s infinite;
+        }
+        
+        /* ---------- animations ---------- */
+        @keyframes glitch-in {
+          0% { transform: scale(0.8) rotate(-2deg); opacity: 0; clip-path: inset(0 0 100% 0); }
+          20% { transform: scale(1.05) rotate(1deg); opacity: 1; clip-path: inset(0 0 0 0); }
+          40% { transform: scale(0.95) rotate(-1deg); }
+          60% { transform: scale(1.02) rotate(0.5deg); }
+          100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        @keyframes glitch-text {
+          0%, 100% { transform: skew(0deg); opacity: 1; }
+          5% { transform: skew(2deg); opacity: 0.8; }
+          10% { transform: skew(-2deg); opacity: 1; }
+          15% { transform: skew(1deg); }
+          20% { transform: skew(0deg); }
+        }
+        
+        @keyframes pulse-text {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.9; transform: scale(1.02); }
+        }
+        
+        /* responsive tweaks */
+        @media (max-width: 600px) {
+          .easter-mantra {
+            font-size: 0.95rem;
+            padding: 1rem;
+          }
+          .easter-sub {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+          }
+        }
+        
         /* ====================================================
            ABOUT
            ==================================================== */
@@ -1158,6 +1268,21 @@
                         <h3>Audio/Visual Engineer</h3>
                         <p>Building VST3 synths, mastering plugins, and Python‑driven generative art — where signal processing meets creative expression.</p>
                     </div>
+                    <div class="card">
+                        <div class="card-icon">⚡</div>
+                        <h3>Innovation Under Constraints</h3>
+                        <p>We talk a lot about "innovation under constraints," but let's talk about the practical side of it.</p>
+                        <p>I run a 15-year-old computer and drive a 17-year-old car. My hobby budget is exactly $0. But instead of letting that limit me, it forced me to learn.</p>
+                        <p>By leveraging free LLMs and open-source GitHub repositories, I’ve been diving deep into Python, Rust, C++, and JUCE. When a tool I need requires a commercial license, I treat it as a coding challenge and build my own custom solution.</p>
+                        <p>You don't need top-tier hardware or expensive software to build powerful things. You just need curiosity (and maybe a little bit of stubbornness).</p>
+                        <div class="mantra-box">
+                            <strong>My Mantra:</strong>
+                            Old whip, ancient keys, but the stack is clean,
+                            Zero-dollar budget, major power in the machine.
+                            No corporate fee, I just cook up the code,
+                            Building my own tools on a legacy road.
+                        </div>
+                    </div>                    
                 </div>
                 <div class="text-center mt-8">
                     <a href="https://soundcloud.com/gb-diz-zy" target="_blank" class="cta-button" style="display:inline-flex; align-items:center; gap:10px; padding:14px 35px; background:linear-gradient(90deg, var(--primary-color), var(--secondary-color)); color:#fff; font-family:'Playfair Display',serif; text-decoration:none; border-radius:6px; transition:transform 0.3s, box-shadow 0.3s; box-shadow:0 0 20px rgba(255,0,110,0.3);">
@@ -1567,6 +1692,39 @@
                 }
             });
 
+            // ----- EASTER EGG: click profile photo -----
+            const brandLogo = document.querySelector('.brand-logo');
+            const easterEgg = document.getElementById('easter-egg');
+            let easterTimeout = null;
+            
+            if (brandLogo && easterEgg) {
+              brandLogo.addEventListener('click', function(e) {
+                e.stopPropagation();
+                // Clear any pending timeout
+                if (easterTimeout) {
+                  clearTimeout(easterTimeout);
+                  easterEgg.classList.remove('fade-out', 'active');
+                }
+            
+                // Show overlay
+                easterEgg.style.display = 'flex';
+                // Force reflow for animation restart
+                void easterEgg.offsetWidth;
+                easterEgg.classList.add('active');
+            
+                // Hide after 8 seconds
+                easterTimeout = setTimeout(() => {
+                  easterEgg.classList.remove('active');
+                  easterEgg.classList.add('fade-out');
+                  // Hide completely after fade
+                  setTimeout(() => {
+                    easterEgg.style.display = 'none';
+                    easterEgg.classList.remove('fade-out');
+                  }, 800);
+                }, 8000);
+              });
+            }
+            
             // ----- Sticky header shadow on scroll -----
             const header = document.getElementById('main-header');
             window.addEventListener('scroll', function() {
@@ -1770,5 +1928,19 @@
             vogueBg.style.backgroundImage = `url('${patterns[theme] || patterns.default}')`;
         }
     </script>
+    <!-- ========== EASTER EGG OVERLAY ========== -->
+    <div id="easter-egg" class="easter-egg" style="display: none;">
+      <div class="easter-content">
+        <div class="easter-title">🔓 EASTER EGG FOUND!</div>
+        <div class="easter-sub">// GENE BOO // OLD WHIP, ANCIENT KEYS //</div>
+        <div class="easter-mantra">
+          Old whip, ancient keys, but the stack is clean,<br>
+          Zero-dollar budget, major power in the machine.<br>
+          No corporate fee, I just cook up the code,<br>
+          Building my own tools on a legacy road.
+        </div>
+        <div class="easter-fade-text">⚡ innovation under constraints ⚡</div>
+      </div>
+    </div>    
 </body>
 </html>
