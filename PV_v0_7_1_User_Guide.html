@@ -1,0 +1,506 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PV_v0_7_1_User_Guide.md</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="genes-parquet-viewer-v0.7.1---pv-–-cli-user-guide-v0.7.1">Gene’s Parquet Viewer v0.7.1 - <code>pv</code> – CLI User Guide (v0.7.1)</h1>
+<h2 id="overview">Overview</h2>
+<p><code>pv</code> is a high‑performance, out‑of‑core (OOC) data engine written in Rust for querying, profiling, converting, and inspecting large CSV, TSV, PSV, NDJSON, Parquet, IPC, and Arrow files without loading them entirely into memory.<br>
+It supports <strong>SQL</strong>, <strong>PRQL</strong>, and <strong>Natural Language</strong> (NL) queries with streaming execution and persistent caching.</p>
+<p>Unlike the GUI version - the CLI does <strong>NOT</strong> impose any 100 Million row-count limit. You can theoretically run approximate profiling on a trillion‑row dataset without issues (it uses streaming).</p>
+<p><strong>Exact profiling</strong> is also not row-limited but be aware:</p>
+<ul>
+<li>
+<p>It collects <strong>one numeric column at a time</strong> into memory for percentiles/median.</p>
+</li>
+<li>
+<p>An example: Parquet with 100 M rows, that’s ~800 MB per numeric column, plus overhead.</p>
+</li>
+<li>
+<p>The CLI won’t stop you, but you may run out of RAM if you profile many columns on a huge file.</p>
+</li>
+</ul>
+<p>If you need exact statistics on enormous data, consider profiling only specific columns via a query (e.g., <code>SELECT col FROM dataset</code>) or increasing system memory. The CLI trusts you to know your hardware, and what you want to achieve. It carries less RAM overhead than the GUI and should be considerably more powerful.</p>
+<hr>
+<h2 id="installation">Installation</h2>
+<p>Build from source (from the workspace root):</p>
+<pre class=" language-bash"><code class="prism  language-bash">cargo build --release --bin <span class="token function">pv</span>
+</code></pre>
+<p>The binary will be at <code>target/release/pv</code> (or <code>pv.exe</code> on Windows). Optionally add it to your <code>PATH</code>.</p>
+<hr>
+<h2 id="quick-start">Quick Start</h2>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token comment"># Show schema</span>
+<span class="token function">pv</span> schema --input data.csv
+
+<span class="token comment"># Preview first 5 rows as JSON</span>
+<span class="token function">pv</span> query --input data.csv --sql <span class="token string">"SELECT * FROM dataset LIMIT 5"</span>
+
+<span class="token comment"># Profile (streaming, approximate)</span>
+<span class="token function">pv</span> profile --input data.csv
+</code></pre>
+<hr>
+<h2 id="supported-file-formats">Supported File Formats</h2>
+
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Extensions</th>
+<th>Read</th>
+<th>Write</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSV</td>
+<td><code>.csv</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>Default delimiter <code>,</code></td>
+</tr>
+<tr>
+<td>TSV</td>
+<td><code>.tsv</code>, <code>.tab</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>Delimiter <code>\t</code></td>
+</tr>
+<tr>
+<td>PSV</td>
+<td><code>.psv</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>Delimiter <code>\|</code></td>
+</tr>
+<tr>
+<td>SSV</td>
+<td>(custom)</td>
+<td>✅</td>
+<td>✅</td>
+<td>Use <code>--read-delimiter</code> / <code>--delimiter</code> for any byte (e.g. <code>;</code>)</td>
+</tr>
+<tr>
+<td>NDJSON</td>
+<td><code>.ndjson</code>, <code>.jsonl</code></td>
+<td>✅</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td>Parquet</td>
+<td><code>.parquet</code>, <code>.pq</code></td>
+<td>✅</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td>IPC/Arrow</td>
+<td><code>.ipc</code>, <code>.feather</code>, <code>.arrow</code></td>
+<td>✅</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td>JSON array</td>
+<td><code>.json</code></td>
+<td>❌</td>
+<td>❌</td>
+<td>Not supported – convert to NDJSON first</td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="global-option">Global Option</h2>
+<p><code>--log-level &lt;LEVEL&gt;</code> – Set log level (<code>error</code>, <code>warn</code>, <code>info</code>, <code>debug</code>, <code>trace</code>). Default <code>info</code>.</p>
+<hr>
+<h2 id="subcommands">Subcommands</h2>
+<h3 id="pv-query-–-execute-a-sqlprqlnl-query"><code>pv query</code> – Execute a SQL/PRQL/NL query</h3>
+<pre><code>pv query --input &lt;FILE&gt;
+         [--sql &lt;SQL&gt; | --prql &lt;PRQL&gt; | --nl &lt;TEXT&gt; | --query-file &lt;FILE&gt;]
+         [--protocol sql|prql|nl]
+         [--output &lt;FILE&gt;]
+         [--format csv|ndjson|parquet|ipc]
+         [--delimiter &lt;CHAR&gt;]
+         [--read-delimiter &lt;CHAR&gt;]
+         [--stdout]
+</code></pre>
+<p><strong>Flags</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--input &lt;FILE&gt;</code></td>
+<td>Path to the input dataset.</td>
+</tr>
+<tr>
+<td><code>--sql &lt;SQL&gt;</code></td>
+<td>SQL query (mutually exclusive with <code>--prql</code>, <code>--nl</code>, <code>--query-file</code>).</td>
+</tr>
+<tr>
+<td><code>--prql &lt;PRQL&gt;</code></td>
+<td>PRQL query.</td>
+</tr>
+<tr>
+<td><code>--nl &lt;TEXT&gt;</code></td>
+<td>Natural‑language query.</td>
+</tr>
+<tr>
+<td><code>--query-file &lt;FILE&gt;</code></td>
+<td>Read query text from a file (protocol auto‑detected by extension, or force with <code>--protocol</code>).</td>
+</tr>
+<tr>
+<td><code>--protocol &lt;PROTO&gt;</code></td>
+<td>Force query protocol (<code>sql</code>, <code>prql</code>, <code>nl</code>). Required when using <code>--query-file</code> with an ambiguous file extension.</td>
+</tr>
+<tr>
+<td><code>--output &lt;FILE&gt;</code></td>
+<td>Write result to a file instead of stdout.</td>
+</tr>
+<tr>
+<td><code>--format &lt;FORMAT&gt;</code></td>
+<td>Output format (<code>csv</code>, <code>ndjson</code>, <code>parquet</code>, <code>ipc</code>). Auto‑detected from <code>--output</code> extension if omitted.</td>
+</tr>
+<tr>
+<td><code>--delimiter &lt;CHAR&gt;</code></td>
+<td><strong>Write</strong> delimiter for CSV output. Only the first byte is used. Default <code>,</code>.</td>
+</tr>
+<tr>
+<td><code>--read-delimiter &lt;CHAR&gt;</code></td>
+<td>Override <strong>read</strong> delimiter for CSV/TSV files. First byte used. If not set, delimiter is determined by file extension.</td>
+</tr>
+<tr>
+<td><code>--stdout</code></td>
+<td>Force printing the JSON preview to stdout even when no <code>--output</code> is given (enabled by default).</td>
+</tr>
+</tbody>
+</table><p><strong>Examples</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token comment"># SQL query, print result to stdout</span>
+<span class="token function">pv</span> query --input sales.parquet --sql <span class="token string">"SELECT region, SUM(amount) AS total FROM dataset GROUP BY region ORDER BY total DESC"</span>
+
+<span class="token comment"># PRQL query, export as CSV</span>
+<span class="token function">pv</span> query --input data.csv --prql <span class="token string">"from dataset | filter age &gt; 30 | select {name,age}"</span> --output adults.csv --format csv
+
+<span class="token comment"># Natural language query</span>
+<span class="token function">pv</span> query --input logs.ndjson --nl <span class="token string">"count rows by status"</span>
+
+<span class="token comment"># Read query from a file (detects .sql / .prql)</span>
+<span class="token function">pv</span> query --input big.parquet --query-file query.sql --output results.parquet
+
+<span class="token comment"># Force delimiter for reading a pipe-delimited file with .csv extension</span>
+<span class="token function">pv</span> query --input pipe.csv --read-delimiter <span class="token string">"|"</span> --sql <span class="token string">"SELECT * FROM dataset"</span> --stdout
+</code></pre>
+<hr>
+<h3 id="pv-query-page-–-execute-a-query-and-print-a-specific-page"><code>pv query-page</code> – Execute a query and print a specific page</h3>
+<pre><code>pv query-page --input &lt;FILE&gt;
+              [--sql &lt;SQL&gt; | --prql &lt;PRQL&gt; | --nl &lt;TEXT&gt; | --query-file &lt;FILE&gt;]
+              [--protocol sql|prql|nl]
+              [--page-index &lt;N&gt;]
+              [--page-size &lt;N&gt;]
+              [--read-delimiter &lt;CHAR&gt;]
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--page-index &lt;N&gt;</code></td>
+<td>Zero‑based page number (default 0).</td>
+</tr>
+<tr>
+<td><code>--page-size &lt;N&gt;</code></td>
+<td>Rows per page (default 200).</td>
+</tr>
+<tr>
+<td><code>--read-delimiter &lt;CHAR&gt;</code></td>
+<td>Same as in <code>query</code>.</td>
+</tr>
+</tbody>
+</table><p><strong>Example</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token function">pv</span> query-page --input huge.parquet --sql <span class="token string">"SELECT * FROM dataset"</span> --page-index 5 --page-size 50
+</code></pre>
+<hr>
+<h3 id="pv-convert-–-convert-between-file-formats"><code>pv convert</code> – Convert between file formats</h3>
+<pre><code>pv convert --input &lt;FILE&gt; --output &lt;FILE&gt; --format &lt;FORMAT&gt;
+           [--delimiter &lt;CHAR&gt;]
+           [--read-delimiter &lt;CHAR&gt;]
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--format &lt;FMT&gt;</code></td>
+<td>Target format (<code>csv</code>, <code>ndjson</code>, <code>parquet</code>, <code>ipc</code>).</td>
+</tr>
+<tr>
+<td><code>--delimiter &lt;CHAR&gt;</code></td>
+<td>Write delimiter for CSV output.</td>
+</tr>
+<tr>
+<td><code>--read-delimiter &lt;CHAR&gt;</code></td>
+<td>Read delimiter override.</td>
+</tr>
+</tbody>
+</table><p><strong>Examples</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token comment"># Convert CSV to Parquet</span>
+<span class="token function">pv</span> convert --input data.csv --output data.parquet --format parquet
+
+<span class="token comment"># Convert TSV to NDJSON, overriding the input delimiter</span>
+<span class="token function">pv</span> convert --input data.tsv --output data.ndjson --format ndjson --read-delimiter $<span class="token string">'\t'</span>
+</code></pre>
+<hr>
+<h3 id="pv-schema-–-print-or-save-the-dataset-schema"><code>pv schema</code> – Print or save the dataset schema</h3>
+<pre><code>pv schema --input &lt;FILE&gt;
+          [--output &lt;FILE&gt;]
+          [--format json|txt|csv]
+          [--read-delimiter &lt;CHAR&gt;]
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--format &lt;FMT&gt;</code></td>
+<td>Output format for schema (default <code>json</code>).</td>
+</tr>
+<tr>
+<td><code>--output &lt;FILE&gt;</code></td>
+<td>Write schema to file; otherwise stdout.</td>
+</tr>
+<tr>
+<td><code>--read-delimiter &lt;CHAR&gt;</code></td>
+<td>Read delimiter override.</td>
+</tr>
+</tbody>
+</table><p><strong>Examples</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token comment"># Show schema as JSON in the terminal</span>
+<span class="token function">pv</span> schema --input data.parquet
+
+<span class="token comment"># Save schema as a CSV file</span>
+<span class="token function">pv</span> schema --input data.csv --output schema.csv --format csv
+</code></pre>
+<hr>
+<h3 id="pv-profile-–-generate-a-data-profile"><code>pv profile</code> – Generate a data profile</h3>
+<pre><code>pv profile --input &lt;FILE&gt;
+           [--output &lt;FILE&gt;]
+           [--exact]
+           [--read-delimiter &lt;CHAR&gt;]
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--exact</code></td>
+<td>Use exact profiling (per‑column, higher memory but precise percentiles/median). Default is streaming approximate.</td>
+</tr>
+<tr>
+<td><code>--output &lt;FILE&gt;</code></td>
+<td>Save JSON profile to file.</td>
+</tr>
+<tr>
+<td><code>--read-delimiter &lt;CHAR&gt;</code></td>
+<td>Read delimiter override.</td>
+</tr>
+</tbody>
+</table><p><strong>Examples</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token comment"># Approximate profile, print to stdout</span>
+<span class="token function">pv</span> profile --input data.parquet
+
+<span class="token comment"># Exact profile, save to a JSON file</span>
+<span class="token function">pv</span> profile --input data.csv --output profile.json --exact
+</code></pre>
+<hr>
+<h3 id="pv-compile-–-translate-prqlnl-to-sql-without-execution"><code>pv compile</code> – Translate PRQL/NL to SQL without execution</h3>
+<pre><code>pv compile --input &lt;FILE&gt;
+           [--prql &lt;PRQL&gt; | --nl &lt;TEXT&gt; | --query-file &lt;FILE&gt;]
+           [--read-delimiter &lt;CHAR&gt;]
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--prql &lt;PRQL&gt;</code></td>
+<td>PRQL query to compile.</td>
+</tr>
+<tr>
+<td><code>--nl &lt;TEXT&gt;</code></td>
+<td>Natural language text to compile.</td>
+</tr>
+<tr>
+<td><code>--query-file &lt;FILE&gt;</code></td>
+<td>File containing the PRQL/NL query.</td>
+</tr>
+<tr>
+<td><code>--read-delimiter &lt;CHAR&gt;</code></td>
+<td>Read delimiter override.</td>
+</tr>
+</tbody>
+</table><p><strong>Examples</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token comment"># Compile PRQL to SQL</span>
+<span class="token function">pv</span> compile --input data.parquet --prql <span class="token string">"from dataset | take 10"</span>
+
+<span class="token comment"># Show how a natural language request is interpreted</span>
+<span class="token function">pv</span> compile --input data.csv --nl <span class="token string">"sum of salary by department"</span>
+</code></pre>
+<hr>
+<h2 id="delimiter-handling-and-caveats">Delimiter Handling and Caveats</h2>
+<h3 id="reading-csvtsvpsvssv">Reading CSV/TSV/PSV/SSV</h3>
+<ul>
+<li>The delimiter is <strong>auto‑detected</strong> from the file extension:<br>
+<code>.csv</code> → <code>,</code><br>
+<code>.tsv</code> / <code>.tab</code> → <code>\t</code><br>
+<code>.psv</code> → <code>|</code></li>
+<li>Use <code>--read-delimiter &lt;CHAR&gt;</code> to <strong>override</strong> the auto‑detection. The first byte of the argument is used.</li>
+<li>Reading is always <strong>lazy/streaming</strong>, so memory usage is bounded.</li>
+</ul>
+<h3 id="writing-csv">Writing CSV</h3>
+<ul>
+<li><strong>Comma (<code>,</code>)</strong> output uses the <strong>streaming CSV sink</strong> (OOC).</li>
+<li><strong>Any other delimiter</strong> (tab, pipe, semicolon, etc.) forces an <strong>in‑memory write</strong> that collects the entire result first. This is <strong>not OOC</strong> and can exhaust memory for large datasets.</li>
+<li>To export large datasets with non‑comma delimiters, consider exporting to Parquet/IPC first, then converting using an external tool.</li>
+</ul>
+<hr>
+<h2 id="out‑of‑core-ooc-behavior">Out‑of‑Core (OOC) Behavior</h2>
+<p>The engine is designed to keep memory usage low by streaming data. However, some operations will <strong>materialise large amounts of data</strong>:</p>
+<ol>
+<li><strong>Profiling with <code>--exact</code></strong> – Per‑column calculations may require collecting a full column for percentiles (still OOC for other columns, but memory use grows with row count).</li>
+<li><strong>Writing CSV with a non‑comma delimiter</strong> – Uses in‑memory writer.</li>
+<li><strong>Queries without a <code>LIMIT</code></strong> – The engine tries to return all rows. Use pagination (<code>query-page</code>) or add a <code>LIMIT</code> clause.</li>
+</ol>
+<hr>
+<h2 id="natural-language-parser-limitations">Natural Language Parser Limitations</h2>
+<p>The built‑in NL parser is regex‑based and handles only simple patterns. It is <strong>not an AI</strong> – it translates recognised phrases into a PRQL pipeline.</p>
+<p><strong>Working patterns:</strong></p>
+<ul>
+<li><code>count rows by &lt;column&gt;</code></li>
+<li><code>sum &lt;metric&gt; by &lt;group&gt;</code></li>
+<li><code>average &lt;metric&gt; by &lt;group&gt;</code></li>
+<li><code>filter &lt;column&gt; &gt; &lt;value&gt;</code></li>
+<li><code>sort by &lt;column&gt; descending</code></li>
+<li><code>select &lt;col1&gt;, &lt;col2&gt;, …</code></li>
+<li><code>create a new column &lt;alias&gt; as &lt;expr&gt; &lt;op&gt; &lt;expr&gt;</code> (where <code>op</code> is <code>plus</code>, <code>minus</code>, <code>times</code>, <code>divided by</code>)</li>
+</ul>
+<p><strong>Non‑working examples:</strong></p>
+<ul>
+<li>Complex nested queries, subqueries, or multiple aggregations with different grouping levels.</li>
+<li>Filler words like “show me the…”, “I want to see…” often confuse the parser.</li>
+</ul>
+<p>For anything that cannot be expressed in NL, switch to <strong>SQL</strong> or <strong>PRQL</strong>. The NL parser may be replaced or extended in future versions.</p>
+<hr>
+<h2 id="disk-caching">Disk Caching</h2>
+<ul>
+<li><strong>Schema cache</strong> – Stored in <code>.parquetviewer_schema_cache/</code>. Keyed by file fingerprint (path, size, modification time). Subsequent runs skip schema inference.</li>
+<li><strong>Profile cache</strong> – Stored alongside schema cache. Profiles are reused until the file changes. Use <code>--exact</code> to force re‑computation if needed.</li>
+<li>If a cache becomes stale, delete the cache directory or use <code>--exact</code> / re‑open the file.</li>
+</ul>
+<hr>
+<h2 id="troubleshooting--common-issues">Troubleshooting / Common Issues</h2>
+<h3 id="prql-compile-errors-“prql-queries-must-begin-with-from”">PRQL compile errors: “PRQL queries must begin with ‘from’”</h3>
+<p><strong>Cause:</strong> The query file contains surrounding double quotes (e.g., <code>"from dataset | take 5"</code>).<br>
+<strong>Solution:</strong> Remove the double quotes. On Windows <code>cmd</code>, use:</p>
+<pre><code>echo from dataset | take 5 &gt; query.prql
+</code></pre>
+<p>(no quotes)</p>
+<h3 id="unsupported-file-extension">Unsupported file extension</h3>
+<p><code>pv</code> rejects files with unknown extensions. Ensure the file uses one of the supported extensions listed above.</p>
+<h3 id="memory-exhaustion-during-csv-export">Memory exhaustion during CSV export</h3>
+<p>Non‑comma CSV exports collect the entire result in memory.<br>
+<strong>Workarounds:</strong></p>
+<ul>
+<li>Export to comma‑separated CSV (OOC) and convert afterwards.</li>
+<li>Use Parquet or IPC as intermediate format.</li>
+<li>Add a <code>LIMIT</code> clause.</li>
+</ul>
+<h3 id="profile-cache-not-updating">Profile cache not updating</h3>
+<p>Delete the <code>.parquetviewer_schema_cache/</code> directory or use <code>--exact</code> to force fresh computation.</p>
+<h3 id="query-file-without-explicit-protocol">Query file without explicit protocol</h3>
+<p>If the query file has no extension or an ambiguous one, use <code>--protocol sql|prql|nl</code> to specify the language.</p>
+<hr>
+<h2 id="complete-test-suite">Complete Test Suite</h2>
+<p>Assuming sample files <code>random_data.csv</code> and <code>random_data.parquet</code> with columns <code>id</code>, <code>age</code>, <code>score</code>, <code>name</code>, <code>city</code>, <code>salary</code>, <code>join_date</code>, <code>active</code>, <code>notes</code>:</p>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token comment"># Schema</span>
+<span class="token function">pv</span> schema --input random_data.csv
+
+<span class="token comment"># SQL preview</span>
+<span class="token function">pv</span> query --input random_data.csv --sql <span class="token string">"SELECT * FROM dataset LIMIT 5"</span> --stdout
+
+<span class="token comment"># PRQL filter + select</span>
+<span class="token function">pv</span> query --input random_data.parquet --prql <span class="token string">"from dataset | filter age &gt; 40 | select {name,city,salary} | take 10"</span> --stdout
+
+<span class="token comment"># NL count</span>
+<span class="token function">pv</span> query --input random_data.csv --nl <span class="token string">"count rows by city"</span>
+
+<span class="token comment"># Export to Parquet</span>
+<span class="token function">pv</span> query --input random_data.csv --sql <span class="token string">"SELECT * FROM dataset"</span> --output out.parquet --format parquet
+
+<span class="token comment"># Convert CSV to TSV (in‑memory, tab delimiter)</span>
+<span class="token function">pv</span> convert --input random_data.csv --output out.tsv --format csv --delimiter $<span class="token string">'\t'</span>
+
+<span class="token comment"># Paginated query</span>
+<span class="token function">pv</span> query-page --input random_data.parquet --sql <span class="token string">"SELECT * FROM dataset"</span> --page-index 0 --page-size 5
+
+<span class="token comment"># Streaming approximate profile</span>
+<span class="token function">pv</span> profile --input random_data.csv
+
+<span class="token comment"># Exact profile (saved)</span>
+<span class="token function">pv</span> profile --input random_data.parquet --exact --output profile_exact.json
+
+<span class="token comment"># Compile PRQL to SQL</span>
+<span class="token function">pv</span> compile --input random_data.csv --prql <span class="token string">"from dataset | take 5"</span>
+
+<span class="token comment"># Compile NL to SQL</span>
+<span class="token function">pv</span> compile --input random_data.parquet --nl <span class="token string">"count rows by city"</span>
+
+<span class="token comment"># Read pipe-delimited file with .csv extension</span>
+<span class="token function">pv</span> query --input pipe.csv --read-delimiter <span class="token string">"|"</span> --sql <span class="token string">"SELECT * FROM dataset LIMIT 3"</span> --stdout
+
+<span class="token comment"># Write semicolon-separated output (in‑memory)</span>
+<span class="token function">pv</span> query --input random_data.csv --sql <span class="token string">"SELECT * FROM dataset LIMIT 10"</span> --output out.ssv --format csv --delimiter <span class="token string">";"</span>
+</code></pre>
+<p>All commands should complete without errors and produce valid output.</p>
+<hr>
+<h2 id="license">License</h2>
+<p>MIT</p>
+</div>
+</body>
+
+</html>
