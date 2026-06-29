@@ -1,0 +1,417 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPV_v0_7_1_UI_User_Guide.md</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="genes-parquet-viewer-–-user-guide">Gene’s Parquet Viewer – User Guide</h1>
+<p><strong>Version 0.7.1</strong><br>
+A fast desktop data explorer for Parquet, CSV, and more, powered by Tauri and Polars.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#getting-started">Getting Started</a></li>
+<li><a href="#main-interface">Main Interface</a></li>
+<li><a href="#working-with-data">Working with Data</a></li>
+<li><a href="#querying-data">Querying Data</a>
+<ul>
+<li>SQL</li>
+<li>PRQL</li>
+<li>Natural Language</li>
+</ul>
+</li>
+<li><a href="#profiling--statistics">Profiling &amp; Statistics</a></li>
+<li><a href="#exporting-data">Exporting Data</a></li>
+<li><a href="#appearance--themes">Appearance &amp; Themes</a></li>
+<li><a href="#keyboard-shortcuts">Keyboard Shortcuts</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ol>
+<hr>
+<h2 id="installation">Installation</h2>
+<h3 id="windows">Windows</h3>
+<ol>
+<li>Download the latest installer (<code>Parquet Viewer_0.7.1_x64-setup.exe</code>) or MSI package.</li>
+<li>Run the installer and follow the prompts.</li>
+<li>Launch “Gene’s Parquet Viewer” from the Start menu or desktop shortcut.</li>
+</ol>
+<p>No other dependencies are required – everything is bundled inside the app.</p>
+<hr>
+<h2 id="getting-started">Getting Started</h2>
+<h3 id="opening-a-file">Opening a file</h3>
+<p>You can open a dataset in three ways:</p>
+<ul>
+<li>Click the <strong>📂 Open</strong> button in the header.</li>
+<li>Drag &amp; drop a file from your file manager onto the app window.</li>
+<li>While the drop‑zone is visible (no file loaded), click anywhere on the dashed area.</li>
+</ul>
+<p><strong>Supported formats:</strong> CSV, TSV, NDJSON (JSONL), Parquet, IPC/Feather/Arrow.</p>
+<p>After opening, the file name appears in the header and the first page of data is displayed.</p>
+<hr>
+<h2 id="main-interface">Main Interface</h2>
+<p><img src="path/to/interface.png" alt="Interface layout"> <em>(screenshot placeholder)</em></p>
+<p>The application window is divided into several panels:</p>
+
+<table>
+<thead>
+<tr>
+<th>Panel</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Schema</strong> (left)</td>
+<td>Shows the column names and data types of the original file.</td>
+</tr>
+<tr>
+<td><strong>Data Grid</strong> (center)</td>
+<td>Displays the current page of data. You can scroll horizontally/vertically and navigate with the pagination bar below.</td>
+</tr>
+<tr>
+<td><strong>Data Profile</strong> (right)</td>
+<td>Contains statistical summaries for each column (after loading).</td>
+</tr>
+<tr>
+<td><strong>Query Editor</strong> (bottom)</td>
+<td>Write SQL, PRQL, or natural language queries and see the results in the grid.</td>
+</tr>
+<tr>
+<td><strong>Log Pane</strong> (bottom‑most)</td>
+<td>Shows messages, errors, and progress information.</td>
+</tr>
+</tbody>
+</table><p>You can toggle each panel on/off using the toolbar buttons (<strong>📋 Schema</strong>, <strong>📊 Profile</strong>, <strong>🔍 Query</strong>, <strong>📜 Log</strong>).<br>
+A special <strong>🗂️ Query Schema</strong> panel appears after running a query to show the result’s structure.</p>
+<hr>
+<h2 id="working-with-data">Working with Data</h2>
+<h3 id="browsing-pages">Browsing pages</h3>
+<ul>
+<li>Use the <strong>First</strong>, <strong>Prev</strong>, <strong>Next</strong>, <strong>Last</strong> buttons to move through pages.</li>
+<li>Enter a page number directly in the input box and press <strong>Enter</strong>.</li>
+<li>The current page number and estimated total pages are displayed.</li>
+</ul>
+<h3 id="cell-selection-spreadsheet‑style">Cell selection (Spreadsheet‑style)</h3>
+<ul>
+<li>Click a cell to select it. The active cell gets a bright outline.</li>
+<li><strong>Shift+click</strong> or <strong>Shift+Arrow keys</strong> to extend the selection.</li>
+<li><strong>Ctrl+click</strong> (or <strong>Cmd+click</strong>) to toggle individual cells.</li>
+<li>Click a <strong>row number</strong> to select the entire row.</li>
+<li>Click a <strong>column header</strong> to select the whole column (on the current page).</li>
+</ul>
+<h3 id="copying-data">Copying data</h3>
+<ul>
+<li>Right‑click inside the grid to open the context menu.</li>
+<li>You can copy:
+<ul>
+<li>Selected cells (with or without headers)</li>
+<li>The entire current page (with or without headers)</li>
+</ul>
+</li>
+<li>The <strong>Delim:</strong> input in the header lets you choose the separator used when copying (default is Tab).</li>
+</ul>
+<h3 id="highlighting">Highlighting</h3>
+<ul>
+<li>Use the <strong>Live Highlight</strong> input box to highlight cells that contain specific text.<br>
+Typing a word instantly highlights matching cells in the current view.</li>
+</ul>
+<hr>
+<h2 id="querying-data">Querying Data</h2>
+<p>The query editor supports three query languages. Select the tab you want: <strong>SQL Engine</strong>, <strong>PRQL</strong>, or <strong>Natural Language</strong>.</p>
+<h3 id="sql">SQL</h3>
+<p>Write standard SQL queries. The dataset is available as the table <strong><code>dataset</code></strong>.</p>
+<pre class=" language-sql"><code class="prism  language-sql"><span class="token keyword">SELECT</span> name<span class="token punctuation">,</span> age<span class="token punctuation">,</span> salary <span class="token keyword">FROM</span> dataset <span class="token keyword">WHERE</span> age <span class="token operator">&gt;</span> <span class="token number">30</span> <span class="token keyword">ORDER</span> <span class="token keyword">BY</span> salary <span class="token keyword">DESC</span>
+</code></pre>
+<h3 id="prql">PRQL</h3>
+<p>PRQL is a modern, pipeline‑based language that compiles to SQL.</p>
+<pre class=" language-prql"><code class="prism  language-prql">from dataset
+filter age &gt; 30
+select {name, age, salary}
+sort {-salary}
+</code></pre>
+<p>The <strong>Translate</strong> button (visible in the NL tab) can convert natural language to PRQL/SQL.</p>
+<h3 id="natural-language">Natural Language</h3>
+<p>Type plain English to query your data. The engine tries to understand requests like:</p>
+<pre><code>show top 10 salary by department
+filter join_date &gt; 2020-01-01, select name, age, salary, sort by age descending
+count rows by city
+</code></pre>
+<p>It will generate the appropriate PRQL and SQL behind the scenes.<br>
+For complex expressions or full control, switch to SQL or PRQL.</p>
+<p><strong>Running a query:</strong> Click the <strong>▶ Run</strong> button or press <strong>Ctrl+Enter</strong> (if implemented).<br>
+The result replaces the current grid view. You can page through the query result just like the original dataset.<br>
+Here’s a concise description you can drop into the <strong>Natural Language</strong> section of the user guide.</p>
+<hr>
+<h3 id="a-note-caveat-on-natural-language">A Note (Caveat) on Natural Language</h3>
+<p>The Natural Language (NL) tab provides a <strong>quick shorthand</strong> for common queries – it is <strong>not an AI</strong> or machine‑learning model. Instead, it uses a handful of simple regular expressions to recognise patterns and translates your request into a PRQL pipeline (which then compiles to SQL). This makes the NL tab fast and predictable, but also limited in what it can understand.</p>
+<p><strong>Patterns that currently work:</strong></p>
+<ul>
+<li><code>filter score &gt; 50</code></li>
+<li><code>count rows by city</code>, <code>sum salary by department</code>, <code>average age by country</code></li>
+<li><code>sort by name ascending</code>, <code>sort by score descending</code></li>
+<li><code>select name, age, salary</code> (often combined with filters and sorts)</li>
+<li><code>create a new column margin as revenue minus cost</code></li>
+<li><code>top 10</code>, <code>take 20</code></li>
+<li><code>filter join_date &gt; 2020-01-01, select name, age, salary, sort by age descending</code></li>
+</ul>
+<p><strong>Patterns that currently do not work:</strong></p>
+<ul>
+<li>Complex nested queries or subqueries</li>
+<li>Multiple aggregations with different levels of grouping in one sentence</li>
+<li>Phrasing like “show me the…”, “I want to see…” – these filler words may confuse the parser</li>
+</ul>
+<p><strong>Important!</strong> If the NL tab cannot handle your request, simply switch to the <strong>SQL</strong> or <strong>PRQL</strong> tab – both give you the full expressive power of the engine. We have plans to either integrate a proper natural‑language parsing library or significantly extend the regex‑based engine in future versions, but for now the NL tab is a convenient tool for quick, everyday operations.</p>
+<hr>
+<h2 id="profiling--statistics">Profiling &amp; Statistics</h2>
+<p>The <strong>Data Profile</strong> panel provides column‑level statistics.</p>
+<ul>
+<li>
+<p><strong>Approximate profile</strong> (⚠ Approximate) is generated automatically for files under a certain size. It uses streaming and is fast but does not include exact percentiles or median.</p>
+</li>
+<li>
+<p><strong>Exact profile</strong> (full‑scan) calculates precise percentiles, median, standard deviation, etc.<br>
+<strong>Important:</strong> Click the <strong>🔬 Exact</strong> button to trigger an exact run. A warning will appear for large files – the process may take time, but once completed the results are cached on disk. Reopening the same file later will load cached stats instantly.</p>
+</li>
+<li>
+<p>If a file is too large (e.g., &gt; 10 million rows), profiling is disabled to keep the app responsive. The panel will show a message, and the Exact button is greyed out.</p>
+</li>
+</ul>
+<p>The profile displays for each column:</p>
+<ul>
+<li><strong>Null / Unique counts</strong></li>
+<li><strong>Min / Max</strong></li>
+<li><strong>Mean, Std, Variance</strong> (numeric columns)</li>
+<li><strong>Median</strong></li>
+<li><strong>Percentiles</strong> (0%, 25%, 50%, 75%, 100% and more)</li>
+<li><strong>Boolean stats</strong> (true/false ratios)</li>
+<li><strong>Top values</strong> (most frequent entries)</li>
+</ul>
+<p>You can copy the profile as CSV or JSON using the buttons at the top of the panel, or via the right‑click context menu.</p>
+<hr>
+<h2 id="exporting-data">Exporting Data</h2>
+<p>The <strong>💾 Export</strong> button in the header opens a dropdown menu with several options:</p>
+
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Export Current Page as CSV</strong></td>
+<td>Saves the visible page (columns and rows as displayed) to a CSV file.</td>
+</tr>
+<tr>
+<td><strong>Export Pipeline as CSV</strong></td>
+<td>Saves the entire query result (not just the current page) as CSV.</td>
+</tr>
+<tr>
+<td><strong>Export Pipeline as Parquet</strong></td>
+<td>Saves the query result in Parquet format.</td>
+</tr>
+<tr>
+<td><strong>Export Pipeline as NDJSON</strong></td>
+<td>Saves the query result as newline‑delimited JSON.</td>
+</tr>
+<tr>
+<td><strong>Export Pipeline as IPC</strong></td>
+<td>Saves the query result in Arrow IPC format.</td>
+</tr>
+</tbody>
+</table><p>All pipeline exports operate on the active result (the last executed query). If no query was run, the default <code>SELECT * FROM dataset</code> is used.</p>
+<p>You can also export directly from the <strong>context menu</strong> inside the grid (right‑click).</p>
+<hr>
+<h2 id="appearance--themes">Appearance &amp; Themes</h2>
+<p>You can change the colour theme using the dropdown in the header bar.<br>
+Themes available: Dark, Light, Ocean, Sunny, Neon, Skater‑Bboy, Rainbow, Matrix, Cyberpunk.<br>
+Your choice is persistent across sessions.</p>
+<hr>
+<h2 id="keyboard-shortcuts">Keyboard Shortcuts</h2>
+
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Shortcut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open file</td>
+<td><strong>Ctrl+O</strong> (or click the 📂 button)</td>
+</tr>
+<tr>
+<td>Run query</td>
+<td><strong>▶ Run</strong> button (Ctrl+Enter may be available in future)</td>
+</tr>
+<tr>
+<td>Navigate cells</td>
+<td><strong>Arrow keys</strong></td>
+</tr>
+<tr>
+<td>Extend selection</td>
+<td><strong>Shift+Arrow keys</strong></td>
+</tr>
+<tr>
+<td>Copy selection</td>
+<td><strong>Ctrl+C</strong> (after selecting cells, then use context menu or Ctrl+C)</td>
+</tr>
+<tr>
+<td>Toggle panels</td>
+<td>Buttons in the header or menu</td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p><strong>The app is slow when opening a large file</strong><br>
+Profiling (approximate and exact) is disabled for very large files. If you still experience slowness, it’s due to the initial schema detection and first‑page load. You can adjust the file size threshold in the engine configuration if needed.</p>
+<p><strong>Drag &amp; drop doesn’t work</strong><br>
+In some systems, permissions may block drag‑and‑drop events. Try using the <strong>Open</strong> button as a fallback.</p>
+<p><strong>Exact profile shows “N/A” for percentiles</strong><br>
+That means the approximate profile is still displayed. Wait for the exact profile to finish (log message “Exact profile ready”) or click the <strong>Exact</strong> button manually.</p>
+<p><strong>Query returns an error</strong><br>
+Check the log pane at the bottom for details. Common issues: missing quotes around strings, wrong date format (use <code>DATE '2020-01-01'</code> in SQL, <code>@2020-01-01</code> in PRQL), or a typo in a column name.</p>
+<hr>
+<p>Here are some examples that show off formulas, window functions, grouping, and advanced calculations.</p>
+<p>Each query is given in both <strong>SQL</strong> and <strong>PRQL</strong> – you can run them directly in the appropriate tab.</p>
+<hr>
+<h3 id="derived-columns--math-functions">1. Derived columns + math functions</h3>
+<p><strong>SQL</strong></p>
+<pre class=" language-sql"><code class="prism  language-sql"><span class="token keyword">SELECT</span> name<span class="token punctuation">,</span>
+       salary<span class="token punctuation">,</span>
+       salary <span class="token operator">*</span> <span class="token number">0.16</span> <span class="token keyword">AS</span> tax<span class="token punctuation">,</span>
+       <span class="token function">ROUND</span><span class="token punctuation">(</span>salary <span class="token operator">*</span> <span class="token number">0.16</span> <span class="token operator">*</span> <span class="token number">1.3</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token keyword">AS</span> medical_allowance<span class="token punctuation">,</span>
+       LN<span class="token punctuation">(</span>salary<span class="token punctuation">)</span> <span class="token keyword">AS</span> log_salary
+<span class="token keyword">FROM</span> dataset
+<span class="token keyword">ORDER</span> <span class="token keyword">BY</span> salary <span class="token keyword">DESC</span>
+<span class="token keyword">LIMIT</span> <span class="token number">20</span><span class="token punctuation">;</span>
+</code></pre>
+<p><strong>PRQL</strong></p>
+<pre class=" language-prql"><code class="prism  language-prql">from dataset
+derive {
+  tax = salary * 0.16,
+  medical_allowance = (math.round (tax * 1.3) 2),
+  log_salary = math.ln salary
+}
+select {name, salary, tax, medical_allowance, log_salary}
+sort {-salary}
+take 20
+</code></pre>
+<hr>
+<h3 id="group‑by-with-multiple-aggregates">2. Group‑by with multiple aggregates</h3>
+<p><strong>SQL</strong></p>
+<pre class=" language-sql"><code class="prism  language-sql"><span class="token keyword">SELECT</span> department<span class="token punctuation">,</span>
+       <span class="token function">COUNT</span><span class="token punctuation">(</span><span class="token operator">*</span><span class="token punctuation">)</span> <span class="token keyword">AS</span> employees<span class="token punctuation">,</span>
+       <span class="token function">AVG</span><span class="token punctuation">(</span>salary<span class="token punctuation">)</span> <span class="token keyword">AS</span> avg_salary<span class="token punctuation">,</span>
+       <span class="token function">MAX</span><span class="token punctuation">(</span>salary<span class="token punctuation">)</span> <span class="token keyword">AS</span> max_salary<span class="token punctuation">,</span>
+       <span class="token function">SUM</span><span class="token punctuation">(</span>salary <span class="token operator">*</span> <span class="token number">0.16</span><span class="token punctuation">)</span> <span class="token keyword">AS</span> total_tax
+<span class="token keyword">FROM</span> dataset
+<span class="token keyword">GROUP</span> <span class="token keyword">BY</span> department
+<span class="token keyword">ORDER</span> <span class="token keyword">BY</span> avg_salary <span class="token keyword">DESC</span><span class="token punctuation">;</span>
+</code></pre>
+<p><strong>PRQL</strong></p>
+<pre class=" language-prql"><code class="prism  language-prql">from dataset
+group {department} (
+  aggregate {
+    employees = count this,
+    avg_salary = average salary,
+    max_salary = max salary,
+    total_tax = sum (salary * 0.16)
+  }
+)
+sort {-avg_salary}
+select {department, employees, avg_salary, max_salary, total_tax}
+</code></pre>
+<hr>
+<h3 id="window-function-–-rank-within-each-department-by-salary">3. Window function – rank within each department by salary</h3>
+<p><strong>SQL</strong></p>
+<pre class=" language-sql"><code class="prism  language-sql"><span class="token keyword">SELECT</span> name<span class="token punctuation">,</span>
+       department<span class="token punctuation">,</span>
+       salary<span class="token punctuation">,</span>
+       RANK<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">OVER</span> <span class="token punctuation">(</span><span class="token keyword">PARTITION</span> <span class="token keyword">BY</span> department <span class="token keyword">ORDER</span> <span class="token keyword">BY</span> salary <span class="token keyword">DESC</span><span class="token punctuation">)</span> <span class="token keyword">AS</span> rank_in_dept
+<span class="token keyword">FROM</span> dataset
+<span class="token keyword">ORDER</span> <span class="token keyword">BY</span> department<span class="token punctuation">,</span> salary <span class="token keyword">DESC</span><span class="token punctuation">;</span>
+</code></pre>
+<p><strong>PRQL</strong></p>
+<pre class=" language-prql"><code class="prism  language-prql">from dataset
+derive {
+  rank_in_dept = rank (window (
+    order {-salary},
+    partition {department}
+  ))
+}
+select {name, department, salary, rank_in_dept}
+sort {department, -salary}
+</code></pre>
+<hr>
+<h3 id="binning-ages-with-case-and-then-grouping">4. Binning ages with <code>case</code> and then grouping</h3>
+<p><strong>SQL</strong></p>
+<pre class=" language-sql"><code class="prism  language-sql"><span class="token keyword">SELECT</span> <span class="token keyword">CASE</span>
+         <span class="token keyword">WHEN</span> age <span class="token operator">&lt;</span> <span class="token number">30</span> <span class="token keyword">THEN</span> <span class="token string">'Young'</span>
+         <span class="token keyword">WHEN</span> age <span class="token operator">BETWEEN</span> <span class="token number">30</span> <span class="token operator">AND</span> <span class="token number">50</span> <span class="token keyword">THEN</span> <span class="token string">'Mid'</span>
+         <span class="token keyword">ELSE</span> <span class="token string">'Senior'</span>
+       <span class="token keyword">END</span> <span class="token keyword">AS</span> age_group<span class="token punctuation">,</span>
+       <span class="token function">COUNT</span><span class="token punctuation">(</span><span class="token operator">*</span><span class="token punctuation">)</span> <span class="token keyword">AS</span> count<span class="token punctuation">,</span>
+       <span class="token function">AVG</span><span class="token punctuation">(</span>salary<span class="token punctuation">)</span> <span class="token keyword">AS</span> avg_salary
+<span class="token keyword">FROM</span> dataset
+<span class="token keyword">GROUP</span> <span class="token keyword">BY</span> age_group
+<span class="token keyword">ORDER</span> <span class="token keyword">BY</span> avg_salary <span class="token keyword">DESC</span><span class="token punctuation">;</span>
+</code></pre>
+<p><strong>PRQL</strong></p>
+<pre class=" language-prql"><code class="prism  language-prql">from dataset
+derive {
+  age_group = case [
+    age &lt; 30 =&gt; "Young",
+    age &lt;= 50 =&gt; "Mid",
+    true      =&gt; "Senior"
+  ]
+}
+group {age_group} (
+  aggregate {
+    count = count this,
+    avg_salary = average salary
+  }
+)
+sort {-avg_salary}
+select {age_group, count, avg_salary}
+</code></pre>
+<hr>
+<h3 id="complex-formula-and-mathematical-transformation-with-limit">5. Complex formula and mathematical transformation with limit</h3>
+<p><strong>SQL</strong></p>
+<pre class=" language-sql"><code class="prism  language-sql"><span class="token keyword">SELECT</span> name<span class="token punctuation">,</span>
+       score<span class="token punctuation">,</span>
+       EXP<span class="token punctuation">(</span>score <span class="token operator">/</span> <span class="token number">100</span><span class="token punctuation">)</span> <span class="token keyword">AS</span> exp_score<span class="token punctuation">,</span>
+       TANH<span class="token punctuation">(</span>score <span class="token operator">/</span> <span class="token number">100</span><span class="token punctuation">)</span> <span class="token keyword">AS</span> tanh_score<span class="token punctuation">,</span>
+       <span class="token function">ROUND</span><span class="token punctuation">(</span>SQRT<span class="token punctuation">(</span>score<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token keyword">AS</span> sqrt_score
+<span class="token keyword">FROM</span> dataset
+<span class="token keyword">WHERE</span> score <span class="token operator">&gt;</span> <span class="token number">50</span>
+<span class="token keyword">ORDER</span> <span class="token keyword">BY</span> score <span class="token keyword">DESC</span>
+<span class="token keyword">LIMIT</span> <span class="token number">20</span><span class="token punctuation">;</span>
+</code></pre>
+<p><strong>PRQL</strong></p>
+<pre class=" language-prql"><code class="prism  language-prql">from dataset
+filter score &gt; 50
+derive {
+  exp_score = math.exp (score / 100),
+  tanh_score = math.tanh (score / 100),
+  sqrt_score = (math.round (math.sqrt score) 2)
+}
+select {name, score, exp_score, tanh_score, sqrt_score}
+sort {-score}
+take 20
+</code></pre>
+<hr>
+<p>All of these queries have been tested against the <strong>Gene’s Parquet Viewer</strong> engine and should run without errors. Once again, remember that this is a solo project, and has many limitations and some bugs.</p>
+<hr>
+<p>I hope you find Gene’s Parquet Viewer useful.</p>
+</div>
+</body>
+
+</html>
