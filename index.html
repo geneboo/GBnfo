@@ -437,6 +437,36 @@
             border-bottom-color: var(--accent-color);
         }
 
+        .switcher-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--color-text);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.4px;
+            transition: all 0.25s;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            min-height: var(--touch-target);
+            text-decoration: none;
+        }
+        .switcher-btn:hover {
+            background: #333;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            color: #fff;
+        }
+        .switcher-btn svg {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+        
         /* ----- responsive header / nav ----- */
         @media (max-width: 768px) {
             .hamburger {
@@ -479,6 +509,11 @@
                 font-size: 0.65rem;
                 padding: 4px 10px;
             }
+            .switcher-btn {
+                padding: 8px 16px;
+                font-size: 0.7rem;
+                gap: 5px;
+            }            
         }
 
         /* ====================================================
@@ -1237,6 +1272,10 @@
                 <li class="nav-item" data-section="resume">Résumé</li>
                 <li class="nav-item" data-section="contact">Contact</li>
             </ul>
+            <a href="index3d.html" class="switcher-btn" aria-label="Enter 3D Office">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                3D Office
+            </a>            
         </nav>
     </header>
 
