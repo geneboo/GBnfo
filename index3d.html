@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Gene Boo · 3D Interactive Lab · Refactored Rooms</title>
+  <meta name="description" content="Gene Boo — room-based 3D portfolio with main hall, engineer desk, writer desk, arcade room, synth lab, drum machine and retro leaderboards." />
+  <link rel="stylesheet" href="./src/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&family=Roboto+Mono:wght@300;400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="vogue-bg"></div>
+  <div id="three-container"></div>
+
+  <header id="brand-header">
+    <div class="brand-left">
+      <img class="brand-face" src="assets/Gene-removebg-preview.png" alt="Gene Boo" onerror="this.style.display='none'" />
+      <div class="brand-text">
+        <div class="brand-title">Gene Boo</div>
+        <div class="brand-subtitle">Math · Code · Sound</div>
+      </div>
+    </div>
+    <nav class="top-nav" aria-label="Room navigation">
+      <button data-room="main">Main Hall</button>
+      <button data-room="engineer">Engineer's Desk</button>
+      <button data-room="writer">Writer's Desk</button>
+      <button data-room="arcade">Arcade Room</button>
+    </nav>
+    <a href="index.html" id="switcher-btn">Classic View</a>
+  </header>
+
+  <div id="theme-dots" aria-label="Theme switcher">
+    <button class="theme-dot active" data-theme="default" style="--dot:#FF006E" title="Default"></button>
+    <button class="theme-dot" data-theme="ocean" style="--dot:#2193b0" title="Ocean"></button>
+    <button class="theme-dot" data-theme="sunset" style="--dot:#ff7e5f" title="Sunset"></button>
+    <button class="theme-dot" data-theme="forest" style="--dot:#11998e" title="Forest"></button>
+    <button class="theme-dot" data-theme="royal" style="--dot:#8E54E9" title="Royal"></button>
+    <button class="theme-dot" data-theme="dnb" style="--dot:#00E5FF" title="DnB"></button>
+  </div>
+
+  <div id="hud-hint">Drag to orbit · Scroll to zoom · Click glowing room objects · Arcade scores save with initials</div>
+  <button id="leaderboard-btn" title="Leaderboard">🏆 LEADERBOARD</button>
+
+  <div id="content-overlay" aria-hidden="true">
+    <div id="content-panel" role="dialog" aria-modal="true">
+      <button id="panel-close" aria-label="Close">×</button>
+      <div id="panel-inner"></div>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
