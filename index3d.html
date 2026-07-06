@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-<title>Gene Boo · 3D Interactive Lab · Arcade Fix Pack</title>
+<title>Gene Boo · 3D Interactive Lab · Single File</title>
 <meta name="description" content="Gene Boo 3D Lab with enhanced arcade, synth, drum machine, reactive floor, coin pedestal, and catchable falling objects." />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&family=Roboto+Mono:wght@300;400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
 <style>
@@ -18,11 +18,11 @@
 <header id="brand-header"><div class="brand-left"><img class="brand-face" src="assets/Gene-removebg-preview.png" alt="Gene Boo" onerror="this.style.display='none'"/><div><div class="brand-title">Gene Boo</div><div class="brand-subtitle">Math · Code · Sound</div></div></div><nav class="nav"><button data-go="main">Main Hall</button><button data-go="engineer">Engineer's Desk</button><button data-go="writer">Writer's Desk</button><button data-go="arcade">Arcade</button></nav><a id="switcher" href="index.html">Classic View</a></header>
 <div id="hint">Drag to orbit · Click floor for ripples · Double-click empty floor for volcanic explosions · Click falling objects</div><button id="lbbtn">🏆 LEADERBOARD</button>
 <div id="overlay"><div id="panel"><button id="close">×</button><div id="inner"></div></div></div>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
 
+if(!window.THREE){document.body.innerHTML='<div style="padding:30px;color:white;background:#05050A;font-family:monospace"><h1>Three.js did not load</h1><p>This single-file build does not need a local server, but it still needs internet access to load Three.js from CDN. If you want a truly fully offline file, download and place three.min.js + OrbitControls.js locally.</p></div>';throw new Error('THREE missing');}
 // ---------- DOM ----------
 const container=document.getElementById('three-container'), overlay=document.getElementById('overlay'), inner=document.getElementById('inner'), closeBtn=document.getElementById('close'), hint=document.getElementById('hint');
 const root=document.documentElement.style;
@@ -42,7 +42,7 @@ document.getElementById('lbbtn').onclick=()=>openHTML(leaderboardHTML());
 const scene=new THREE.Scene(); scene.fog=new THREE.FogExp2('#05050A',.014);
 const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,140); camera.position.set(0,7,17);
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'}); renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.toneMapping=THREE.ACESFilmicToneMapping; container.appendChild(renderer.domElement);
-const controls=new OrbitControls(camera,renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.06; controls.maxPolarAngle=Math.PI/2+.18; controls.minDistance=3; controls.maxDistance=42; controls.target.set(0,2,0);
+const controls=new THREE.OrbitControls(camera,renderer.domElement); controls.enableDamping=true; controls.dampingFactor=.06; controls.maxPolarAngle=Math.PI/2+.18; controls.minDistance=3; controls.maxDistance=42; controls.target.set(0,2,0);
 scene.add(new THREE.AmbientLight('#222244',1.6)); const spot=new THREE.SpotLight('#fff',45,55,Math.PI/4.5,.45,1); spot.position.set(0,18,0); spot.castShadow=true; scene.add(spot);
 const raycaster=new THREE.Raycaster(), mouse=new THREE.Vector2(); const interactive=[]; const fallingHitboxes=[]; const updatables=[]; let hovered=null, hoveredGroup=null;
 
@@ -74,19 +74,79 @@ const halo=new THREE.Mesh(new THREE.TorusGeometry(3.05,.07,20,140),new THREE.Mes
 const goldGeo=new THREE.BufferGeometry(),goldN=220,goldPos=new Float32Array(goldN*3),goldPhase=new Float32Array(goldN);for(let i=0;i<goldN;i++){goldPhase[i]=Math.random()*Math.PI*2}goldGeo.setAttribute('position',new THREE.BufferAttribute(goldPos,3));const goldPts=new THREE.Points(goldGeo,new THREE.PointsMaterial({color:'#ffd166',size:.08,transparent:true,opacity:.9,blending:THREE.AdditiveBlending,depthWrite:false}));coin.add(goldPts);
 updatables.push(t=>{coin.userData.hue=(coin.userData.hue+.0025)%1;const c=new THREE.Color().setHSL(coin.userData.hue,.95,.55);coinMat.color.copy(c);coinMat.emissive.copy(c).multiplyScalar(.35);halo.material.color.copy(c);clight.color.copy(c);coin.rotation.y+=.012+coin.userData.spinBoost;coin.rotation.z=Math.sin(t*.75)*.05;coin.position.y=5.7+Math.sin(t*1.7)*.45;coin.scale.setScalar(1.12+Math.sin(t*2.8)*.08+(coin.userData.hovered?.18:0));coin.userData.spinBoost=Math.max(0,coin.userData.spinBoost*.94-.001);const arr=goldGeo.attributes.position.array;for(let i=0;i<goldN;i++){const p=goldPhase[i],r=2.9+Math.sin(t*1.4+p)*.55,a=t*(1.15+coin.userData.spinBoost*8)+p;arr[i*3]=Math.cos(a)*r;arr[i*3+1]=Math.sin(t*2+p)*.9;arr[i*3+2]=Math.sin(a)*r}goldGeo.attributes.position.needsUpdate=true;if(Math.random()<.006+coin.userData.spinBoost*.04)burst(coin.position.x,coin.position.y,coin.position.z,20,true)});
 
-// ---------- Room layout/stations ----------
-label('MAIN HALL',new THREE.Vector3(0,6.4,0),'#FFBE0B');neonStation({id:'about',name:'About',color:'#3A86FF',x:-4,z:1});neonStation({id:'projects',name:"Engineer's Desk",color:'#00E5FF',x:9,z:1,type:'box',w:3,h:2.4,d:1});neonStation({id:'written',name:"Writer's Desk",color:'#fff',x:-9,z:1,type:'box',w:3,h:2.4,d:1});label('ARCADE ROOM',new THREE.Vector3(0,6.2,-25),'#FF006E');
+// ---------- Room layout/stations: menu portals + richer desk graphics ----------
+label('MAIN HALL',new THREE.Vector3(0,6.4,0),'#FFBE0B');
+
+// About crystal
+neonStation({id:'about',name:'About',color:'#3A86FF',x:-4,z:1,type:'sphere'});
+
+// Engineer's sampler/tool desk — visibly like sampler pads/workbench, not just a box
+const engDesk=new THREE.Group();engDesk.position.set(9,0,1);engDesk.userData={hovered:false,isInteractiveGroup:true,color:'#00E5FF'};scene.add(engDesk);
+const engTable=new THREE.Mesh(new THREE.BoxGeometry(6.2,.28,2.6),new THREE.MeshStandardMaterial({color:'#101018',metalness:.75,roughness:.28,emissive:'#001822',emissiveIntensity:.28}));engTable.position.y=1.15;engTable.castShadow=true;engDesk.add(engTable);
+const engBack=new THREE.Mesh(new THREE.BoxGeometry(5.8,2.1,.22),new THREE.MeshStandardMaterial({color:'#080812',metalness:.65,roughness:.22,emissive:'#002b35',emissiveIntensity:.45}));engBack.position.set(0,2.35,-1.15);engDesk.add(engBack);
+const engScreenCanvas=document.createElement('canvas');engScreenCanvas.width=512;engScreenCanvas.height=256;const esc=engScreenCanvas.getContext('2d');
+esc.fillStyle='#05050a';esc.fillRect(0,0,512,256);esc.fillStyle='#00E5FF';esc.font='bold 42px Orbitron';esc.textAlign='center';esc.shadowColor='#00E5FF';esc.shadowBlur=18;esc.fillText('ENGINEER DESK',256,74);esc.font='24px Orbitron';esc.fillStyle='#FFBE0B';esc.fillText('APPS · SITES · TOOLS',256,132);esc.fillStyle='#FF006E';esc.fillText('PARQUET · EXCELBRIDGE · DSP',256,184);
+const engScreen=new THREE.Mesh(new THREE.PlaneGeometry(4.7,2.25),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(engScreenCanvas)}));engScreen.position.set(0,2.45,-1.03);engDesk.add(engScreen);
+const engPads=[];for(let r=0;r<3;r++)for(let c=0;c<5;c++){const pad=new THREE.Mesh(new THREE.BoxGeometry(.52,.09,.42),new THREE.MeshStandardMaterial({color:'#111',emissive:(r+c)%3===0?'#00E5FF':(r+c)%3===1?'#FF006E':'#FFBE0B',emissiveIntensity:.8,metalness:.35,roughness:.38}));pad.position.set(-2.1+c*1.05,1.36,-.15+r*.55);engDesk.add(pad);engPads.push(pad)}
+const engLight=new THREE.PointLight('#00E5FF',4,10);engLight.position.set(0,3.2,1);engDesk.add(engLight);addHit(engDesk,'projects',3.3);label("ENGINEER'S DESK",new THREE.Vector3(9,4.8,1),'#00E5FF');
+updatables.push(t=>{engPads.forEach((p,i)=>{p.material.emissiveIntensity=.45+(Math.sin(t*4+i)*.5+.5)*.85});engTable.material.emissiveIntensity=engDesk.userData.hovered?.8:.28;engLight.intensity=engDesk.userData.hovered?8:4;});
+
+// Writer's chalkboard / desk — restores chalkboard feel
+const writer=new THREE.Group();writer.position.set(-9,0,1);writer.userData={hovered:false,isInteractiveGroup:true,color:'#fff'};scene.add(writer);
+const wTable=new THREE.Mesh(new THREE.BoxGeometry(6,.25,2.2),new THREE.MeshStandardMaterial({color:'#241b12',roughness:.65,metalness:.25,emissive:'#130906',emissiveIntensity:.12}));wTable.position.y=1.0;writer.add(wTable);
+const boardCanvas=document.createElement('canvas');boardCanvas.width=1024;boardCanvas.height=512;const bctx=boardCanvas.getContext('2d');bctx.fillStyle='#07160f';bctx.fillRect(0,0,1024,512);bctx.strokeStyle='rgba(255,255,255,.28)';bctx.lineWidth=8;bctx.strokeRect(16,16,992,480);bctx.fillStyle='rgba(255,255,255,.88)';bctx.font='italic 34px Playfair Display';bctx.fillText('Black-Scholes-Merton:',58,86);bctx.font='34px Roboto Mono';bctx.fillText('C = N(d1)S_t - N(d2)Ke^{-rt}',58,150);bctx.fillText('d1 = [ln(S/K)+(r+σ²/2)t]/σ√t',58,210);bctx.fillStyle='#FFBE0B';bctx.font='italic 30px Playfair Display';bctx.fillText('FFT · MGF · CUDA · VaR · ES · Autodiff',58,345);bctx.fillStyle='#00E5FF';bctx.fillText('Click to browse written works',58,410);
+const chalkboard=new THREE.Mesh(new THREE.PlaneGeometry(7.5,3.75),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(boardCanvas),roughness:.9,metalness:.05,emissive:'#001508',emissiveIntensity:.25}));chalkboard.position.set(0,3.05,-1.0);writer.add(chalkboard);
+const chalkLight=new THREE.PointLight('#ffffff',2.8,9);chalkLight.position.set(0,3.4,1);writer.add(chalkLight);addHit(writer,'written',3.4);label("WRITER'S DESK",new THREE.Vector3(-9,5.4,1),'#ffffff');
+updatables.push(t=>{chalkboard.material.emissiveIntensity=writer.userData.hovered?.55:.25;chalkLight.intensity=writer.userData.hovered?6:2.8;writer.rotation.y=Math.sin(t*.35)*.035});
+
+// Arcade entrance / menu markers
+label('ARCADE ROOM',new THREE.Vector3(0,6.2,-25),'#FF006E');
+const arcadeGate=new THREE.Mesh(new THREE.TorusGeometry(5.5,.08,20,160),new THREE.MeshBasicMaterial({color:'#FF006E',transparent:true,opacity:.95}));arcadeGate.position.set(0,2.4,-18);arcadeGate.rotation.x=Math.PI/2;scene.add(arcadeGate);
 const games=[['game_synth','Synth Lab','#FFBE0B'],['game_drums','Drum Machine','#00E5FF'],['game_pong','Neon Pong','#FF006E'],['game_letters','Letter Rain','#00FFFF'],['game_racer','Neon Racer','#FF4500'],['game_1943','1943 Powerups','#FFD700'],['game_breakout','Plasma Breakout','#38ef7d'],['game_snake','Circuit Snake','#9B5DE5'],['game_memory','Memory Match','#8E54E9']];
 const pos=[[-8,-25],[-4,-30],[0,-24],[4,-30],[8,-25],[-8,-36],[0,-36],[8,-36],[0,-42]];games.forEach((g,i)=>neonStation({id:g[0],name:g[1],color:g[2],x:pos[i][0],z:pos[i][1],type:i%3===0?'cone':i%3===1?'sphere':'box',w:2,h:2.7,d:1.4}));
+updatables.push(t=>{arcadeGate.material.color.setHSL((t*.12)%1,1,.58);arcadeGate.rotation.z+=.01});
 
 // ---------- Falling catchable matrix objects ----------
 const fallers=[];const fallSymbols=['λ','π','Σ','∫','∞','μ','σ','Δ','⚙','🎲','🎹','🥁','★','◆','0','1','9'];
 function makeSprite(txt,color){const c=document.createElement('canvas');c.width=96;c.height=96;const x=c.getContext('2d');x.font='bold 54px Orbitron';x.textAlign='center';x.textBaseline='middle';x.fillStyle=color;x.shadowColor=color;x.shadowBlur=16;x.fillText(txt,48,50);const tex=new THREE.CanvasTexture(c);return new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false}))}
 function spawnFaller(){const color=new THREE.Color().setHSL(Math.random(),1,.62).getStyle();const sp=makeSprite(fallSymbols[Math.floor(Math.random()*fallSymbols.length)],color);sp.position.set((Math.random()-.5)*44,20+Math.random()*10,(Math.random()-.5)*50);sp.scale.set(.85,.85,1);sp.userData={speed:.035+Math.random()*.06,spin:(Math.random()-.5)*.05,color};scene.add(sp);fallers.push(sp);const hb=new THREE.Mesh(new THREE.SphereGeometry(.65,8,8),new THREE.MeshBasicMaterial({visible:false}));hb.userData={id:'faller',sprite:sp};sp.add(hb);fallingHitboxes.push(hb)}for(let i=0;i<42;i++)spawnFaller();
 
-// ---------- Station data ----------
-const stationData={about:{title:'Gene Boo',subtitle:'Math · Code · Sound',body:'<p>Where mathematics meets technology and creativity.</p><p><strong>Mantra:</strong> Old whip, ancient keys, but the stack is clean. Zero-dollar budget, major power in the machine.</p>',cards:[['💡','Code Alchemist','Creative, high-performance tooling across web, quant, DSP and visualization.'],['📊','Quant & Modeler','Mathematical modeling, risk analytics, numerical methods, Python/C++/Rust.'],['🎛️','Audio/Visual Engineer','Synths, drum machines, generative visuals and sound experiments.']]},resume:{title:'CVs & Cover Letters',subtitle:'Professional experience & qualifications',body:'<p>Open or download résumé and cover-letter documents. Copy your original assets folder into this project for all links to resolve.</p>',cards:[['📄','Cover Letter','assets/Cover Letter - Gene Boo.pdf'],['📘','CV 2026','assets/CV of Gene Boo (2026 v2-s).pdf'],['📗','CV 2025','assets/CV of Gene Boo (2025 v1-s).pdf'],['📙','CV 2024','assets/CV of Gene Boo (2024 v3-s).pdf']]},projects:{title:"Engineer's Desk",subtitle:'Apps, SaaS, tools and sites',body:'<p>Engineering work grouped here: Parquet Viewer, ExcelBridge, FourierDoodler, Fit_it!, WebGL visualizers and more.</p>',cards:[['🗃️',"Gene's Parquet Viewer",'Rust + Polars viewer for huge parquet data.'],['🧰','ExcelBridge','Excel front-end for Python numerical computing.'],['🎵','FourierDoodler','Draw and transform into epicycles/music.'],['📡','WebGL Audio Visualizer','Reactive GPU audio visuals.']]},written:{title:"Writer's Desk",subtitle:'Written works and technical notes',body:'<p>FFT, MGF pricing, CUDA tiling, arbitrage, quadrature, autodiff, copulas, VaR and ES.</p>',cards:[['📄','Fourier Transform','FFT convolution for option pricing.'],['📈','Risk-Neutral Pricing via MGF','Drift correction through moment generating functions.'],['🖥️','CUDA Tiling','Matrix multiplication and GPU memory.'],['📚','Beyond the Formulas','MLE, Laplace, copulas, quadrature, autodiff, VaR/ES.']]}};
-function stationHTML(d){let h=`<div class="modal-title">${d.title}</div><div class="modal-subtitle">${d.subtitle}</div><div class="modal-body">${d.body||''}</div><div class="cards">`;d.cards?.forEach(c=>{let link=c[2]?.startsWith('assets/')?`<div class="links"><a href="${c[2]}" target="_blank">Open</a></div>`:'';h+=`<div class="card"><div class="ico">${c[0]}</div><h3>${c[1]}</h3><p>${c[2]}</p>${link}</div>`});return h+'</div>'}
+// ---------- Station data: restored full links ----------
+const stationData={
+  about:{title:'Gene Boo',subtitle:'Math · Code · Sound',body:'<p>Where mathematics meets technology and creativity.</p><p><strong>Mantra:</strong> Old whip, ancient keys, but the stack is clean. Zero-dollar budget, major power in the machine.</p>',cards:[
+    {icon:'💡',title:'Code Alchemist',desc:'Creative, high-performance tooling across web, quant, DSP and visualization.'},
+    {icon:'📊',title:'Quant & Modeler',desc:'Mathematical modeling, risk analytics, numerical methods, Python/C++/Rust.'},
+    {icon:'🎛️',title:'Audio/Visual Engineer',desc:'Synths, drum machines, generative visuals and sound experiments.'}
+  ],links:[{text:'🎵 Sonic Art on SoundCloud',url:'https://soundcloud.com/gb-diz-zy-unofficial'},{text:'💼 LinkedIn',url:'https://www.linkedin.com/in/gene-boo-007/'},{text:'🐙 GitHub',url:'https://github.com/geneboo'}]},
+  resume:{title:'CVs & Cover Letters',subtitle:'Professional experience & qualifications',body:'<p>Open or download résumé and cover-letter documents. Copy your original assets folder into this project for all local files to resolve.</p>',cards:[
+    {icon:'📄',title:'Cover Letter',desc:'Letter of introduction highlighting professional journey, skills, and aspirations.',links:[{text:'View Cover Letter',url:'assets/Cover Letter - Gene Boo.pdf'},{text:'Download Cover Letter',url:'assets/Cover Letter - Gene Boo.pdf',download:true}]},
+    {icon:'📘',title:'CV 2026',desc:'Latest edition of the professional CV.',links:[{text:'View HTML Version',url:'CV_GB_2026_v2-s.html'},{text:'Download PDF',url:'assets/CV of Gene Boo (2026 v2-s).pdf',download:true}]},
+    {icon:'📗',title:'CV 2025',desc:'Previous CV edition.',links:[{text:'View HTML Version',url:'CV_GB_2025_v1-s.html'},{text:'Download PDF',url:'assets/CV of Gene Boo (2025 v1-s).pdf',download:true}]},
+    {icon:'📙',title:'CV 2024',desc:'Archive CV edition.',links:[{text:'View PDF',url:'assets/CV of Gene Boo (2024 v3-s).pdf'},{text:'Download PDF',url:'assets/CV of Gene Boo (2024 v3-s).pdf',download:true}]}
+  ]},
+  projects:{title:"Engineer's Desk",subtitle:'Apps, SaaS, tools and sites',body:'<p>Engineering work grouped here: Parquet Viewer, ExcelBridge, FourierDoodler, Fit_it!, WebGL visualizers and more.</p>',cards:[
+    {icon:'🗃️',title:"Gene's Parquet Viewer",desc:'Rust and Polars powered Windows app for inspecting large parquet datasets and running SQL / PRQL queries.',links:[{text:'v0.7.1 Release',url:'https://github.com/geneboo/gene_products/releases/tag/Genes-Parquet-Viewer-0.7.1'},{text:'GUI Guide',url:'GPV_v0_7_1_UI_User_Guide.html'},{text:'CLI Guide',url:'PV_v0_7_1_User_Guide.html'}]},
+    {icon:'🧰',title:'ExcelBridge',desc:'REST host that turns Excel into a front-end for Python numerical computing; plugin-based and spill-ready.',links:[{text:'v2.2.8',url:'https://github.com/geneboo/gene_products/releases/tag/v2.2.8'},{text:'v3.1.5',url:'https://github.com/geneboo/gene_products/releases/tag/v3.1.5'},{text:'Plugin Dev Guide',url:'ExcelBridge_plugin_developer_guide.html'},{text:'Google Sheets + npm',url:'ExcelBridge_plugin_for_Google_Sheets_using_npm.html'},{text:'LibreOffice Calc',url:'ExcelBridge_plugin_for_LibreOffice.html'}]},
+    {icon:'🎨',title:'Funkygraffy!',desc:'Interactive math visualization toy with color, animation and Easter eggs.',links:[{text:'Render Cloud',url:'https://funkygraffy.onrender.com/'},{text:'Google Cloud',url:'https://my-cloud-run-service-324349391188.asia-southeast1.run.app/'}]},
+    {icon:'🔁',title:'Convolve!',desc:'Empirical convolution of shapes, PDFs, or functions — useful for distributions and signal processing.',links:[{text:'Coming Soon',url:'#'}]},
+    {icon:'🕶️',title:'Cermin Mata Ho',desc:'No-code business site editable via Excel for small-shop updates.',links:[{text:'View Site',url:'https://geneboo.github.io/GBnfo/OptiStyle.html'}]},
+    {icon:'📊',title:'Fit_it!',desc:'Upload data and rank best-fit continuous distributions.',links:[{text:'Live Demo',url:'https://fit-it-app-29330439259.asia-southeast1.run.app/#top'}]},
+    {icon:'🎵',title:'FourierDoodler',desc:'Draw anything and transform it into Fourier epicycles, equations and music.',links:[{text:'Live Demo',url:'https://fourier-doodler-3805819345.asia-southeast1.run.app'}]},
+    {icon:'📡',title:'WebGL Audio Visualizer',desc:'Real-time GPU-accelerated WebGL audio visualizer.',links:[{text:'Live Demo',url:'https://webgl-audio-visualizer-3805819345.asia-southeast1.run.app/'}]},
+    {icon:'🧩',title:"Gene's SaaS Universe",desc:'Mini REST endpoints for pricing, risk analytics and quant models.',links:[{text:'Coming Soon',url:'#'}]}
+  ]},
+  written:{title:"Writer's Desk",subtitle:'Written works and technical notes',body:'<p>FFT, MGF pricing, CUDA tiling, arbitrage, quadrature, autodiff, copulas, VaR and ES.</p>',cards:[
+    {icon:'📄',title:'Understanding Fourier Transform',desc:'FFT convolution for option pricing — with Python implementations and Black-Scholes extensions.',links:[{text:'PDF',url:'assets/Gene%20Boo%20-%20FFT%20Convolution%20PDF%20BlackScholes%20Python3%20v5_.pdf'}]},
+    {icon:'📊',title:'FFT Cross-Correlation vs Pearson',desc:'Using FFT for cross-correlation and comparing with Pearson correlation.',links:[{text:'HTML',url:'assets/GB_FFT_Pearson_NP_Correl.html'},{text:'PDF',url:'assets/GB_FFT_Pearson_NP_Correl.pdf'},{text:'IPYNB',url:'assets/GB_FFT_Pearson_NP_Correl.ipynb'}]},
+    {icon:'📈',title:'Risk-Neutral Pricing via MGF',desc:'Moment generating functions for drift correction in risk-neutral valuation.',links:[{text:'HTML',url:'assets/GB_Risk-Neutral_Pricing_via_MGF_v3.html'},{text:'PDF',url:'assets/GB_Risk-Neutral_Pricing_via_MGF_v3.pdf'}]},
+    {icon:'🖥️',title:'NVIDIA CUDA Tiling Explained',desc:'CUDA tiling explained through matrix multiplication.',links:[{text:'HTML',url:'assets/NVIDIA_CUDA_Tile.html'},{text:'PDF',url:'assets/NVIDIA_CUDA_Tile.pdf'}]},
+    {icon:'💹',title:'Art of Buy-Side Arbitrage',desc:'Strategic overview of arbitrage techniques in modern buy-side institutions.',links:[{text:'HTML',url:'assets/GB_Buy-side_Arbitrage.html'},{text:'PDF',url:'assets/GB_Buy-side_Arbitrage.pdf'}]},
+    {icon:'📐',title:'Mind the Gap (Under the Curve)',desc:'Numerical integration and quadrature methods with financial engineering applications.',links:[{text:'HTML',url:'assets/GB_Mind_the_Gap_Under_the_Curve_with_sidebar.html'},{text:'PDF',url:'assets/GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf'}]},
+    {icon:'📚',title:'Beyond the Formulas',desc:'MLE, FFT, Laplace transforms, copulas, quadrature, autodiff, VaR and ES workflows.',links:[{text:'HTML',url:'assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_NUMBERED_TOC.html'},{text:'PDF',url:'assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_NUMBERED_TOC.pdf'},{text:'IPYNB',url:'assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_FULL.ipynb'}]}
+  ]}
+};
+function renderLinks(links){if(!links||!links.length)return '';return `<div class="links">${links.map(l=>`<a href="${l.url}" ${l.download?'download':'target="_blank" rel="noopener"'}>${l.text}</a>`).join('')}</div>`}
+function stationHTML(d){let h=`<div class="modal-title">${d.title}</div><div class="modal-subtitle">${d.subtitle}</div><div class="modal-body">${d.body||''}</div>`;if(d.cards){h+='<div class="cards">';d.cards.forEach(c=>{h+=`<div class="card"><div class="ico">${c.icon||'✨'}</div><h3>${c.title}</h3><p>${c.desc||''}</p>${renderLinks(c.links)}</div>`});h+='</div>'}h+=renderLinks(d.links);return h}
 
 // ---------- Overlay ----------
 let activeGame=null, cleanup=[];function addCleanup(fn){cleanup.push(fn)}function cleanupGame(){cleanup.forEach(fn=>{try{fn()}catch(e){}});cleanup=[];activeGame=null;if(gameRAF)cancelAnimationFrame(gameRAF);gameRAF=null}
