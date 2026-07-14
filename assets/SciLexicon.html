@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="SciLexicon Live: a static GitHub Pages science dictionary, thesaurus, explainer and formula explorer using live public APIs." />
+  <title>SciLexicon Live</title>
+
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']] },
+      svg: { fontCache: 'global' },
+      startup: { typeset: false }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050816;
+      --text: #f8fbff;
+      --muted: #a8b3c7;
+      --line: rgba(255,255,255,.16);
+      --glass: rgba(9,15,30,.60);
+      --glass2: rgba(255,255,255,.08);
+      --cyan: #60eaff;
+      --green: #78ffd6;
+      --violet: #b176ff;
+      --red: #ff668a;
+      --amber: #ffd166;
+      --shadow: 0 24px 80px rgba(0,0,0,.32);
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: Consolas, "SFMono-Regular", Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--font); overflow-x: hidden; }
+    body.light { color-scheme: light; --bg: #f7fbff; --text: #08111f; --muted: #506076; --line: rgba(8,17,31,.14); --glass: rgba(255,255,255,.72); --glass2: rgba(8,17,31,.055); --shadow: 0 24px 80px rgba(42,82,130,.18); }
+    #webgl { position: fixed; inset: 0; z-index: -3; }
+    .veil { position: fixed; inset: 0; z-index: -2; pointer-events: none; background: radial-gradient(circle at 18% 20%, rgba(96,234,255,.25), transparent 30%), radial-gradient(circle at 82% 18%, rgba(177,118,255,.20), transparent 28%), radial-gradient(circle at 60% 84%, rgba(120,255,214,.13), transparent 28%), linear-gradient(to bottom, transparent, rgba(5,8,22,.78)); }
+    body.light .veil { background: linear-gradient(to bottom, rgba(247,251,255,.25), rgba(247,251,255,.88)); }
+    .shell { width: min(1240px, calc(100% - 36px)); margin: auto; }
+    nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 0; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .logo { width: 48px; height: 48px; border-radius: 18px; display: grid; place-items: center; background: linear-gradient(135deg, var(--cyan), var(--violet)); color: #06111b; font-weight: 950; box-shadow: var(--shadow); }
+    .brand b { display: block; font-size: 19px; }
+    .brand span, .muted { color: var(--muted); }
+    .brand span { display: block; font-size: 12px; margin-top: 2px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn, .chip { border: 1px solid var(--line); background: var(--glass); color: var(--text); border-radius: 16px; padding: 11px 14px; cursor: pointer; text-decoration: none; font-weight: 750; backdrop-filter: blur(18px); transition: transform .18s ease, border-color .18s ease; }
+    .btn:hover, .chip:hover, .tag:hover { transform: translateY(-1px); border-color: rgba(96,234,255,.55); }
+    .btn.primary { border: 0; color: #04111a; background: linear-gradient(135deg, var(--cyan), var(--green)); }
+    .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 28px; align-items: center; padding: 48px 0 22px; }
+    h1 { font-size: clamp(42px, 8vw, 88px); line-height: .94; letter-spacing: -.07em; margin: 18px 0; }
+    .grad { background: linear-gradient(135deg, var(--cyan), var(--green), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { font-size: clamp(17px, 2vw, 21px); line-height: 1.62; color: var(--muted); max-width: 780px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--glass2); border-radius: 999px; padding: 7px 10px; color: var(--muted); font-size: 12px; }
+    .search { display: flex; gap: 10px; margin-top: 26px; padding: 12px; border: 1px solid var(--line); background: var(--glass); border-radius: 26px; box-shadow: var(--shadow); backdrop-filter: blur(22px); }
+    .search input { flex: 1; border: 0; outline: 0; background: var(--glass2); color: var(--text); border-radius: 18px; padding: 14px; font-size: 17px; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .panel, .card { border: 1px solid var(--line); background: var(--glass); border-radius: 28px; box-shadow: var(--shadow); backdrop-filter: blur(24px); overflow: hidden; }
+    .panel { padding: 22px; }
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .stat { background: var(--glass2); border: 1px solid var(--line); border-radius: 20px; padding: 18px; min-height: 98px; }
+    .stat span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .stat b { display: block; margin-top: 10px; font-size: 24px; }
+    .grid { display: grid; grid-template-columns: .94fr 1.06fr; gap: 20px; padding: 22px 0 54px; align-items: start; }
+    .stack { display: grid; gap: 18px; }
+    .head { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 20px 20px 0; }
+    .head h2, .head h3 { margin: 0; letter-spacing: -.03em; }
+    .body { padding: 18px 20px 20px; }
+    .definition { font-size: 17px; line-height: 1.72; }
+    .layman { font-size: 18px; line-height: 1.7; color: color-mix(in srgb, var(--text) 84%, var(--green)); }
+    .imagebox { margin-top: 14px; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); }
+    .imagebox img { width: 100%; max-height: 300px; object-fit: cover; display: block; }
+    .kv { display: grid; grid-template-columns: 130px 1fr; gap: 8px 12px; margin-top: 12px; }
+    .kv div:nth-child(odd) { color: var(--muted); }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag { border: 1px solid var(--line); background: var(--glass2); border-radius: 999px; padding: 8px 11px; color: var(--text); cursor: pointer; transition: transform .18s ease, border-color .18s ease; }
+    .formula { border: 1px solid var(--line); background: rgba(0,0,0,.22); border-radius: 18px; padding: 14px; margin-bottom: 10px; }
+    body.light .formula { background: rgba(255,255,255,.54); }
+    .formula-code { overflow-x: auto; background: rgba(1,8,16,.78); color: #a7f7ff; border-radius: 14px; padding: 14px; font-family: var(--mono); }
+    .source { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid var(--line); background: var(--glass2); border-radius: 18px; text-decoration: none; margin-top: 10px; color: var(--text); }
+    .source span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; word-break: break-word; }
+    .apirow { display: flex; justify-content: space-between; gap: 10px; border: 1px solid var(--line); background: var(--glass2); border-radius: 16px; padding: 10px 12px; margin-top: 8px; }
+    .apirow code { color: var(--cyan); font-size: 12px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--amber); }
+    .dot.ok { background: var(--green); }
+    .dot.bad { background: var(--red); }
+    .empty { padding: 26px; text-align: center; color: var(--muted); }
+    .notice { border: 1px solid rgba(255,209,102,.3); background: rgba(255,209,102,.08); border-radius: 18px; padding: 13px; line-height: 1.55; }
+    footer { padding: 10px 0 32px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 900px) { .hero, .grid { grid-template-columns: 1fr; } .search { flex-direction: column; } nav { align-items: flex-start; } }
+    @media (max-width: 580px) { nav { flex-direction: column; } .stats { grid-template-columns: 1fr; } .kv { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="webgl" aria-hidden="true"></div>
+  <div class="veil" aria-hidden="true"></div>
+
+  <nav class="shell">
+    <div class="brand">
+      <div class="logo">SL</div>
+      <div><b>SciLexicon by Gene</b><span>Dictionary · thesaurus · explainer · formulae · live sources</span></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="themeBtn" type="button">☀️ / 🌙</button>
+      <a class="btn" href="https://geneboo.github.io/GBnfo/" target="_blank" rel="noreferrer">Gene's GitHub Page</a>
+      <button class="btn" id="copyBtn" type="button">Copy citation</button>
+    </div>
+  </nav>
+
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <div class="pill"><span class="dot" id="liveDot"></span> Live API mode · no persistent local database</div>
+        <h1>One beautiful <span class="grad">science lookup</span>, assembled live from the web.</h1>
+        <p class="lead">Calls public APIs in the browser: Wikipedia, Wikidata, Wiktionary, Datamuse, plus source links for NIST DLMF and OpenStax. No backend and no stored database.</p>
+        <form class="search" id="searchForm">
+          <input id="query" value="entropy" autocomplete="off" spellcheck="false" placeholder="Search entropy, photosynthesis, derivative..." />
+          <button class="btn primary" type="submit">Search live sources</button>
+        </form>
+        <div class="chips"><button class="chip" data-term="entropy">entropy</button><button class="chip" data-term="photosynthesis">photosynthesis</button><button class="chip" data-term="derivative">derivative</button><button class="chip" data-term="quantum mechanics">quantum mechanics</button><button class="chip" data-term="mitochondrion">mitochondrion</button><button class="chip" data-term="gamma function">gamma function</button></div>
+      </div>
+      <aside class="panel"><div class="stats"><div class="stat"><span>Runtime</span><b>Static HTML + JS</b></div><div class="stat"><span>Rendering</span><b>Three.js WebGL2</b></div><div class="stat"><span>Storage</span><b>None persistent</b></div><div class="stat"><span>Attribution</span><b>Per source</b></div></div></aside>
+    </section>
+
+    <section class="grid">
+      <div class="stack">
+        <article class="card"><div class="head"><h2 id="termTitle">Ready</h2><span class="pill" id="qidPill">live</span></div><div class="body"><p id="termSubtitle" class="muted">Search a term.</p><div id="imageBox" class="imagebox" hidden></div><div id="factsBox" class="kv"></div></div></article>
+        <article class="card"><div class="head"><h3>Technical definition</h3><span class="pill">Wikipedia / Wikidata</span></div><div class="body definition" id="technicalDef">Waiting.</div></article>
+        <article class="card"><div class="head"><h3>Layman explainer</h3><span class="pill">client-side</span></div><div class="body layman" id="laymanDef">Waiting.</div></article>
+        <article class="card"><div class="head"><h3>Thesaurus + related concepts</h3><span class="pill">Datamuse + Wikidata</span></div><div class="body"><div class="tags" id="thesaurusBox"></div></div></article>
+      </div>
+      <div class="stack">
+        <article class="card"><div class="head"><h3>Formulae and math markup</h3><span class="pill">Wikipedia math + DLMF</span></div><div class="body" id="formulaBox"><div class="empty">Waiting.</div></div></article>
+        <article class="card"><div class="head"><h3>Wiktionary extract</h3><span class="pill">Wiktionary</span></div><div class="body definition muted" id="wiktionaryBox">Waiting.</div></article>
+        <article class="card"><div class="head"><h3>Source trail</h3><span class="pill">links + licenses</span></div><div class="body"><div class="notice">Each result includes source URL, license note and retrieval timestamp. The app does not persist source content.</div><div id="sourcesBox"></div></div></article>
+        <article class="card"><div class="head"><h3>Live API calls</h3><span class="pill" id="runTime">idle</span></div><div class="body" id="apiLog"></div></article>
+      </div>
+    </section>
+    <footer>APIs may rate-limit or change CORS behavior. For production/high-volume use, add a proxy/cache and formal license audit.</footer>
+  </main>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.165.0/build/three.module.js';
+
+    const $ = s => document.querySelector(s);
+    const $$ = s => [...document.querySelectorAll(s)];
+    const enc = encodeURIComponent;
+    let current = null;
+    let lastSources = [];
+    let aborter = null;
+
+    const ep = {
+      ws: q => `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${enc(q)}&format=json&origin=*`,
+      sum: t => `https://en.wikipedia.org/api/rest_v1/page/summary/${enc(t)}`,
+      parse: t => `https://en.wikipedia.org/w/api.php?action=parse&page=${enc(t)}&prop=text|sections|properties&format=json&origin=*`,
+      wds: q => `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${enc(q)}&language=en&uselang=en&type=item&limit=5&format=json&origin=*`,
+      wde: qid => `https://www.wikidata.org/wiki/Special:EntityData/${enc(qid)}.json`,
+      sparql: q => `https://query.wikidata.org/sparql?format=json&query=${enc(q)}`,
+      wikt: q => `https://en.wiktionary.org/w/api.php?action=query&prop=extracts&explaintext=1&exintro=1&titles=${enc(q)}&format=json&origin=*`,
+      dm: q => `https://api.datamuse.com/words?ml=${enc(q)}&max=18&md=d`,
+      dmt: q => `https://api.datamuse.com/words?rel_trg=${enc(q)}&max=14`,
+      dlmf: q => `https://dlmf.nist.gov/search/search?q=${enc(q)}`,
+      openstax: q => `https://openstax.org/search?Search=${enc(q)}`
+    };
+    const lic = {
+      wikipedia: 'CC BY-SA; verify page footer',
+      wikidata: 'CC0 structured data',
+      wiktionary: 'Wikimedia license; verify page footer',
+      datamuse: 'Datamuse API terms',
+      dlmf: 'NIST public access; cite permalinks',
+      openstax: 'Check book-specific license'
+    };
+
+    function initThree() {
+      const scene = new THREE.Scene();
+      const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      $('#webgl').appendChild(renderer.domElement);
+      const material = new THREE.ShaderMaterial({
+        glslVersion: THREE.GLSL3,
+        uniforms: { t: { value: 0 }, res: { value: new THREE.Vector2(1, 1) }, light: { value: 0 } },
+        vertexShader: `#version 300 es
+          out vec2 vUv;
+          void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+        fragmentShader: `#version 300 es
+          precision highp float;
+          uniform float t; uniform vec2 res; uniform float light; in vec2 vUv; out vec4 outColor;
+          float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5); }
+          float n(vec2 p){ vec2 i=floor(p), f=fract(p), u=f*f*(3.0-2.0*f); return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y); }
+          float fbm(vec2 p){ float v=0.0,a=.5; for(int i=0;i<5;i++){ v+=a*n(p); p*=2.02; a*=.5; } return v; }
+          void main(){
+            vec2 uv=(gl_FragCoord.xy*2.0-res.xy)/min(res.x,res.y);
+            float f=fbm(uv*1.6+vec2(t*.08,-t*.05));
+            float aur=smoothstep(.18,.95,(sin(uv.x*2.8+f*4.0+t*.18)*.5+.5)*f);
+            vec3 base=mix(vec3(.035,.055,.115),vec3(.93,.97,1.0),light);
+            vec3 col=base+vec3(.05,.92,1.0)*aur*.25+vec3(.72,.35,1.0)*(.07/length(uv-vec2(sin(t*.12)*.75,cos(t*.1)*.32)))*.2;
+            outColor=vec4(col,1.0);
+          }`
+      });
+      scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
+      function resize(){ const d=Math.min(devicePixelRatio||1,2); renderer.setPixelRatio(d); renderer.setSize(innerWidth,innerHeight,false); material.uniforms.res.value.set(innerWidth*d,innerHeight*d); }
+      addEventListener('resize', resize, { passive: true });
+      resize();
+      function loop(x){ material.uniforms.t.value=x*.001; material.uniforms.light.value=document.body.classList.contains('light') ? 1 : 0; renderer.render(scene,cam); requestAnimationFrame(loop); }
+      requestAnimationFrame(loop);
+    }
+
+    async function get(name, url, signal) {
+      log(name, 'pending', url);
+      const started = performance.now();
+      try {
+        const r = await fetch(url, { signal, headers: { accept: 'application/json' } });
+        if (!r.ok) throw Error(r.status + ' ' + r.statusText);
+        const j = await r.json();
+        log(name, 'ok', url, Math.round(performance.now() - started) + ' ms');
+        return j;
+      } catch (e) {
+        if (e.name === 'AbortError') throw e;
+        log(name, 'bad', url, e.message);
+        return null;
+      }
+    }
+    function log(name, status, url, detail='') {
+      let row = $(`#apiLog [data-api="${CSS.escape(name)}"]`);
+      if (!row) { row = document.createElement('div'); row.className = 'apirow'; row.dataset.api = name; $('#apiLog').appendChild(row); }
+      let host = url;
+      try { host = new URL(url).hostname; } catch {}
+      row.innerHTML = `<div><b>${esc(name)}</b><br><code>${esc(host)}</code></div><span class="pill"><span class="dot ${status==='ok'?'ok':status==='bad'?'bad':''}"></span>${esc(detail || status)}</span>`;
+    }
+
+    async function searchLive(q) {
+      q = q.trim(); if (!q) return;
+      if (aborter) aborter.abort(); aborter = new AbortController(); const signal = aborter.signal;
+      clear(); $('#termTitle').textContent = q; $('#runTime').textContent = 'running'; $('#liveDot').className = 'dot';
+      try {
+        const start = performance.now();
+        const ws = await get('Wikipedia search', ep.ws(q), signal);
+        const title = ws?.query?.search?.[0]?.title || titleCase(q);
+        const [sum, wds, parse, wikt, dm, dmt] = await Promise.all([
+          get('Wikipedia summary', ep.sum(title), signal), get('Wikidata search', ep.wds(q), signal), get('Wikipedia parse/math', ep.parse(title), signal), get('Wiktionary extract', ep.wikt(q), signal), get('Datamuse similar', ep.dm(q), signal), get('Datamuse triggered', ep.dmt(q), signal)
+        ]);
+        const qid = sum?.wikibase_item || wds?.search?.[0]?.id;
+        const [ent, rel] = await Promise.all([qid ? get('Wikidata entity', ep.wde(qid), signal) : null, qid ? get('Wikidata SPARQL', ep.sparql(sparql(qid)), signal) : null]);
+        render(assemble({ q, title, sum, qid, ent, rel, parse, wikt, dm, dmt }));
+        $('#runTime').textContent = Math.round(performance.now() - start) + ' ms'; $('#liveDot').className = 'dot ok';
+      } catch (e) { if (e.name !== 'AbortError') { $('#technicalDef').textContent = 'Fetch failed: ' + e.message; $('#liveDot').className = 'dot bad'; } }
+    }
+    function clear(){ ['apiLog','sourcesBox','thesaurusBox','factsBox'].forEach(id => $('#'+id).innerHTML = ''); $('#formulaBox').innerHTML = '<div class="empty">Searching formulae…</div>'; $('#wiktionaryBox').textContent='Waiting.'; $('#imageBox').hidden = true; $('#imageBox').innerHTML=''; lastSources=[]; }
+    function sparql(qid){ return `SELECT ?item ?itemLabel WHERE { VALUES ?root { wd:${qid} } { ?root wdt:P279 ?item. } UNION { ?item wdt:P279 ?root. } UNION { ?root wdt:P31 ?item. } SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } } LIMIT 18`; }
+    function assemble(d){
+      const e = d.ent?.entities?.[d.qid];
+      const term = e?.labels?.en?.value || d.sum?.title || d.title;
+      const desc = e?.descriptions?.en?.value || d.sum?.description || '';
+      const aliases = (e?.aliases?.en || []).map(a => a.value);
+      const rel = d.rel?.results?.bindings?.map(x => x.itemLabel?.value).filter(Boolean) || [];
+      const dm = [...(d.dm || []), ...(d.dmt || [])].map(x => x.word).filter(Boolean);
+      const wiki = d.sum?.extract || '';
+      const url = d.sum?.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${enc(d.title)}`;
+      const retrieved = new Date().toISOString();
+      const sources = [
+        { label:'Wikipedia summary', url, license: lic.wikipedia, retrieved },
+        ...(d.qid ? [{ label:`Wikidata ${d.qid}`, url:`https://www.wikidata.org/wiki/${d.qid}`, license:lic.wikidata, retrieved }] : []),
+        { label:'Wiktionary', url:`https://en.wiktionary.org/wiki/${enc(d.q)}`, license:lic.wiktionary, retrieved },
+        { label:'Datamuse', url:ep.dm(d.q), license:lic.datamuse, retrieved },
+        { label:'NIST DLMF search', url:ep.dlmf(d.q), license:lic.dlmf, retrieved },
+        { label:'OpenStax search', url:ep.openstax(d.q), license:lic.openstax, retrieved }
+      ];
+      return { term, query:d.q, title:d.title, desc, qid:d.qid, wiki, url, img:d.sum?.thumbnail?.source || d.sum?.originalimage?.source, tags:unique([...aliases,...dm,...rel]), formulas:extractFormulae(d.parse).slice(0,8), wikt:extractWikt(d.wikt), sources };
+    }
+    function render(x){
+      current = x; lastSources = x.sources;
+      $('#termTitle').textContent = x.term; $('#qidPill').textContent = x.qid || 'no QID'; $('#termSubtitle').textContent = x.desc || `Resolved from ${x.query}.`;
+      $('#technicalDef').textContent = x.wiki || x.desc || 'No definition returned.'; $('#laymanDef').textContent = simplify(x.wiki || x.desc || x.term);
+      if (x.img) { $('#imageBox').hidden = false; $('#imageBox').innerHTML = `<img src="${attr(x.img)}" alt="${attr(x.term)}">`; }
+      $('#factsBox').innerHTML = [['Resolved page',x.title],['Wikidata QID',x.qid||'Not found'],['Data mode','Live fetch only'],['Retrieved',new Date().toLocaleString()]].map(([a,b]) => `<div>${esc(a)}</div><div>${esc(b)}</div>`).join('');
+      $('#thesaurusBox').innerHTML = x.tags.slice(0,40).map(t => `<button class="tag" data-term="${attr(t)}">${esc(t)}</button>`).join('') || '<div class="empty">No related terms.</div>';
+      $('#thesaurusBox').querySelectorAll('[data-term]').forEach(b => b.onclick = () => { $('#query').value = b.dataset.term; searchLive(b.dataset.term); });
+      renderFormulae(x); $('#wiktionaryBox').textContent = x.wikt || 'No concise Wiktionary extract returned.'; $('#sourcesBox').innerHTML = x.sources.map(sourceRow).join('');
+    }
+    function renderFormulae(x){
+      const box = $('#formulaBox');
+      if (!x.formulas.length) { box.innerHTML = '<div class="empty">No Wikipedia math markup found.</div>' + sourceRow({label:'Search NIST DLMF',url:ep.dlmf(x.query),license:lic.dlmf,retrieved:new Date().toISOString()}); return; }
+      box.innerHTML = x.formulas.map((f,i) => `<div class="formula"><b>Formula ${i+1}</b><div class="formula-code">\\(${esc(f)}\\)</div></div>`).join('') + sourceRow({label:'Search NIST DLMF',url:ep.dlmf(x.query),license:lic.dlmf,retrieved:new Date().toISOString()});
+      if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise([box]).catch(()=>{});
+    }
+    function extractFormulae(p){ const h = p?.parse?.text?.['*']; if (!h) return []; const d = new DOMParser().parseFromString(h,'text/html'); const out=[]; d.querySelectorAll('.mwe-math-element img[alt],img.mwe-math-fallback-image-inline[alt],img.mwe-math-fallback-image-display[alt]').forEach(i => { const a=i.getAttribute('alt'); if(a&&a.length<220) out.push(a); }); return unique(out).filter(x => /[=\\+\-∑∫√\^_]/.test(x)); }
+    function extractWikt(w){ const p = Object.values(w?.query?.pages || {}).find(x => x && !x.missing); return (p?.extract || '').split('\n').filter(Boolean).slice(0,8).join('\n'); }
+    function simplify(t){ const b = String(t).replace(/\([^)]*\)/g,'').split(/(?<=[.!?])\s+/).slice(0,3).join(' '); return b ? 'In simple terms: ' + b + ' Check source links for exact wording.' : 'No plain-language summary generated.'; }
+    function sourceRow(s){ return `<a class="source" href="${attr(s.url)}" target="_blank" rel="noreferrer"><div><b>${esc(s.label)}</b><span>${esc(s.license)} · retrieved ${esc(s.retrieved)}</span></div><span>↗</span></a>`; }
+    function titleCase(s){ return s.replace(/\w\S*/g, t => t[0].toUpperCase() + t.slice(1)); }
+    function unique(a){ return [...new Set(a.map(x => String(x || '').trim()).filter(Boolean))]; }
+    function esc(s){ return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    function attr(s){ return esc(s).replace(/'/g,'&#39;'); }
+
+    $('#searchForm').onsubmit = e => { e.preventDefault(); searchLive($('#query').value); };
+    $$('.chip[data-term]').forEach(b => b.onclick = () => { $('#query').value = b.dataset.term; searchLive(b.dataset.term); });
+    $('#themeBtn').onclick = () => document.body.classList.toggle('light');
+    $('#copyBtn').onclick = async () => { if(!current) return; await navigator.clipboard.writeText(current.term + ' — ' + lastSources.map(s => `${s.label}: ${s.url}`).join('; ')); $('#copyBtn').textContent='Copied'; setTimeout(() => $('#copyBtn').textContent='Copy citation', 1200); };
+    initThree();
+    searchLive('entropy');
+  </script>
+</body>
+</html>
