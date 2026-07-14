@@ -161,6 +161,356 @@
         @media (max-width: 900px) { .nav-items { gap: 14px; } .nav-item { font-size: .72rem; } }
         @media (max-width: 768px) { .hamburger { display: flex; } nav { position: absolute; top: 70px; left: 0; width: 100%; background: var(--header-background); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,.08); padding: 10px 5%; transform: scaleY(0); transform-origin: top center; opacity: 0; transition: transform .3s ease, opacity .3s ease; pointer-events: none; flex-direction: column; align-items: flex-start; } nav.open { transform: scaleY(1); opacity: 1; pointer-events: auto; } .nav-items { flex-direction: column; gap: 10px; padding: 10px 0; } .nav-item { font-size: .9rem; padding: 8px 0; border-bottom: none; } .theme-controls { gap: 10px; } #theme-select { font-size: .65rem; padding: 4px 10px; } .switcher-btn { padding: 8px 16px; font-size: .7rem; gap: 5px; } }
         @media (max-width: 480px) { .section { padding: 40px 4%; } .card-grid, .project-grid, .written-grid { grid-template-columns: 1fr; } .pdf-controls { flex-direction: column; align-items: stretch; gap: 10px; } .pdf-actions { justify-content: center; } .brand-title { font-size: 1.3rem; } .brand-subtitle { font-size: .55rem; } }
+
+        /* ====================================================
+           RESPONSIVE ENHANCEMENTS
+           ADD THIS AT THE VERY END OF <style>
+           ==================================================== */
+        
+        /* ---------- Universal scaling ---------- */
+        
+        img,
+        svg,
+        video,
+        canvas,
+        iframe {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .project-card h3,
+        .card h3,
+        .written-item h4,
+        .pdf-title,
+        .subsection-title {
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        
+        /* ---------- Header Improvements ---------- */
+        
+        header {
+            min-height: 70px;
+            height: auto;
+        }
+        
+        nav {
+            flex-wrap: wrap;
+        }
+        
+        .switcher-btn {
+            flex-shrink: 0;
+        }
+        
+        /* ---------- Tablet Landscape ---------- */
+        
+        @media (max-width: 1200px) {
+        
+            .nav-items {
+                gap: 16px;
+            }
+        
+            .nav-item {
+                font-size: 0.75rem;
+            }
+        
+            .switcher-btn {
+                padding: 8px 14px;
+                font-size: 0.75rem;
+            }
+        
+            .section {
+                padding-left: 4%;
+                padding-right: 4%;
+            }
+        }
+        
+        /* ---------- Tablet ---------- */
+        
+        @media (max-width: 1024px) {
+        
+            header {
+                padding-left: 3%;
+                padding-right: 3%;
+            }
+        
+            .nav-items {
+                gap: 12px;
+            }
+        
+            .nav-item {
+                font-size: 0.72rem;
+            }
+        
+            .section {
+                padding: 50px 4%;
+            }
+        
+            .card-grid,
+            .project-grid,
+            .written-grid,
+            .contact-grid {
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            }
+        
+            .pdf-controls {
+                gap: 12px;
+            }
+        }
+        
+        /* ---------- Mobile Menu ---------- */
+        
+        @media (max-width: 768px) {
+        
+            .hamburger {
+                display: flex;
+            }
+        
+            header {
+                min-height: 70px;
+            }
+        
+            .branding {
+                max-width: calc(100% - 160px);
+            }
+        
+            .brand-title {
+                font-size: 1.3rem;
+            }
+        
+            .brand-subtitle {
+                font-size: 0.55rem;
+                letter-spacing: 1px;
+            }
+        
+            nav {
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--header-background);
+                backdrop-filter: blur(12px);
+                border-bottom: 1px solid rgba(255,255,255,.08);
+                padding: 12px 5%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                transform: scaleY(0);
+                transform-origin: top center;
+                opacity: 0;
+                transition: transform .3s ease, opacity .3s ease;
+                pointer-events: none;
+            }
+        
+            nav.open {
+                transform: scaleY(1);
+                opacity: 1;
+                pointer-events: auto;
+            }
+        
+            .nav-items {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+        
+            .nav-item {
+                width: 100%;
+                padding: 10px 0;
+                border-bottom: none;
+                font-size: 0.9rem;
+            }
+        
+            .switcher-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        
+            .theme-controls {
+                gap: 10px;
+            }
+        
+            #theme-select {
+                font-size: 0.65rem;
+                padding: 4px 10px;
+            }
+        
+            .card-grid,
+            .project-grid,
+            .written-grid,
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        
+            .subsection-title {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+        
+            .badge {
+                margin-left: 0;
+            }
+        
+            .pdf-link {
+                flex-direction: column;
+                text-align: center;
+            }
+        
+            .social-links {
+                flex-wrap: wrap;
+            }
+        
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+        
+            .easter-content {
+                padding: 1rem;
+            }
+        
+            .easter-mantra {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+        }
+        
+        /* ---------- Large Phones ---------- */
+        
+        @media (max-width: 600px) {
+        
+            .section-title {
+                font-size: clamp(2rem, 10vw, 3.4rem);
+            }
+        
+            .section-subtitle {
+                font-size: 1rem;
+            }
+        
+            .project-card,
+            .card,
+            .written-item,
+            .contact-card {
+                padding: 22px;
+            }
+        
+            .pdf-title {
+                font-size: 1.25rem;
+            }
+        }
+        
+        /* ---------- Small Phones ---------- */
+        
+        @media (max-width: 480px) {
+        
+            .section {
+                padding: 40px 4%;
+            }
+        
+            .branding {
+                gap: 8px;
+            }
+        
+            .brand-logo {
+                width: 42px;
+                height: 42px;
+            }
+        
+            .profile-img {
+                width: 36px;
+                height: 36px;
+            }
+        
+            .brand-title {
+                font-size: 1.05rem;
+            }
+        
+            .brand-subtitle {
+                display: none;
+            }
+        
+            #theme-select {
+                width: 95px;
+                font-size: 0.6rem;
+                padding: 4px 6px;
+            }
+        
+            .section-title {
+                font-size: clamp(1.8rem, 10vw, 2.8rem);
+            }
+        
+            .section-subtitle {
+                font-size: 0.95rem;
+            }
+        
+            .card,
+            .project-card,
+            .written-item,
+            .contact-card {
+                padding: 18px;
+            }
+        
+            .pdf-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        
+            .pdf-actions {
+                width: 100%;
+                justify-content: stretch;
+            }
+        
+            .pdf-action-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        
+            .pdf-viewer-container {
+                padding: 18px 12px;
+            }
+        
+            .written-links {
+                flex-direction: column;
+            }
+        
+            .written-links a {
+                justify-content: center;
+            }
+        
+            .social-link {
+                width: 44px;
+                height: 44px;
+            }
+        }
+        
+        /* ---------- Tiny Phones ---------- */
+        
+        @media (max-width: 360px) {
+        
+            .brand-details {
+                display: none;
+            }
+        
+            .section {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+        
+            .switcher-btn {
+                font-size: 0.65rem;
+            }
+        
+            .pdf-title {
+                font-size: 1.1rem;
+            }
+        
+            .card h3,
+            .project-card h3 {
+                font-size: 1.4rem;
+            }
+        }
+    
     </style>
 </head>
 
