@@ -135,15 +135,86 @@ const stationData={
     {icon:'📡',title:'WebGL Audio Visualizer',desc:'Real-time GPU-accelerated WebGL audio visualizer.',links:[{text:'Live Demo',url:'https://webgl-audio-visualizer-3805819345.asia-southeast1.run.app/'}]},
     {icon:'🧩',title:"Gene's SaaS Universe",desc:'Mini REST endpoints for pricing, risk analytics and quant models.',links:[{text:'Coming Soon',url:'#'}]}
   ]},
-  written:{title:"Writer's Desk",subtitle:'Written works and technical notes',body:'<p>FFT, MGF pricing, CUDA tiling, arbitrage, quadrature, autodiff, copulas, VaR and ES.</p>',cards:[
-    {icon:'📄',title:'Understanding Fourier Transform',desc:'FFT convolution for option pricing — with Python implementations and Black-Scholes extensions.',links:[{text:'PDF',url:'assets/Gene%20Boo%20-%20FFT%20Convolution%20PDF%20BlackScholes%20Python3%20v5_.pdf'}]},
-    {icon:'📊',title:'FFT Cross-Correlation vs Pearson',desc:'Using FFT for cross-correlation and comparing with Pearson correlation.',links:[{text:'HTML',url:'assets/GB_FFT_Pearson_NP_Correl.html'},{text:'PDF',url:'assets/GB_FFT_Pearson_NP_Correl.pdf'},{text:'IPYNB',url:'assets/GB_FFT_Pearson_NP_Correl.ipynb'}]},
-    {icon:'📈',title:'Risk-Neutral Pricing via MGF',desc:'Moment generating functions for drift correction in risk-neutral valuation.',links:[{text:'HTML',url:'assets/GB_Risk-Neutral_Pricing_via_MGF_v3.html'},{text:'PDF',url:'assets/GB_Risk-Neutral_Pricing_via_MGF_v3.pdf'}]},
-    {icon:'🖥️',title:'NVIDIA CUDA Tiling Explained',desc:'CUDA tiling explained through matrix multiplication.',links:[{text:'HTML',url:'assets/NVIDIA_CUDA_Tile.html'},{text:'PDF',url:'assets/NVIDIA_CUDA_Tile.pdf'}]},
-    {icon:'💹',title:'Art of Buy-Side Arbitrage',desc:'Strategic overview of arbitrage techniques in modern buy-side institutions.',links:[{text:'HTML',url:'assets/GB_Buy-side_Arbitrage.html'},{text:'PDF',url:'assets/GB_Buy-side_Arbitrage.pdf'}]},
-    {icon:'📐',title:'Mind the Gap (Under the Curve)',desc:'Numerical integration and quadrature methods with financial engineering applications.',links:[{text:'HTML',url:'assets/GB_Mind_the_Gap_Under_the_Curve_with_sidebar.html'},{text:'PDF',url:'assets/GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf'}]},
-    {icon:'📚',title:'Beyond the Formulas',desc:'MLE, FFT, Laplace transforms, copulas, quadrature, autodiff, VaR and ES workflows.',links:[{text:'HTML',url:'assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_NUMBERED_TOC.html'},{text:'PDF',url:'assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_NUMBERED_TOC.pdf'},{text:'IPYNB',url:'assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_FULL.ipynb'}]}
-  ]}
+written:{
+  title:"Writer's Desk",
+  subtitle:'Written works and technical notes',
+  body:'<p>FFT, MGF pricing, CUDA tiling, arbitrage, quadrature, autodiff, copulas, VaR and ES.</p>',
+  cards:[
+    {
+      icon:'📄',
+      title:'Understanding Fourier Transform',
+      desc:'FFT convolution for option pricing — with Python implementations and Black-Scholes extensions.',
+      links:[
+        {text:'PDF',url:'assets/Gene%20Boo%20-%20FFT%20Convolution%20PDF%20BlackScholes%20Python3%20v5_.pdf'}
+      ]
+    },
+    {
+      icon:'📊',
+      title:'FFT Cross-Correlation vs Pearson',
+      desc:'Using FFT for cross-correlation and comparing with Pearson correlation.',
+      links:[
+        {text:'HTML',url:'assets/GB_FFT_Pearson_NP_Correl.html'},
+        {text:'PDF',url:'assets/GB_FFT_Pearson_NP_Correl.pdf'},
+        {text:'IPYNB',url:'assets/GB_FFT_Pearson_NP_Correl.ipynb'}
+      ]
+    },
+    {
+      icon:'📈',
+      title:'Risk-Neutral Pricing via MGF',
+      desc:'Moment generating functions for drift correction in risk-neutral valuation.',
+      links:[
+        {text:'HTML',url:'assets/GB_Risk-Neutral_Pricing_via_MGF_v3.html'},
+        {text:'PDF',url:'assets/GB_Risk-Neutral_Pricing_via_MGF_v3.pdf'}
+      ]
+    },
+    {
+      icon:'🖥️',
+      title:'NVIDIA CUDA Tiling Explained',
+      desc:'CUDA tiling explained through matrix multiplication.',
+      links:[
+        {text:'HTML',url:'assets/NVIDIA_CUDA_Tile.html'},
+        {text:'PDF',url:'assets/NVIDIA_CUDA_Tile.pdf'}
+      ]
+    },
+    {
+      icon:'💹',
+      title:'Art of Buy-Side Arbitrage',
+      desc:'Strategic overview of arbitrage techniques in modern buy-side institutions.',
+      links:[
+        {text:'HTML',url:'assets/GB_Buy-side_Arbitrage.html'},
+        {text:'PDF',url:'assets/GB_Buy-side_Arbitrage.pdf'}
+      ]
+    },
+    {
+      icon:'📐',
+      title:'Mind the Gap (Under the Curve)',
+      desc:'Numerical integration and quadrature methods with financial engineering applications.',
+      links:[
+        {text:'HTML',url:'assets/GB_Mind_the_Gap_Under_the_Curve_with_sidebar.html'},
+        {text:'PDF',url:'assets/GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf'}
+      ]
+    },
+    {
+      icon:'📚',
+      title:'Beyond the Formulas',
+      desc:'MLE, FFT, Laplace transforms, copulas, quadrature, autodiff, VaR and ES workflows.',
+      links:[
+        {text:'HTML',url:'assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_NUMBERED_TOC.html'},
+        {text:'PDF',url:'assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_NUMBERED_TOC.pdf'},
+        {text:'IPYNB',url:'assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_FULL.ipynb'}
+      ]
+    },
+    {
+      icon:'🌲',
+      title:'Hobbyist Notes on Gradient Boosting',
+      desc:'Layman-friendly technical notes on gradient boosting, XGBoost, LightGBM, CatBoost, regularization, formulae, and practical model selection.',
+      links:[
+        {text:'HTML',url:'assets/Hobbyists_Informal_Notes_on_Gradient_Boosting.html'},
+        {text:'PDF',url:'assets/Hobbyists_Informal_Notes_on_Gradient_Boosting.pdf'}
+      ]
+    }
+  ]
+}
 };
 function renderLinks(links){if(!links||!links.length)return '';return `<div class="links">${links.map(l=>`<a href="${l.url}" ${l.download?'download':'target="_blank" rel="noopener"'}>${l.text}</a>`).join('')}</div>`}
 function stationHTML(d){let h=`<div class="modal-title">${d.title}</div><div class="modal-subtitle">${d.subtitle}</div><div class="modal-body">${d.body||''}</div>`;if(d.cards){h+='<div class="cards">';d.cards.forEach(c=>{h+=`<div class="card"><div class="ico">${c.icon||'✨'}</div><h3>${c.title}</h3><p>${c.desc||''}</p>${renderLinks(c.links)}</div>`});h+='</div>'}h+=renderLinks(d.links);return h}
