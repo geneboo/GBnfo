@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,9 +9,19 @@
 
   <script>
     window.MathJax = {
-      tex: { inlineMath: [['\\(', '\\)']] },
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: false,
+      },
       svg: { fontCache: 'global' },
-      startup: { typeset: false }
+      startup: { typeset: false },
+      options: {
+        enableMenu: true,
+        menuOptions: {
+          settings: { renderer: 'SVG' },
+        },
+      },
     };
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
@@ -41,58 +52,97 @@
     .veil { position: fixed; inset: 0; z-index: -2; pointer-events: none; background: radial-gradient(circle at 18% 20%, rgba(96,234,255,.25), transparent 30%), radial-gradient(circle at 82% 18%, rgba(177,118,255,.20), transparent 28%), radial-gradient(circle at 60% 84%, rgba(120,255,214,.13), transparent 28%), linear-gradient(to bottom, transparent, rgba(5,8,22,.78)); }
     body.light .veil { background: linear-gradient(to bottom, rgba(247,251,255,.25), rgba(247,251,255,.88)); }
     .shell { width: min(1240px, calc(100% - 36px)); margin: auto; }
-    nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 0; }
+    nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0 14px; }
     .brand { display: flex; align-items: center; gap: 13px; }
-    .logo { width: 48px; height: 48px; border-radius: 18px; display: grid; place-items: center; background: linear-gradient(135deg, var(--cyan), var(--violet)); color: #06111b; font-weight: 950; box-shadow: var(--shadow); }
-    .brand b { display: block; font-size: 19px; }
+    .logo { width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; background: linear-gradient(135deg, var(--cyan), var(--violet)); color: #06111b; font-weight: 950; box-shadow: var(--shadow); }
+    .brand b { display: block; font-size: 18px; }
     .brand span, .muted { color: var(--muted); }
-    .brand span { display: block; font-size: 12px; margin-top: 2px; }
+    .brand span { display: block; font-size: 11px; margin-top: 2px; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-    .btn, .chip { border: 1px solid var(--line); background: var(--glass); color: var(--text); border-radius: 16px; padding: 11px 14px; cursor: pointer; text-decoration: none; font-weight: 750; backdrop-filter: blur(18px); transition: transform .18s ease, border-color .18s ease; }
+    .btn, .chip { border: 1px solid var(--line); background: var(--glass); color: var(--text); border-radius: 16px; padding: 10px 14px; cursor: pointer; text-decoration: none; font-weight: 750; backdrop-filter: blur(18px); transition: transform .18s ease, border-color .18s ease; }
     .btn:hover, .chip:hover, .tag:hover { transform: translateY(-1px); border-color: rgba(96,234,255,.55); }
     .btn.primary { border: 0; color: #04111a; background: linear-gradient(135deg, var(--cyan), var(--green)); }
-    .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 28px; align-items: center; padding: 48px 0 22px; }
-    h1 { font-size: clamp(42px, 8vw, 88px); line-height: .94; letter-spacing: -.07em; margin: 18px 0; }
+    .hero { padding: 20px 0 10px; text-align: center; }
+    .hero-content { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: clamp(36px, 6vw, 64px); line-height: 1.05; letter-spacing: -.04em; margin: 14px 0; }
     .grad { background: linear-gradient(135deg, var(--cyan), var(--green), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .lead { font-size: clamp(17px, 2vw, 21px); line-height: 1.62; color: var(--muted); max-width: 780px; }
-    .pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--glass2); border-radius: 999px; padding: 7px 10px; color: var(--muted); font-size: 12px; }
-    .search { display: flex; gap: 10px; margin-top: 26px; padding: 12px; border: 1px solid var(--line); background: var(--glass); border-radius: 26px; box-shadow: var(--shadow); backdrop-filter: blur(22px); }
+    .lead { font-size: clamp(16px, 2vw, 20px); line-height: 1.5; color: var(--muted); max-width: 700px; margin: 0 auto 20px; }
+    .search { display: flex; gap: 10px; margin: 0 auto; padding: 12px; border: 1px solid var(--line); background: var(--glass); border-radius: 26px; box-shadow: var(--shadow); backdrop-filter: blur(22px); max-width: 650px; }
     .search input { flex: 1; border: 0; outline: 0; background: var(--glass2); color: var(--text); border-radius: 18px; padding: 14px; font-size: 17px; }
-    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-    .panel, .card { border: 1px solid var(--line); background: var(--glass); border-radius: 28px; box-shadow: var(--shadow); backdrop-filter: blur(24px); overflow: hidden; }
-    .panel { padding: 22px; }
-    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .stat { background: var(--glass2); border: 1px solid var(--line); border-radius: 20px; padding: 18px; min-height: 98px; }
-    .stat span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .stat b { display: block; margin-top: 10px; font-size: 24px; }
-    .grid { display: grid; grid-template-columns: .94fr 1.06fr; gap: 20px; padding: 22px 0 54px; align-items: start; }
-    .stack { display: grid; gap: 18px; }
-    .head { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 20px 20px 0; }
-    .head h2, .head h3 { margin: 0; letter-spacing: -.03em; }
-    .body { padding: 18px 20px 20px; }
-    .definition { font-size: 17px; line-height: 1.72; }
-    .layman { font-size: 18px; line-height: 1.7; color: color-mix(in srgb, var(--text) 84%, var(--green)); }
-    .imagebox { margin-top: 14px; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); }
-    .imagebox img { width: 100%; max-height: 300px; object-fit: cover; display: block; }
-    .kv { display: grid; grid-template-columns: 130px 1fr; gap: 8px 12px; margin-top: 12px; }
-    .kv div:nth-child(odd) { color: var(--muted); }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+    .stats-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+    .stat-badge { border: 1px solid var(--line); background: var(--glass2); border-radius: 18px; padding: 10px 16px; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    .stat-badge b { font-weight: 750; color: var(--text); }
+    .pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--glass2); border-radius: 999px; padding: 7px 10px; color: var(--muted); font-size: 12px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0 12px; justify-content: center; }
+    .tab-btn { border: 1px solid var(--line); background: var(--glass); color: var(--text); border-radius: 16px; padding: 10px 18px; cursor: pointer; font-weight: 750; backdrop-filter: blur(18px); transition: all .2s ease; }
+    .tab-btn:hover, .tab-btn.active { border-color: var(--cyan); background: rgba(96,234,255,.12); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .card { border: 1px solid var(--line); background: var(--glass); border-radius: 28px; box-shadow: var(--shadow); backdrop-filter: blur(24px); overflow: hidden; margin-bottom: 18px; }
+    .head { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 18px 20px 0; }
+    .head h2, .head h3 { margin: 0; letter-spacing: -.03em; font-size: 1.25rem; }
+    .body { padding: 16px 20px 20px; }
+    .definition { font-size: 16px; line-height: 1.7; }
+    .layman { font-size: 17px; line-height: 1.65; color: color-mix(in srgb, var(--text) 84%, var(--green)); }
+    .imagebox { margin-top: 12px; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); max-height: 400px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+    .imagebox::-webkit-scrollbar { width: 6px; }
+    .imagebox::-webkit-scrollbar-track { background: transparent; border-radius: 10px; }
+    .imagebox::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; }
+    .imagebox img { width: 100%; max-height: 360px; object-fit: contain; display: block; background: rgba(0,0,0,.25); }
+    .imagebox .img-caption { padding: 8px 14px; font-size: 12px; color: var(--muted); background: var(--glass2); border-top: 1px solid var(--line); }
+    .image-gallery { display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; margin-top: 10px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+    .image-gallery::-webkit-scrollbar { height: 5px; }
+    .image-gallery::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
+    .image-gallery img { width: 80px; height: 80px; object-fit: cover; border-radius: 14px; border: 2px solid var(--line); cursor: pointer; transition: transform .15s ease, border-color .15s ease; flex-shrink: 0; }
+    .image-gallery img:hover { transform: scale(1.08); border-color: var(--cyan); }
+    .image-gallery img.active { border-color: var(--cyan); box-shadow: 0 0 12px rgba(96,234,255,.5); }
+    .kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 10px; margin-top: 10px; }
+    .kv div:nth-child(odd) { color: var(--muted); font-size: 13px; }
     .tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag { border: 1px solid var(--line); background: var(--glass2); border-radius: 999px; padding: 8px 11px; color: var(--text); cursor: pointer; transition: transform .18s ease, border-color .18s ease; }
-    .formula { border: 1px solid var(--line); background: rgba(0,0,0,.22); border-radius: 18px; padding: 14px; margin-bottom: 10px; }
+    .tag { border: 1px solid var(--line); background: var(--glass2); border-radius: 999px; padding: 8px 11px; color: var(--text); cursor: pointer; transition: transform .18s ease, border-color .18s ease; font-size: 14px; }
+    .formula { border: 1px solid var(--line); background: rgba(0,0,0,.22); border-radius: 18px; padding: 14px; margin-bottom: 10px; overflow-x: auto; }
     body.light .formula { background: rgba(255,255,255,.54); }
-    .formula-code { overflow-x: auto; background: rgba(1,8,16,.78); color: #a7f7ff; border-radius: 14px; padding: 14px; font-family: var(--mono); }
-    .source { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid var(--line); background: var(--glass2); border-radius: 18px; text-decoration: none; margin-top: 10px; color: var(--text); }
+    .formula-label { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .formula-label b { font-size: 13px; color: var(--cyan); letter-spacing: .02em; }
+    .formula-label .context { font-size: 11px; color: var(--muted); font-style: italic; }
+    .formula-code { overflow-x: auto; background: rgba(1,8,16,.78); color: #a7f7ff; border-radius: 14px; padding: 14px; font-family: var(--mono); font-size: 14px; line-height: 1.6; max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent; white-space: pre-wrap; word-break: break-all; }
+    .formula-code::-webkit-scrollbar { width: 5px; height: 5px; }
+    .formula-code::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 6px; }
+    .source { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid var(--line); background: var(--glass2); border-radius: 18px; text-decoration: none; margin-top: 10px; color: var(--text); transition: border-color .15s ease; }
+    .source:hover { border-color: var(--cyan); }
     .source span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; word-break: break-word; }
     .apirow { display: flex; justify-content: space-between; gap: 10px; border: 1px solid var(--line); background: var(--glass2); border-radius: 16px; padding: 10px 12px; margin-top: 8px; }
     .apirow code { color: var(--cyan); font-size: 12px; }
     .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--amber); }
     .dot.ok { background: var(--green); }
     .dot.bad { background: var(--red); }
-    .empty { padding: 26px; text-align: center; color: var(--muted); }
-    .notice { border: 1px solid rgba(255,209,102,.3); background: rgba(255,209,102,.08); border-radius: 18px; padding: 13px; line-height: 1.55; }
-    footer { padding: 10px 0 32px; color: var(--muted); font-size: 13px; }
-    @media (max-width: 900px) { .hero, .grid { grid-template-columns: 1fr; } .search { flex-direction: column; } nav { align-items: flex-start; } }
-    @media (max-width: 580px) { nav { flex-direction: column; } .stats { grid-template-columns: 1fr; } .kv { grid-template-columns: 1fr; } }
+    .empty { padding: 22px; text-align: center; color: var(--muted); }
+    .notice { border: 1px solid rgba(255,209,102,.3); background: rgba(255,209,102,.08); border-radius: 18px; padding: 13px; line-height: 1.55; font-size: 13px; margin-bottom: 14px; }
+    .paper-item { border: 1px solid var(--line); background: var(--glass2); border-radius: 16px; padding: 13px; margin-top: 8px; transition: border-color .15s ease; }
+    .paper-item:hover { border-color: var(--cyan); }
+    .paper-item .paper-title { font-weight: 700; font-size: 14px; line-height: 1.4; margin-bottom: 4px; }
+    .paper-item .paper-title a { color: var(--text); text-decoration: none; }
+    .paper-item .paper-title a:hover { color: var(--cyan); }
+    .paper-item .paper-meta { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .paper-item .paper-abstract { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .external-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; margin-top: 10px; }
+    .ext-link { font-size: 13px; padding: 8px 12px; border: 1px solid var(--line); background: var(--glass2); border-radius: 14px; color: var(--text); text-decoration: none; transition: all .15s ease; display: flex; align-items: center; gap: 6px; justify-content: center; }
+    .ext-link:hover { border-color: var(--cyan); background: rgba(96,234,255,.08); }
+    footer { padding: 6px 0 32px; color: var(--muted); font-size: 13px; text-align: center; }
+    @media (max-width: 640px) {
+      .search { flex-direction: column; }
+      .kv { grid-template-columns: 1fr; }
+      .imagebox { max-height: 260px; }
+      .formula-code { max-height: 130px; font-size: 12px; }
+      h1 { font-size: 28px; }
+      .image-gallery img { width: 60px; height: 60px; }
+      .tabs { gap: 4px; }
+      .tab-btn { padding: 8px 12px; font-size: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -113,33 +163,75 @@
 
   <main class="shell">
     <section class="hero">
-      <div>
-        <div class="pill"><span class="dot" id="liveDot"></span> Live API mode · no persistent local database</div>
-        <h1>One beautiful <span class="grad">science lookup</span>, assembled live from the web.</h1>
-        <p class="lead">Calls public APIs in the browser: Wikipedia, Wikidata, Wiktionary, Datamuse, plus source links for NIST DLMF and OpenStax. No backend and no stored database.</p>
+      <div class="hero-content">
+        <div class="pill" style="margin-bottom:10px"><span class="dot" id="liveDot"></span> Live API mode · no persistent local database</div>
+        <h1>One <span class="grad">science lookup</span>, assembled live from the web.</h1>
+        <p class="lead">Calls public APIs in the browser: Wikipedia, Wikidata, Wiktionary, Datamuse, Semantic Scholar, CrossRef, plus links to NIST DLMF, Scipy docs, OpenStax, PDFDrive, Internet Archive, Wolfram, CERN, MIT OCW, MATLAB, R, Julia, Python, and more.</p>
         <form class="search" id="searchForm">
           <input id="query" value="entropy" autocomplete="off" spellcheck="false" placeholder="Search entropy, photosynthesis, derivative..." />
           <button class="btn primary" type="submit">Search live sources</button>
         </form>
         <div class="chips"><button class="chip" data-term="entropy">entropy</button><button class="chip" data-term="photosynthesis">photosynthesis</button><button class="chip" data-term="derivative">derivative</button><button class="chip" data-term="quantum mechanics">quantum mechanics</button><button class="chip" data-term="mitochondrion">mitochondrion</button><button class="chip" data-term="gamma function">gamma function</button></div>
+        <div class="stats-row">
+          <div class="stat-badge"><span>⚡ Runtime</span> <b>Static HTML + JS</b></div>
+          <div class="stat-badge"><span>🎨 Render</span> <b>Three.js WebGL2</b></div>
+          <div class="stat-badge"><span>💾 Storage</span> <b>None persistent</b></div>
+          <div class="stat-badge"><span>📎 Attribution</span> <b>Per source</b></div>
+        </div>
       </div>
-      <aside class="panel"><div class="stats"><div class="stat"><span>Runtime</span><b>Static HTML + JS</b></div><div class="stat"><span>Rendering</span><b>Three.js WebGL2</b></div><div class="stat"><span>Storage</span><b>None persistent</b></div><div class="stat"><span>Attribution</span><b>Per source</b></div></div></aside>
     </section>
 
-    <section class="grid">
-      <div class="stack">
-        <article class="card"><div class="head"><h2 id="termTitle">Ready</h2><span class="pill" id="qidPill">live</span></div><div class="body"><p id="termSubtitle" class="muted">Search a term.</p><div id="imageBox" class="imagebox" hidden></div><div id="factsBox" class="kv"></div></div></article>
-        <article class="card"><div class="head"><h3>Technical definition</h3><span class="pill">Wikipedia / Wikidata</span></div><div class="body definition" id="technicalDef">Waiting.</div></article>
-        <article class="card"><div class="head"><h3>Layman explainer</h3><span class="pill">client-side</span></div><div class="body layman" id="laymanDef">Waiting.</div></article>
-        <article class="card"><div class="head"><h3>Thesaurus + related concepts</h3><span class="pill">Datamuse + Wikidata</span></div><div class="body"><div class="tags" id="thesaurusBox"></div></div></article>
-      </div>
-      <div class="stack">
-        <article class="card"><div class="head"><h3>Formulae and math markup</h3><span class="pill">Wikipedia math + DLMF</span></div><div class="body" id="formulaBox"><div class="empty">Waiting.</div></div></article>
-        <article class="card"><div class="head"><h3>Wiktionary extract</h3><span class="pill">Wiktionary</span></div><div class="body definition muted" id="wiktionaryBox">Waiting.</div></article>
-        <article class="card"><div class="head"><h3>Source trail</h3><span class="pill">links + licenses</span></div><div class="body"><div class="notice">Each result includes source URL, license note and retrieval timestamp. The app does not persist source content.</div><div id="sourcesBox"></div></div></article>
-        <article class="card"><div class="head"><h3>Live API calls</h3><span class="pill" id="runTime">idle</span></div><div class="body" id="apiLog"></div></article>
-      </div>
-    </section>
+    <div class="tabs" id="tabsContainer">
+      <button class="tab-btn active" data-tab="overview">📋 Overview</button>
+      <button class="tab-btn" data-tab="math">🧮 Math & Formulas</button>
+      <button class="tab-btn" data-tab="literature">📚 Academic Literature</button>
+      <button class="tab-btn" data-tab="sources">🔗 Sources & References</button>
+      <button class="tab-btn" data-tab="apilog">📡 API Log</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-overview">
+      <article class="card">
+        <div class="head"><h2 id="termTitle">Ready</h2><span class="pill" id="qidPill">live</span></div>
+        <div class="body">
+          <p id="termSubtitle" class="muted">Search a term.</p>
+          <div id="imageBox" class="imagebox" hidden></div>
+          <div id="imageGallery" class="image-gallery" hidden></div>
+          <div id="factsBox" class="kv"></div>
+        </div>
+      </article>
+      <article class="card"><div class="head"><h3>Technical definition</h3><span class="pill">Wikipedia / Wikidata</span></div><div class="body definition" id="technicalDef">Waiting.</div></article>
+      <article class="card"><div class="head"><h3>Layman explainer</h3><span class="pill">client-side</span></div><div class="body layman" id="laymanDef">Waiting.</div></article>
+      <article class="card"><div class="head"><h3>Thesaurus + related concepts</h3><span class="pill">Datamuse + Wikidata</span></div><div class="body"><div class="tags" id="thesaurusBox"></div></div></article>
+      <article class="card"><div class="head"><h3>Wiktionary extract</h3><span class="pill">Wiktionary</span></div><div class="body definition muted" id="wiktionaryBox">Waiting.</div></article>
+    </div>
+
+    <div class="tab-panel" id="tab-math">
+      <article class="card"><div class="head"><h3>Formulae and math markup</h3><span class="pill">Wikipedia math + DLMF</span></div><div class="body" id="formulaBox"><div class="empty">Waiting.</div></div></article>
+    </div>
+
+    <div class="tab-panel" id="tab-literature">
+      <article class="card"><div class="head"><h3>Academic literature</h3><span class="pill">Semantic Scholar + CrossRef</span></div><div class="body" id="papersBox"><div class="empty">Search a term to find related papers.</div></div></article>
+    </div>
+
+    <div class="tab-panel" id="tab-sources">
+      <article class="card">
+        <div class="head"><h3>Source trail &amp; external references</h3><span class="pill">links + licenses</span></div>
+        <div class="body">
+          <div class="notice">Each result includes source URL, license note and retrieval timestamp. External links open in new tabs and include Wolfram, CERN, MIT OCW, language docs, and more.</div>
+          <div id="sourcesBox"></div>
+          <h4 style="margin:16px 0 8px;color:var(--muted)">🔎 Quick search links</h4>
+          <div class="external-grid" id="externalLinksBox"></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="tab-panel" id="tab-apilog">
+      <article class="card">
+        <div class="head"><h3>Live API calls</h3><span class="pill" id="runTime">idle</span></div>
+        <div class="body" id="apiLog"></div>
+      </article>
+    </div>
+
     <footer>APIs may rate-limit or change CORS behavior. For production/high-volume use, add a proxy/cache and formal license audit.</footer>
   </main>
 
@@ -164,16 +256,59 @@
       dm: q => `https://api.datamuse.com/words?ml=${enc(q)}&max=18&md=d`,
       dmt: q => `https://api.datamuse.com/words?rel_trg=${enc(q)}&max=14`,
       dlmf: q => `https://dlmf.nist.gov/search/search?q=${enc(q)}`,
-      openstax: q => `https://openstax.org/search?Search=${enc(q)}`
+      openstax: q => `https://openstax.org/search?Search=${enc(q)}`,
+      scipy: q => `https://docs.scipy.org/doc/scipy/search.html?q=${enc(q)}`,
+      pdfdrive: q => `https://www.pdfdrive.com/search?q=${enc(q)}`,
+      internetarchive: q => `https://archive.org/search?query=${enc(q)}`,
+      wolfram: q => `https://www.wolframalpha.com/input?i=${enc(q)}`,
+      cern: q => `https://cds.cern.ch/search?q=${enc(q)}`,
+      mitocw: q => `https://ocw.mit.edu/search/?q=${enc(q)}`,
+      matlab: q => `https://www.mathworks.com/help/search.html?qdoc=${enc(q)}`,
+      rlang: q => `https://www.rdocumentation.org/search?q=${enc(q)}`,
+      julia: q => `https://docs.julialang.org/en/v1/search/?q=${enc(q)}`,
+      python: q => `https://docs.python.org/3/search.html?q=${enc(q)}`,
+      scholar: q => `https://scholar.google.com/scholar?q=${enc(q)}`,
+      duckduckgo: q => `https://duckduckgo.com/?q=${enc(q)}+site%3Aen.wikipedia.org`,
+      googleImages: q => `https://www.google.com/search?tbm=isch&q=${enc(q)}`,
+      semanticScholar: q => `https://api.semanticscholar.org/graph/v1/paper/search?query=${enc(q)}&limit=6&fields=title,year,authors,url,abstract,externalIds,publicationVenue`,
+      crossref: q => `https://api.crossref.org/works?query=${enc(q)}&rows=5&select=title,DOI,URL,publisher,type,issued`,
+      commonsSearch: q => `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${enc(q)}&srnamespace=6&srlimit=8&format=json&origin=*`,
     };
+
     const lic = {
       wikipedia: 'CC BY-SA; verify page footer',
       wikidata: 'CC0 structured data',
       wiktionary: 'Wikimedia license; verify page footer',
       datamuse: 'Datamuse API terms',
       dlmf: 'NIST public access; cite permalinks',
-      openstax: 'Check book-specific license'
+      openstax: 'Check book-specific license',
+      scipy: 'BSD license; SciPy documentation',
+      pdfdrive: 'Verify individual document licenses',
+      internetarchive: 'Various; check per item',
+      wolfram: 'Wolfram Alpha terms of use',
+      cern: 'CERN document server',
+      mitocw: 'Creative Commons BY-NC-SA',
+      matlab: 'MathWorks documentation license',
+      rlang: 'R documentation license',
+      julia: 'Julia documentation license',
+      python: 'Python Software Foundation license',
+      scholar: 'Google Scholar terms',
+      duckduckgo: 'DuckDuckGo privacy terms',
+      semanticScholar: 'OAI-PMH; Semantic Scholar terms',
+      crossref: 'CrossRef terms; metadata only',
     };
+
+    // Tab switching
+    document.getElementById('tabsContainer').addEventListener('click', (e) => {
+      const btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+      const tabId = btn.dataset.tab;
+      // Deactivate all
+      $$('.tab-btn').forEach(b => b.classList.remove('active'));
+      $$('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+    });
 
     function initThree() {
       const scene = new THREE.Scene();
@@ -184,8 +319,13 @@
         glslVersion: THREE.GLSL3,
         uniforms: { t: { value: 0 }, res: { value: new THREE.Vector2(1, 1) }, light: { value: 0 } },
         vertexShader: `#version 300 es
+          in vec3 position;
+          in vec2 uv;
           out vec2 vUv;
-          void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+          void main(){
+            vUv = uv;
+            gl_Position = vec4(position.xy, 0.0, 1.0);
+          }`,
         fragmentShader: `#version 300 es
           precision highp float;
           uniform float t; uniform vec2 res; uniform float light; in vec2 vUv; out vec4 outColor;
@@ -209,15 +349,15 @@
       requestAnimationFrame(loop);
     }
 
-    async function get(name, url, signal) {
+    async function get(name, url, signal, parseJson = true) {
       log(name, 'pending', url);
       const started = performance.now();
       try {
-        const r = await fetch(url, { signal, headers: { accept: 'application/json' } });
+        const r = await fetch(url, { signal, headers: { accept: parseJson ? 'application/json' : 'application/json, text/xml' } });
         if (!r.ok) throw Error(r.status + ' ' + r.statusText);
-        const j = await r.json();
+        const data = parseJson ? await r.json() : await r.text();
         log(name, 'ok', url, Math.round(performance.now() - started) + ' ms');
-        return j;
+        return data;
       } catch (e) {
         if (e.name === 'AbortError') throw e;
         log(name, 'bad', url, e.message);
@@ -232,6 +372,25 @@
       row.innerHTML = `<div><b>${esc(name)}</b><br><code>${esc(host)}</code></div><span class="pill"><span class="dot ${status==='ok'?'ok':status==='bad'?'bad':''}"></span>${esc(detail || status)}</span>`;
     }
 
+    async function fetchCommonsImages(q, signal) {
+      try {
+        const searchData = await get('Commons search', ep.commonsSearch(q), signal);
+        const titles = (searchData?.query?.search || []).map(r => r.title).filter(t => t.startsWith('File:'));
+        if (!titles.length) return [];
+        const titlesParam = titles.slice(0,8).join('|');
+        const imageInfo = await get('Commons imageinfo', `https://commons.wikimedia.org/w/api.php?action=query&titles=${enc(titlesParam)}&prop=imageinfo&iiprop=url&format=json&origin=*`, signal);
+        const pages = imageInfo?.query?.pages || {};
+        const images = [];
+        for (const page of Object.values(pages)) {
+          const url = page.imageinfo?.[0]?.url;
+          if (url) images.push({ src: url, caption: page.title.replace(/^File:/, '').replace(/\.[^.]+$/, '') });
+        }
+        return images;
+      } catch (e) {
+        return [];
+      }
+    }
+
     async function searchLive(q) {
       q = q.trim(); if (!q) return;
       if (aborter) aborter.abort(); aborter = new AbortController(); const signal = aborter.signal;
@@ -240,17 +399,26 @@
         const start = performance.now();
         const ws = await get('Wikipedia search', ep.ws(q), signal);
         const title = ws?.query?.search?.[0]?.title || titleCase(q);
-        const [sum, wds, parse, wikt, dm, dmt] = await Promise.all([
-          get('Wikipedia summary', ep.sum(title), signal), get('Wikidata search', ep.wds(q), signal), get('Wikipedia parse/math', ep.parse(title), signal), get('Wiktionary extract', ep.wikt(q), signal), get('Datamuse similar', ep.dm(q), signal), get('Datamuse triggered', ep.dmt(q), signal)
+        const [sum, wds, parse, wikt, dm, dmt, semSch, crossRef, commonsImages] = await Promise.all([
+          get('Wikipedia summary', ep.sum(title), signal),
+          get('Wikidata search', ep.wds(q), signal),
+          get('Wikipedia parse/math', ep.parse(title), signal),
+          get('Wiktionary extract', ep.wikt(q), signal),
+          get('Datamuse similar', ep.dm(q), signal),
+          get('Datamuse triggered', ep.dmt(q), signal),
+          get('Semantic Scholar', ep.semanticScholar(q), signal).catch(() => null),
+          get('CrossRef', ep.crossref(q), signal).catch(() => null),
+          fetchCommonsImages(q, signal),
         ]);
         const qid = sum?.wikibase_item || wds?.search?.[0]?.id;
         const [ent, rel] = await Promise.all([qid ? get('Wikidata entity', ep.wde(qid), signal) : null, qid ? get('Wikidata SPARQL', ep.sparql(sparql(qid)), signal) : null]);
-        render(assemble({ q, title, sum, qid, ent, rel, parse, wikt, dm, dmt }));
+        render(assemble({ q, title, sum, qid, ent, rel, parse, wikt, dm, dmt, semSch, crossRef, commonsImages }));
         $('#runTime').textContent = Math.round(performance.now() - start) + ' ms'; $('#liveDot').className = 'dot ok';
       } catch (e) { if (e.name !== 'AbortError') { $('#technicalDef').textContent = 'Fetch failed: ' + e.message; $('#liveDot').className = 'dot bad'; } }
     }
-    function clear(){ ['apiLog','sourcesBox','thesaurusBox','factsBox'].forEach(id => $('#'+id).innerHTML = ''); $('#formulaBox').innerHTML = '<div class="empty">Searching formulae…</div>'; $('#wiktionaryBox').textContent='Waiting.'; $('#imageBox').hidden = true; $('#imageBox').innerHTML=''; lastSources=[]; }
+    function clear(){ ['apiLog','sourcesBox','thesaurusBox','factsBox','externalLinksBox','papersBox'].forEach(id => $('#'+id).innerHTML = ''); $('#formulaBox').innerHTML = '<div class="empty">Searching formulae…</div>'; $('#wiktionaryBox').textContent='Waiting.'; $('#imageBox').hidden = true; $('#imageBox').innerHTML=''; $('#imageGallery').hidden = true; $('#imageGallery').innerHTML=''; $('#papersBox').innerHTML = '<div class="empty">Searching academic literature…</div>'; lastSources=[]; }
     function sparql(qid){ return `SELECT ?item ?itemLabel WHERE { VALUES ?root { wd:${qid} } { ?root wdt:P279 ?item. } UNION { ?item wdt:P279 ?root. } UNION { ?root wdt:P31 ?item. } SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } } LIMIT 18`; }
+
     function assemble(d){
       const e = d.ent?.entities?.[d.qid];
       const term = e?.labels?.en?.value || d.sum?.title || d.title;
@@ -267,41 +435,163 @@
         { label:'Wiktionary', url:`https://en.wiktionary.org/wiki/${enc(d.q)}`, license:lic.wiktionary, retrieved },
         { label:'Datamuse', url:ep.dm(d.q), license:lic.datamuse, retrieved },
         { label:'NIST DLMF search', url:ep.dlmf(d.q), license:lic.dlmf, retrieved },
-        { label:'OpenStax search', url:ep.openstax(d.q), license:lic.openstax, retrieved }
+        { label:'OpenStax search', url:ep.openstax(d.q), license:lic.openstax, retrieved },
+        { label:'Scipy docs search', url:ep.scipy(d.q), license:lic.scipy, retrieved },
+        { label:'PDFDrive search', url:ep.pdfdrive(d.q), license:lic.pdfdrive, retrieved },
+        { label:'Internet Archive', url:ep.internetarchive(d.q), license:lic.internetarchive, retrieved },
+        ...(d.semSch ? [{ label:'Semantic Scholar', url:ep.semanticScholar(d.q), license:lic.semanticScholar, retrieved }] : []),
+        ...(d.crossRef ? [{ label:'CrossRef', url:ep.crossref(d.q), license:lic.crossref, retrieved }] : []),
+        { label:'Wolfram Alpha', url:ep.wolfram(d.q), license:lic.wolfram, retrieved },
+        { label:'CERN Document Server', url:ep.cern(d.q), license:lic.cern, retrieved },
+        { label:'MIT OpenCourseWare', url:ep.mitocw(d.q), license:lic.mitocw, retrieved },
+        { label:'MATLAB Documentation', url:ep.matlab(d.q), license:lic.matlab, retrieved },
+        { label:'R Documentation', url:ep.rlang(d.q), license:lic.rlang, retrieved },
+        { label:'Julia Documentation', url:ep.julia(d.q), license:lic.julia, retrieved },
+        { label:'Python Documentation', url:ep.python(d.q), license:lic.python, retrieved },
+        { label:'Google Scholar', url:ep.scholar(d.q), license:lic.scholar, retrieved },
       ];
-      return { term, query:d.q, title:d.title, desc, qid:d.qid, wiki, url, img:d.sum?.thumbnail?.source || d.sum?.originalimage?.source, tags:unique([...aliases,...dm,...rel]), formulas:extractFormulae(d.parse).slice(0,8), wikt:extractWikt(d.wikt), sources };
+      const formulas = extractFormulae(d.parse).slice(0,14);
+      const wikiImages = extractAllImages(d.parse, d.sum);
+      const commonsImgs = (d.commonsImages || []).filter(img => !wikiImages.some(wi => wi.src === img.src));
+      const allImages = [...wikiImages, ...commonsImgs].slice(0,12);
+      const papers = extractPapers(d.semSch, d.crossRef);
+      return { term, query:d.q, title:d.title, desc, qid:d.qid, wiki, url, img: allImages.length>0 ? allImages[0] : (d.sum?.thumbnail?.source || d.sum?.originalimage?.source || null), allImages: allImages.length>1 ? allImages : [], imgCaption: extractImageCaption(d.parse, d.sum), tags:unique([...aliases,...dm,...rel]), formulas, wikt:extractWikt(d.wikt), sources, papers };
     }
+
+    function extractAllImages(parse, sum){
+      const images = [];
+      if (sum?.thumbnail?.source) images.push({ src: sum.thumbnail.source, caption: sum.title || '' });
+      if (sum?.originalimage?.source && sum.originalimage.source !== sum?.thumbnail?.source) { images.push({ src: sum.originalimage.source, caption: sum.title || 'Original image' }); }
+      if (parse?.parse?.text?.['*']) {
+        const d = new DOMParser().parseFromString(parse.parse.text['*'], 'text/html');
+        d.querySelectorAll('img[src*="upload.wikimedia.org"]').forEach(img => { const src = img.getAttribute('src'); if (src && !images.find(i => i.src === src) && images.length < 8) { images.push({ src, caption: img.getAttribute('alt') || '' }); } });
+      }
+      return images;
+    }
+    function extractImageCaption(parse, sum){
+      if (parse?.parse?.text?.['*']) { const d = new DOMParser().parseFromString(parse.parse.text['*'], 'text/html'); const figcaption = d.querySelector('figcaption, .thumbcaption'); if (figcaption) return figcaption.textContent.trim().slice(0,200); }
+      return sum?.description || '';
+    }
+    function extractPapers(semSch, crossRef){
+      const papers = [];
+      if (semSch?.data && Array.isArray(semSch.data)) { semSch.data.forEach(p => { papers.push({ title: p.title || 'Untitled', year: p.year || '', authors: (p.authors || []).map(a=>a.name).join(', '), url: p.url || (p.externalIds?.DOI ? `https://doi.org/${p.externalIds.DOI}` : ''), abstract: p.abstract || '', venue: p.publicationVenue?.name || '', source:'Semantic Scholar', doi: p.externalIds?.DOI || '' }); }); }
+      if (crossRef?.message?.items && Array.isArray(crossRef.message.items)) { crossRef.message.items.forEach(item => { const doi = item.DOI || ''; if (!papers.find(p=>p.doi===doi) && papers.length<12) { papers.push({ title: (item.title||['Untitled'])[0]||'Untitled', year: item.issued?.['date-parts']?.[0]?.[0]||'', authors: '', url: item.URL||(doi?`https://doi.org/${doi}`:''), abstract:'', venue: item.publisher||'', source:'CrossRef', doi }); } }); }
+      return papers.slice(0,10);
+    }
+
     function render(x){
       current = x; lastSources = x.sources;
       $('#termTitle').textContent = x.term; $('#qidPill').textContent = x.qid || 'no QID'; $('#termSubtitle').textContent = x.desc || `Resolved from ${x.query}.`;
       $('#technicalDef').textContent = x.wiki || x.desc || 'No definition returned.'; $('#laymanDef').textContent = simplify(x.wiki || x.desc || x.term);
-      if (x.img) { $('#imageBox').hidden = false; $('#imageBox').innerHTML = `<img src="${attr(x.img)}" alt="${attr(x.term)}">`; }
-      $('#factsBox').innerHTML = [['Resolved page',x.title],['Wikidata QID',x.qid||'Not found'],['Data mode','Live fetch only'],['Retrieved',new Date().toLocaleString()]].map(([a,b]) => `<div>${esc(a)}</div><div>${esc(b)}</div>`).join('');
-      $('#thesaurusBox').innerHTML = x.tags.slice(0,40).map(t => `<button class="tag" data-term="${attr(t)}">${esc(t)}</button>`).join('') || '<div class="empty">No related terms.</div>';
+
+      if (x.img) {
+        $('#imageBox').hidden = false;
+        $('#imageBox').innerHTML = `<img src="${attr(x.img)}" alt="${attr(x.term)}" loading="lazy" id="mainImage"><div class="img-caption">${esc(x.imgCaption || x.term)}</div>`;
+        if (x.allImages.length > 1) {
+          $('#imageGallery').hidden = false;
+          $('#imageGallery').innerHTML = x.allImages.map((img, i) => {
+            const isActive = img.src === x.img;
+            return `<img src="${attr(img.src)}" alt="${attr(img.caption||'')}" loading="lazy" class="gallery-thumb ${isActive ? 'active' : ''}" data-src="${attr(img.src)}" data-caption="${esc(img.caption||'')}" title="${attr(img.caption||'Image '+(i+1))}">`;
+          }).join('');
+          $('#imageGallery').onclick = function(e) {
+            const thumb = e.target.closest('.gallery-thumb');
+            if (!thumb) return;
+            const mainImg = document.getElementById('mainImage');
+            const captionEl = document.querySelector('#imageBox .img-caption');
+            if (mainImg) mainImg.src = thumb.dataset.src;
+            if (captionEl) captionEl.textContent = thumb.dataset.caption;
+            this.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+          };
+        } else { $('#imageGallery').hidden = true; $('#imageGallery').innerHTML = ''; }
+      } else { $('#imageBox').hidden = true; $('#imageBox').innerHTML = ''; $('#imageGallery').hidden = true; $('#imageGallery').innerHTML = ''; }
+
+      $('#factsBox').innerHTML = [['Resolved page',x.title],['Wikidata QID',x.qid||'Not found'],['Data mode','Live fetch only'],['Retrieved',new Date().toLocaleString()]].map(([a,b])=>`<div>${esc(a)}</div><div>${esc(b)}</div>`).join('');
+      $('#thesaurusBox').innerHTML = x.tags.slice(0,40).map(t=>`<button class="tag" data-term="${attr(t)}">${esc(t)}</button>`).join('') || '<div class="empty">No related terms.</div>';
       $('#thesaurusBox').querySelectorAll('[data-term]').forEach(b => b.onclick = () => { $('#query').value = b.dataset.term; searchLive(b.dataset.term); });
-      renderFormulae(x); $('#wiktionaryBox').textContent = x.wikt || 'No concise Wiktionary extract returned.'; $('#sourcesBox').innerHTML = x.sources.map(sourceRow).join('');
+      renderFormulae(x); renderPapers(x); $('#wiktionaryBox').textContent = x.wikt || 'No concise Wiktionary extract returned.'; $('#sourcesBox').innerHTML = x.sources.map(sourceRow).join(''); $('#externalLinksBox').innerHTML = renderExternalLinks(x);
     }
+
     function renderFormulae(x){
       const box = $('#formulaBox');
-      if (!x.formulas.length) { box.innerHTML = '<div class="empty">No Wikipedia math markup found.</div>' + sourceRow({label:'Search NIST DLMF',url:ep.dlmf(x.query),license:lic.dlmf,retrieved:new Date().toISOString()}); return; }
-      box.innerHTML = x.formulas.map((f,i) => `<div class="formula"><b>Formula ${i+1}</b><div class="formula-code">\\(${esc(f)}\\)</div></div>`).join('') + sourceRow({label:'Search NIST DLMF',url:ep.dlmf(x.query),license:lic.dlmf,retrieved:new Date().toISOString()});
+      const dlmfSource = sourceRow({label:'Search NIST DLMF',url:ep.dlmf(x.query),license:lic.dlmf,retrieved:new Date().toISOString()});
+      if (!x.formulas.length) { box.innerHTML = '<div class="empty">No Wikipedia math markup found. Try searching a mathematical term.</div>' + dlmfSource; return; }
+      box.innerHTML = x.formulas.map((f,i)=>{
+        let contextHtml = '';
+        if (f.context && isCleanContext(f.context)) { contextHtml = `<span class="context">from "${esc(f.context)}"</span>`; }
+        const formulaTex = f.tex || f;
+        return `<div class="formula"><div class="formula-label"><b>📐 Formula ${i+1}</b>${contextHtml}</div><div class="formula-code">\\(${escapeLatex(formulaTex)}\\)</div></div>`;
+      }).join('') + dlmfSource;
       if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise([box]).catch(()=>{});
     }
-    function extractFormulae(p){ const h = p?.parse?.text?.['*']; if (!h) return []; const d = new DOMParser().parseFromString(h,'text/html'); const out=[]; d.querySelectorAll('.mwe-math-element img[alt],img.mwe-math-fallback-image-inline[alt],img.mwe-math-fallback-image-display[alt]').forEach(i => { const a=i.getAttribute('alt'); if(a&&a.length<220) out.push(a); }); return unique(out).filter(x => /[=\\+\-∑∫√\^_]/.test(x)); }
-    function extractWikt(w){ const p = Object.values(w?.query?.pages || {}).find(x => x && !x.missing); return (p?.extract || '').split('\n').filter(Boolean).slice(0,8).join('\n'); }
-    function simplify(t){ const b = String(t).replace(/\([^)]*\)/g,'').split(/(?<=[.!?])\s+/).slice(0,3).join(' '); return b ? 'In simple terms: ' + b + ' Check source links for exact wording.' : 'No plain-language summary generated.'; }
+
+    function isCleanContext(str) {
+      if (!str || str.length < 3) return false;
+      if (/[{}]/.test(str) || /\\displaystyle|\\frac|\\sum|\\int|\\sqrt|\\alpha|\\beta|\\gamma|\\delta|\\epsilon|\\zeta|\\eta|\\theta|\\iota|\\kappa|\\lambda|\\mu|\\nu|\\xi|\\pi|\\rho|\\sigma|\\tau|\\upsilon|\\phi|\\chi|\\psi|\\omega/.test(str)) return false;
+      if (/=.*\{/.test(str)) return false;
+      return true;
+    }
+
+    function renderPapers(x){
+      const box = $('#papersBox');
+      if (!x.papers || !x.papers.length) { box.innerHTML = '<div class="empty">No academic papers found for this term. Try a more specific scientific query.</div>'; return; }
+      box.innerHTML = x.papers.map(p=>`<div class="paper-item"><div class="paper-title"><a href="${attr(p.url||'#')}" target="_blank" rel="noreferrer">${esc(p.title)}</a></div><div class="paper-meta">${p.year?`<span>📅 ${esc(String(p.year))}</span>`:''}${p.authors?`<span>👤 ${esc(p.authors.slice(0,120))}${p.authors.length>120?'…':''}</span>`:''}${p.venue?`<span>📰 ${esc(p.venue)}</span>`:''}<span class="pill" style="font-size:10px">${esc(p.source)}</span></div>${p.abstract?`<div class="paper-abstract">${esc(p.abstract.slice(0,300))}${p.abstract.length>300?'…':''}</div>`:''}</div>`).join('');
+    }
+
+    function renderExternalLinks(x){
+      const links = [
+        { label:'📘 Scipy Docs', url:ep.scipy(x.query) },
+        { label:'📚 PDFDrive', url:ep.pdfdrive(x.query) },
+        { label:'🏛️ Internet Archive', url:ep.internetarchive(x.query) },
+        { label:'📖 OpenStax', url:ep.openstax(x.query) },
+        { label:'🔢 NIST DLMF', url:ep.dlmf(x.query) },
+        { label:'🧮 Wolfram Alpha', url:ep.wolfram(x.query) },
+        { label:'🔬 CERN DS', url:ep.cern(x.query) },
+        { label:'🎓 MIT OCW', url:ep.mitocw(x.query) },
+        { label:'📊 MATLAB', url:ep.matlab(x.query) },
+        { label:'📈 R', url:ep.rlang(x.query) },
+        { label:'⚡ Julia', url:ep.julia(x.query) },
+        { label:'🐍 Python', url:ep.python(x.query) },
+        { label:'🎓 Google Scholar', url:ep.scholar(x.query) },
+        { label:'🔎 DuckDuckGo', url:ep.duckduckgo(x.query) },
+        { label:'🖼️ Google Images', url:ep.googleImages(x.query) },
+      ];
+      return links.map(l=>`<a class="ext-link" href="${attr(l.url)}" target="_blank" rel="noreferrer">${l.label}</a>`).join('');
+    }
+
+    function extractFormulae(p){
+      const h = p?.parse?.text?.['*']; if (!h) return [];
+      const d = new DOMParser().parseFromString(h,'text/html'); const out=[];
+      d.querySelectorAll('math annotation[encoding="application/x-tex"], math annotation[encoding="tex"]').forEach(el=>{ const tex=el.textContent.trim(); if(tex&&tex.length<400&&/[=\\+\-∑∫√\^_{}]/.test(tex)&&hasBalancedBraces(tex)){ const context=findContext(el,d); out.push({tex,context}); } });
+      d.querySelectorAll('.mwe-math-element img[alt], img.mwe-math-fallback-image-inline[alt], img.mwe-math-fallback-image-display[alt], .mwe-math-fallback-image-inline[alt], .mwe-math-fallback-image-display[alt]').forEach(i=>{ const a=i.getAttribute('alt'); if(a&&a.length<400&&/[=\\+\-∑∫√\^_{}]/.test(a)&&!a.startsWith('c = {\\displaystyle')&&hasBalancedBraces(a)&&!out.find(o=>o.tex===a.trim())){ const context=findContext(i,d); out.push({tex:a.trim(),context}); } });
+      if(out.length<3){ d.querySelectorAll('pre, code, .latex, .math').forEach(el=>{ const text=el.textContent.trim(); if(text&&text.length<500&&/[=\\+\-∑∫√\^_{}]/.test(text)&&text.includes('\\')&&hasBalancedBraces(text)&&!out.find(o=>o.tex===text)){ const context=findContext(el,d); out.push({tex:text,context}); } }); }
+      const seen=new Set(); return out.filter(item=>{ const key=item.tex.slice(0,80); if(seen.has(key)) return false; seen.add(key); return true; });
+    }
+
+    function hasBalancedBraces(str) { let balance=0; for(const ch of str){ if(ch==='{') balance++; else if(ch==='}') balance--; if(balance<0) return false; } return balance===0; }
+    function findContext(el, doc){
+      let node=el.closest('section, div, p'); if(!node) node=el.parentElement;
+      let heading=null; let current=el;
+      for(let i=0;i<6;i++){ if(!current) break; const prev=current.previousElementSibling; if(prev&&/^H[1-4]$/i.test(prev.tagName)){ const text=prev.textContent.trim(); if(text&&!/[{}]/.test(text)&&!/\\displaystyle/.test(text)){ heading=text.slice(0,60); break; } } current=current.parentElement; }
+      if(!heading&&node){ const text=node.textContent.trim().split(/\s+/).slice(0,6).join(' '); if(text&&!/[{}]/.test(text)) heading=text; }
+      return heading||null;
+    }
+    function extractWikt(w){ const p=Object.values(w?.query?.pages||{}).find(x=>x&&!x.missing); return (p?.extract||'').split('\n').filter(Boolean).slice(0,8).join('\n'); }
+    function simplify(t){ const b=String(t).replace(/\([^)]*\)/g,'').split(/(?<=[.!?])\s+/).slice(0,3).join(' '); return b?'In simple terms: '+b+' Check source links for exact wording.':'No plain-language summary generated.'; }
     function sourceRow(s){ return `<a class="source" href="${attr(s.url)}" target="_blank" rel="noreferrer"><div><b>${esc(s.label)}</b><span>${esc(s.license)} · retrieved ${esc(s.retrieved)}</span></div><span>↗</span></a>`; }
-    function titleCase(s){ return s.replace(/\w\S*/g, t => t[0].toUpperCase() + t.slice(1)); }
-    function unique(a){ return [...new Set(a.map(x => String(x || '').trim()).filter(Boolean))]; }
-    function esc(s){ return String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    function titleCase(s){ return s.replace(/\w\S*/g,t=>t[0].toUpperCase()+t.slice(1)); }
+    function unique(a){ return [...new Set(a.map(x=>String(x||'').trim()).filter(Boolean))]; }
+    function esc(s){ return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
     function attr(s){ return esc(s).replace(/'/g,'&#39;'); }
+    function escapeLatex(s){ return String(s??'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     $('#searchForm').onsubmit = e => { e.preventDefault(); searchLive($('#query').value); };
     $$('.chip[data-term]').forEach(b => b.onclick = () => { $('#query').value = b.dataset.term; searchLive(b.dataset.term); });
     $('#themeBtn').onclick = () => document.body.classList.toggle('light');
-    $('#copyBtn').onclick = async () => { if(!current) return; await navigator.clipboard.writeText(current.term + ' — ' + lastSources.map(s => `${s.label}: ${s.url}`).join('; ')); $('#copyBtn').textContent='Copied'; setTimeout(() => $('#copyBtn').textContent='Copy citation', 1200); };
+    $('#copyBtn').onclick = async () => { if(!current) return; await navigator.clipboard.writeText(current.term + ' — ' + lastSources.map(s=>`${s.label}: ${s.url}`).join('; ')); $('#copyBtn').textContent='Copied'; setTimeout(()=>$('#copyBtn').textContent='Copy citation',1200); };
     initThree();
     searchLive('entropy');
   </script>
 </body>
 </html>
+```
