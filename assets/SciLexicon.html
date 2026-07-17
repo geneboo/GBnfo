@@ -1,596 +1,2378 @@
-
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="SciLexicon Live: a static GitHub Pages science dictionary, thesaurus, explainer and formula explorer using live public APIs." />
-  <title>SciLexicon Live</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="SciLexicon Live: a premium scientific dictionary, thesaurus, explainer and formula explorer with live 3D knowledge network." />
+    <title>SciLexicon Live · Premium</title>
 
-  <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['\\(', '\\)']],
-        displayMath: [['\\[', '\\]']],
-        processEscapes: false,
-      },
-      svg: { fontCache: 'global' },
-      startup: { typeset: false },
-      options: {
-        enableMenu: true,
-        menuOptions: {
-          settings: { renderer: 'SVG' },
-        },
-      },
-    };
-  </script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [
+                    ['\\(', '\\)']
+                ], displayMath: [
+                    ['\\[', '\\]']
+                ], processEscapes: false },
+            svg: { fontCache: 'global' },
+            startup: { typeset: false },
+            options: { enableMenu: true, menuOptions: { settings: { renderer: 'SVG' } } }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
 
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #050816;
-      --text: #f8fbff;
-      --muted: #a8b3c7;
-      --line: rgba(255,255,255,.16);
-      --glass: rgba(9,15,30,.60);
-      --glass2: rgba(255,255,255,.08);
-      --cyan: #60eaff;
-      --green: #78ffd6;
-      --violet: #b176ff;
-      --red: #ff668a;
-      --amber: #ffd166;
-      --shadow: 0 24px 80px rgba(0,0,0,.32);
-      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --mono: Consolas, "SFMono-Regular", Menlo, monospace;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--font); overflow-x: hidden; }
-    body.light { color-scheme: light; --bg: #f7fbff; --text: #08111f; --muted: #506076; --line: rgba(8,17,31,.14); --glass: rgba(255,255,255,.72); --glass2: rgba(8,17,31,.055); --shadow: 0 24px 80px rgba(42,82,130,.18); }
-    #webgl { position: fixed; inset: 0; z-index: -3; }
-    .veil { position: fixed; inset: 0; z-index: -2; pointer-events: none; background: radial-gradient(circle at 18% 20%, rgba(96,234,255,.25), transparent 30%), radial-gradient(circle at 82% 18%, rgba(177,118,255,.20), transparent 28%), radial-gradient(circle at 60% 84%, rgba(120,255,214,.13), transparent 28%), linear-gradient(to bottom, transparent, rgba(5,8,22,.78)); }
-    body.light .veil { background: linear-gradient(to bottom, rgba(247,251,255,.25), rgba(247,251,255,.88)); }
-    .shell { width: min(1240px, calc(100% - 36px)); margin: auto; }
-    nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0 14px; }
-    .brand { display: flex; align-items: center; gap: 13px; }
-    .logo { width: 44px; height: 44px; border-radius: 16px; display: grid; place-items: center; background: linear-gradient(135deg, var(--cyan), var(--violet)); color: #06111b; font-weight: 950; box-shadow: var(--shadow); }
-    .brand b { display: block; font-size: 18px; }
-    .brand span, .muted { color: var(--muted); }
-    .brand span { display: block; font-size: 11px; margin-top: 2px; }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-    .btn, .chip { border: 1px solid var(--line); background: var(--glass); color: var(--text); border-radius: 16px; padding: 10px 14px; cursor: pointer; text-decoration: none; font-weight: 750; backdrop-filter: blur(18px); transition: transform .18s ease, border-color .18s ease; }
-    .btn:hover, .chip:hover, .tag:hover { transform: translateY(-1px); border-color: rgba(96,234,255,.55); }
-    .btn.primary { border: 0; color: #04111a; background: linear-gradient(135deg, var(--cyan), var(--green)); }
-    .hero { padding: 20px 0 10px; text-align: center; }
-    .hero-content { max-width: 800px; margin: 0 auto; }
-    h1 { font-size: clamp(36px, 6vw, 64px); line-height: 1.05; letter-spacing: -.04em; margin: 14px 0; }
-    .grad { background: linear-gradient(135deg, var(--cyan), var(--green), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .lead { font-size: clamp(16px, 2vw, 20px); line-height: 1.5; color: var(--muted); max-width: 700px; margin: 0 auto 20px; }
-    .search { display: flex; gap: 10px; margin: 0 auto; padding: 12px; border: 1px solid var(--line); background: var(--glass); border-radius: 26px; box-shadow: var(--shadow); backdrop-filter: blur(22px); max-width: 650px; }
-    .search input { flex: 1; border: 0; outline: 0; background: var(--glass2); color: var(--text); border-radius: 18px; padding: 14px; font-size: 17px; }
-    .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
-    .stats-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
-    .stat-badge { border: 1px solid var(--line); background: var(--glass2); border-radius: 18px; padding: 10px 16px; font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
-    .stat-badge b { font-weight: 750; color: var(--text); }
-    .pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--glass2); border-radius: 999px; padding: 7px 10px; color: var(--muted); font-size: 12px; }
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.165.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/" } }
+    </script>
 
-    /* Tabs */
-    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0 12px; justify-content: center; }
-    .tab-btn { border: 1px solid var(--line); background: var(--glass); color: var(--text); border-radius: 16px; padding: 10px 18px; cursor: pointer; font-weight: 750; backdrop-filter: blur(18px); transition: all .2s ease; }
-    .tab-btn:hover, .tab-btn.active { border-color: var(--cyan); background: rgba(96,234,255,.12); }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    .card { border: 1px solid var(--line); background: var(--glass); border-radius: 28px; box-shadow: var(--shadow); backdrop-filter: blur(24px); overflow: hidden; margin-bottom: 18px; }
-    .head { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 18px 20px 0; }
-    .head h2, .head h3 { margin: 0; letter-spacing: -.03em; font-size: 1.25rem; }
-    .body { padding: 16px 20px 20px; }
-    .definition { font-size: 16px; line-height: 1.7; }
-    .layman { font-size: 17px; line-height: 1.65; color: color-mix(in srgb, var(--text) 84%, var(--green)); }
-    .imagebox { margin-top: 12px; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); max-height: 400px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
-    .imagebox::-webkit-scrollbar { width: 6px; }
-    .imagebox::-webkit-scrollbar-track { background: transparent; border-radius: 10px; }
-    .imagebox::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; }
-    .imagebox img { width: 100%; max-height: 360px; object-fit: contain; display: block; background: rgba(0,0,0,.25); }
-    .imagebox .img-caption { padding: 8px 14px; font-size: 12px; color: var(--muted); background: var(--glass2); border-top: 1px solid var(--line); }
-    .image-gallery { display: flex; gap: 10px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; margin-top: 10px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
-    .image-gallery::-webkit-scrollbar { height: 5px; }
-    .image-gallery::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
-    .image-gallery img { width: 80px; height: 80px; object-fit: cover; border-radius: 14px; border: 2px solid var(--line); cursor: pointer; transition: transform .15s ease, border-color .15s ease; flex-shrink: 0; }
-    .image-gallery img:hover { transform: scale(1.08); border-color: var(--cyan); }
-    .image-gallery img.active { border-color: var(--cyan); box-shadow: 0 0 12px rgba(96,234,255,.5); }
-    .kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 10px; margin-top: 10px; }
-    .kv div:nth-child(odd) { color: var(--muted); font-size: 13px; }
-    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag { border: 1px solid var(--line); background: var(--glass2); border-radius: 999px; padding: 8px 11px; color: var(--text); cursor: pointer; transition: transform .18s ease, border-color .18s ease; font-size: 14px; }
-    .formula { border: 1px solid var(--line); background: rgba(0,0,0,.22); border-radius: 18px; padding: 14px; margin-bottom: 10px; overflow-x: auto; }
-    body.light .formula { background: rgba(255,255,255,.54); }
-    .formula-label { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-    .formula-label b { font-size: 13px; color: var(--cyan); letter-spacing: .02em; }
-    .formula-label .context { font-size: 11px; color: var(--muted); font-style: italic; }
-    .formula-code { overflow-x: auto; background: rgba(1,8,16,.78); color: #a7f7ff; border-radius: 14px; padding: 14px; font-family: var(--mono); font-size: 14px; line-height: 1.6; max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.2) transparent; white-space: pre-wrap; word-break: break-all; }
-    .formula-code::-webkit-scrollbar { width: 5px; height: 5px; }
-    .formula-code::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 6px; }
-    .source { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid var(--line); background: var(--glass2); border-radius: 18px; text-decoration: none; margin-top: 10px; color: var(--text); transition: border-color .15s ease; }
-    .source:hover { border-color: var(--cyan); }
-    .source span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; word-break: break-word; }
-    .apirow { display: flex; justify-content: space-between; gap: 10px; border: 1px solid var(--line); background: var(--glass2); border-radius: 16px; padding: 10px 12px; margin-top: 8px; }
-    .apirow code { color: var(--cyan); font-size: 12px; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--amber); }
-    .dot.ok { background: var(--green); }
-    .dot.bad { background: var(--red); }
-    .empty { padding: 22px; text-align: center; color: var(--muted); }
-    .notice { border: 1px solid rgba(255,209,102,.3); background: rgba(255,209,102,.08); border-radius: 18px; padding: 13px; line-height: 1.55; font-size: 13px; margin-bottom: 14px; }
-    .paper-item { border: 1px solid var(--line); background: var(--glass2); border-radius: 16px; padding: 13px; margin-top: 8px; transition: border-color .15s ease; }
-    .paper-item:hover { border-color: var(--cyan); }
-    .paper-item .paper-title { font-weight: 700; font-size: 14px; line-height: 1.4; margin-bottom: 4px; }
-    .paper-item .paper-title a { color: var(--text); text-decoration: none; }
-    .paper-item .paper-title a:hover { color: var(--cyan); }
-    .paper-item .paper-meta { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    .paper-item .paper-abstract { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .external-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; margin-top: 10px; }
-    .ext-link { font-size: 13px; padding: 8px 12px; border: 1px solid var(--line); background: var(--glass2); border-radius: 14px; color: var(--text); text-decoration: none; transition: all .15s ease; display: flex; align-items: center; gap: 6px; justify-content: center; }
-    .ext-link:hover { border-color: var(--cyan); background: rgba(96,234,255,.08); }
-    footer { padding: 6px 0 32px; color: var(--muted); font-size: 13px; text-align: center; }
-    @media (max-width: 640px) {
-      .search { flex-direction: column; }
-      .kv { grid-template-columns: 1fr; }
-      .imagebox { max-height: 260px; }
-      .formula-code { max-height: 130px; font-size: 12px; }
-      h1 { font-size: 28px; }
-      .image-gallery img { width: 60px; height: 60px; }
-      .tabs { gap: 4px; }
-      .tab-btn { padding: 8px 12px; font-size: 14px; }
-    }
-  </style>
+    <style>
+        :root {
+            --bg: #050816;
+            --text: #f8fbff;
+            --muted: #a8b3c7;
+            --line: rgba(255, 255, 255, .16);
+            --glass: rgba(9, 15, 30, .60);
+            --glass2: rgba(255, 255, 255, .07);
+            --cyan: #63F2FF;
+            --blue: #5DA8FF;
+            --violet: #8A7BFF;
+            --green: #78ffd6;
+            --red: #ff668a;
+            --amber: #ffd166;
+            --white: #FFFFFF;
+            --shadow: 0 24px 80px rgba(0, 0, 0, .40);
+            --font: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --mono: 'SF Mono', 'Consolas', 'SFMono-Regular', Menlo, monospace;
+            --radius: 20px;
+            --blur: 24px;
+            --transition: 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            overflow-x: hidden;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+        body.light {
+            --bg: #f0f4fa;
+            --text: #0a1224;
+            --muted: #4a5a78;
+            --line: rgba(10, 18, 36, .14);
+            --glass: rgba(255, 255, 255, .74);
+            --glass2: rgba(10, 18, 36, .05);
+            --shadow: 0 24px 80px rgba(40, 80, 130, .14);
+        }
+        #webgl {
+            position: fixed;
+            inset: 0;
+            z-index: -4;
+            pointer-events: none;
+        }
+        #webgl.clickable {
+            pointer-events: auto;
+        }
+        .veil {
+            position: fixed;
+            inset: 0;
+            z-index: -3;
+            pointer-events: none;
+            background: radial-gradient(circle at 22% 18%, rgba(99, 242, 255, .18), transparent 34%),
+                radial-gradient(circle at 78% 22%, rgba(138, 123, 255, .14), transparent 30%),
+                radial-gradient(circle at 55% 80%, rgba(93, 168, 255, .10), transparent 32%),
+                linear-gradient(to bottom, transparent 60%, rgba(5, 8, 22, .82));
+            transition: opacity 0.6s ease;
+        }
+        body.light .veil {
+            background: radial-gradient(circle at 22% 18%, rgba(99, 180, 220, .10), transparent 34%),
+                radial-gradient(circle at 78% 22%, rgba(130, 110, 200, .08), transparent 30%),
+                linear-gradient(to bottom, rgba(240, 244, 250, .30), rgba(240, 244, 250, .88));
+        }
+        .shell {
+            width: min(1240px, calc(100% - 40px));
+            margin: auto;
+            position: relative;
+            z-index: 1;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 0 12px;
+            flex-wrap: wrap;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--cyan), var(--violet));
+            color: #041018;
+            font-weight: 950;
+            font-size: 18px;
+            box-shadow: 0 8px 32px rgba(99, 242, 255, .30);
+            transition: transform var(--transition);
+        }
+        .logo:hover {
+            transform: scale(1.06);
+        }
+        .brand b {
+            display: block;
+            font-size: 18px;
+            letter-spacing: -0.02em;
+        }
+        .brand span,
+        .muted {
+            color: var(--muted);
+        }
+        .brand span {
+            display: block;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .btn,
+        .chip {
+            border: 1px solid var(--line);
+            background: var(--glass);
+            color: var(--text);
+            border-radius: 16px;
+            padding: 10px 16px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            backdrop-filter: blur(var(--blur));
+            -webkit-backdrop-filter: blur(var(--blur));
+            transition: all var(--transition);
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+        }
+        .btn:hover,
+        .chip:hover,
+        .tag:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 242, 255, .60);
+            box-shadow: 0 8px 28px rgba(99, 242, 255, .12);
+        }
+        .btn.primary {
+            border: 0;
+            color: #03101c;
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            font-weight: 700;
+        }
+        .btn.primary:hover {
+            box-shadow: 0 12px 36px rgba(99, 242, 255, .35);
+        }
+        .hero {
+            padding: 18px 0 8px;
+            text-align: center;
+        }
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: clamp(34px, 5.5vw, 58px);
+            line-height: 1.06;
+            letter-spacing: -0.04em;
+            margin: 14px 0;
+            font-weight: 800;
+        }
+        .grad {
+            background: linear-gradient(135deg, var(--cyan), var(--blue), var(--violet));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .lead {
+            font-size: clamp(15px, 1.8vw, 18px);
+            line-height: 1.55;
+            color: var(--muted);
+            max-width: 680px;
+            margin: 0 auto 18px;
+        }
+        .search {
+            display: flex;
+            gap: 8px;
+            margin: 0 auto;
+            padding: 6px;
+            border: 1.5px solid transparent;
+            background: var(--glass);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(var(--blur));
+            -webkit-backdrop-filter: blur(var(--blur));
+            max-width: 650px;
+            position: relative;
+            overflow: visible;
+            transition: all var(--transition);
+        }
+        .search::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 30px;
+            padding: 2px;
+            background: linear-gradient(135deg, var(--cyan), var(--violet), var(--blue), var(--cyan));
+            background-size: 300% 300%;
+            animation: borderSweep 4s ease infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes borderSweep {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+            25% {
+                background-position: 100% 0%;
+            }
+            50% {
+                background-position: 100% 100%;
+            }
+            75% {
+                background-position: 0% 100%;
+            }
+        }
+        .search:focus-within {
+            border-color: transparent;
+            box-shadow: 0 16px 48px rgba(99, 242, 255, .22);
+        }
+        .search input {
+            flex: 1;
+            border: 0;
+            outline: 0;
+            background: var(--glass2);
+            color: var(--text);
+            border-radius: 22px;
+            padding: 14px 18px;
+            font-size: 16px;
+            font-family: var(--font);
+            letter-spacing: -0.01em;
+            min-width: 0;
+        }
+        .search input::placeholder {
+            color: var(--muted);
+            opacity: 0.7;
+        }
+        .chips {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 14px;
+        }
+        .stats-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 12px;
+        }
+        .stat-badge {
+            border: 1px solid var(--line);
+            background: var(--glass2);
+            border-radius: 18px;
+            padding: 9px 14px;
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .stat-badge b {
+            font-weight: 700;
+            color: var(--text);
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--line);
+            background: var(--glass2);
+            border-radius: 999px;
+            padding: 6px 12px;
+            color: var(--muted);
+            font-size: 11px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            font-weight: 500;
+        }
+        .tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 18px 0 10px;
+            justify-content: center;
+        }
+        .tab-btn {
+            border: 1px solid var(--line);
+            background: var(--glass);
+            color: var(--text);
+            border-radius: 16px;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            backdrop-filter: blur(var(--blur));
+            -webkit-backdrop-filter: blur(var(--blur));
+            transition: all var(--transition);
+            letter-spacing: -0.01em;
+        }
+        .tab-btn:hover,
+        .tab-btn.active {
+            border-color: var(--cyan);
+            background: rgba(99, 242, 255, .12);
+            box-shadow: 0 4px 20px rgba(99, 242, 255, .10);
+        }
+        .tab-panel {
+            display: none;
+            animation: fadeSlideIn 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .card {
+            border: 1px solid var(--line);
+            background: var(--glass);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(var(--blur));
+            -webkit-backdrop-filter: blur(var(--blur));
+            overflow: hidden;
+            margin-bottom: 16px;
+            transition: all var(--transition);
+            animation: cardAppear 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+        }
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .card:hover {
+            border-color: rgba(99, 242, 255, .30);
+            box-shadow: 0 28px 90px rgba(0, 0, 0, .45), 0 0 0 1px rgba(99, 242, 255, .08);
+        }
+        .head {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            padding: 18px 20px 0;
+        }
+        .head h2,
+        .head h3 {
+            margin: 0;
+            letter-spacing: -0.03em;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .body {
+            padding: 14px 20px 20px;
+        }
+        .definition {
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        .layman {
+            font-size: 16px;
+            line-height: 1.65;
+            color: color-mix(in srgb, var(--text) 84%, var(--green));
+        }
+        .imagebox {
+            margin-top: 10px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--line) transparent;
+        }
+        .imagebox::-webkit-scrollbar {
+            width: 5px;
+        }
+        .imagebox::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 10px;
+        }
+        .imagebox::-webkit-scrollbar-thumb {
+            background: var(--line);
+            border-radius: 10px;
+        }
+        .imagebox img {
+            width: 100%;
+            max-height: 360px;
+            object-fit: contain;
+            display: block;
+            background: rgba(0, 0, 0, .25);
+        }
+        .imagebox .img-caption {
+            padding: 8px 14px;
+            font-size: 12px;
+            color: var(--muted);
+            background: var(--glass2);
+            border-top: 1px solid var(--line);
+        }
+        .image-gallery {
+            display: flex;
+            gap: 8px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-top: 8px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--line) transparent;
+        }
+        .image-gallery::-webkit-scrollbar {
+            height: 4px;
+        }
+        .image-gallery::-webkit-scrollbar-thumb {
+            background: var(--line);
+            border-radius: 6px;
+        }
+        .image-gallery img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 14px;
+            border: 2px solid var(--line);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        .image-gallery img:hover {
+            transform: scale(1.07);
+            border-color: var(--cyan);
+        }
+        .image-gallery img.active {
+            border-color: var(--cyan);
+            box-shadow: 0 0 16px rgba(99, 242, 255, .45);
+        }
+        .kv {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            gap: 5px 10px;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        .kv div:nth-child(odd) {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+        .tag {
+            border: 1px solid var(--line);
+            background: var(--glass2);
+            border-radius: 999px;
+            padding: 7px 12px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .formula {
+            border: 1px solid var(--line);
+            background: rgba(0, 0, 0, .20);
+            border-radius: 16px;
+            padding: 13px;
+            margin-bottom: 8px;
+            overflow-x: auto;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        body.light .formula {
+            background: rgba(255, 255, 255, .50);
+        }
+        .formula-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .formula-label b {
+            font-size: 12px;
+            color: var(--cyan);
+            letter-spacing: .02em;
+            font-weight: 700;
+        }
+        .formula-label .context {
+            font-size: 10px;
+            color: var(--muted);
+            font-style: italic;
+        }
+        .formula-code {
+            overflow-x: auto;
+            background: rgba(1, 8, 16, .78);
+            color: #b8f4ff;
+            border-radius: 12px;
+            padding: 12px;
+            font-family: var(--mono);
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 180px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, .2) transparent;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .formula-code::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .formula-code::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .2);
+            border-radius: 6px;
+        }
+        .source {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid var(--line);
+            background: var(--glass2);
+            border-radius: 16px;
+            text-decoration: none;
+            margin-top: 8px;
+            color: var(--text);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .source:hover {
+            border-color: var(--cyan);
+            background: rgba(99, 242, 255, .06);
+        }
+        .source span {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 2px;
+            word-break: break-word;
+        }
+        .apirow {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            border: 1px solid var(--line);
+            background: var(--glass2);
+            border-radius: 14px;
+            padding: 9px 11px;
+            margin-top: 6px;
+            font-size: 13px;
+            align-items: center;
+        }
+        .apirow code {
+            color: var(--cyan);
+            font-size: 11px;
+        }
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            background: var(--amber);
+            flex-shrink: 0;
+        }
+        .dot.ok {
+            background: var(--green);
+            box-shadow: 0 0 8px rgba(120, 255, 214, .50);
+        }
+        .dot.bad {
+            background: var(--red);
+            box-shadow: 0 0 8px rgba(255, 102, 138, .50);
+        }
+        .empty {
+            padding: 20px;
+            text-align: center;
+            color: var(--muted);
+            font-style: italic;
+        }
+        .notice {
+            border: 1px solid rgba(255, 209, 102, .25);
+            background: rgba(255, 209, 102, .06);
+            border-radius: 16px;
+            padding: 12px;
+            line-height: 1.5;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        .paper-item {
+            border: 1px solid var(--line);
+            background: var(--glass2);
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 7px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .paper-item:hover {
+            border-color: var(--cyan);
+            background: rgba(99, 242, 255, .05);
+        }
+        .paper-item .paper-title {
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 3px;
+        }
+        .paper-item .paper-title a {
+            color: var(--text);
+            text-decoration: none;
+        }
+        .paper-item .paper-title a:hover {
+            color: var(--cyan);
+        }
+        .paper-item .paper-meta {
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .paper-item .paper-abstract {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 5px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .external-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 7px;
+            margin-top: 8px;
+        }
+        .ext-link {
+            font-size: 12px;
+            padding: 8px 11px;
+            border: 1px solid var(--line);
+            background: var(--glass2);
+            border-radius: 13px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .ext-link:hover {
+            border-color: var(--cyan);
+            background: rgba(99, 242, 255, .07);
+        }
+        footer {
+            padding: 4px 0 28px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+        @media (max-width: 640px) {
+            .search {
+                flex-direction: column;
+            }
+            .kv {
+                grid-template-columns: 1fr;
+            }
+            .imagebox {
+                max-height: 250px;
+            }
+            .formula-code {
+                max-height: 120px;
+                font-size: 11px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+            .image-gallery img {
+                width: 54px;
+                height: 54px;
+            }
+            .tabs {
+                gap: 3px;
+            }
+            .tab-btn {
+                padding: 7px 11px;
+                font-size: 12px;
+            }
+            .card {
+                border-radius: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="webgl" aria-hidden="true"></div>
-  <div class="veil" aria-hidden="true"></div>
+    <div id="webgl" aria-hidden="true"></div>
+    <div class="veil" aria-hidden="true"></div>
 
-  <nav class="shell">
-    <div class="brand">
-      <div class="logo">SL</div>
-      <div><b>SciLexicon by Gene</b><span>Dictionary · thesaurus · explainer · formulae · live sources</span></div>
-    </div>
-    <div class="actions">
-      <button class="btn" id="themeBtn" type="button">☀️ / 🌙</button>
-      <a class="btn" href="https://geneboo.github.io/GBnfo/" target="_blank" rel="noreferrer">Gene's GitHub Page</a>
-      <button class="btn" id="copyBtn" type="button">Copy citation</button>
-    </div>
-  </nav>
-
-  <main class="shell">
-    <section class="hero">
-      <div class="hero-content">
-        <div class="pill" style="margin-bottom:10px"><span class="dot" id="liveDot"></span> Live API mode · no persistent local database</div>
-        <h1>One <span class="grad">science lookup</span>, assembled live from the web.</h1>
-        <p class="lead">Calls public APIs in the browser: Wikipedia, Wikidata, Wiktionary, Datamuse, Semantic Scholar, CrossRef, plus links to NIST DLMF, Scipy docs, OpenStax, PDFDrive, Internet Archive, Wolfram, CERN, MIT OCW, MATLAB, R, Julia, Python, and more.</p>
-        <form class="search" id="searchForm">
-          <input id="query" value="entropy" autocomplete="off" spellcheck="false" placeholder="Search entropy, photosynthesis, derivative..." />
-          <button class="btn primary" type="submit">Search live sources</button>
-        </form>
-        <div class="chips"><button class="chip" data-term="entropy">entropy</button><button class="chip" data-term="photosynthesis">photosynthesis</button><button class="chip" data-term="derivative">derivative</button><button class="chip" data-term="quantum mechanics">quantum mechanics</button><button class="chip" data-term="mitochondrion">mitochondrion</button><button class="chip" data-term="gamma function">gamma function</button></div>
-        <div class="stats-row">
-          <div class="stat-badge"><span>⚡ Runtime</span> <b>Static HTML + JS</b></div>
-          <div class="stat-badge"><span>🎨 Render</span> <b>Three.js WebGL2</b></div>
-          <div class="stat-badge"><span>💾 Storage</span> <b>None persistent</b></div>
-          <div class="stat-badge"><span>📎 Attribution</span> <b>Per source</b></div>
+    <nav class="shell">
+        <div class="brand">
+            <div class="logo">SL</div>
+            <div><b>SciLexicon by Gene</b><span>Dictionary · thesaurus · explainer · formulae · live sources</span></div>
         </div>
-      </div>
-    </section>
-
-    <div class="tabs" id="tabsContainer">
-      <button class="tab-btn active" data-tab="overview">📋 Overview</button>
-      <button class="tab-btn" data-tab="math">🧮 Math & Formulas</button>
-      <button class="tab-btn" data-tab="literature">📚 Academic Literature</button>
-      <button class="tab-btn" data-tab="sources">🔗 Sources & References</button>
-      <button class="tab-btn" data-tab="apilog">📡 API Log</button>
-    </div>
-
-    <div class="tab-panel active" id="tab-overview">
-      <article class="card">
-        <div class="head"><h2 id="termTitle">Ready</h2><span class="pill" id="qidPill">live</span></div>
-        <div class="body">
-          <p id="termSubtitle" class="muted">Search a term.</p>
-          <div id="imageBox" class="imagebox" hidden></div>
-          <div id="imageGallery" class="image-gallery" hidden></div>
-          <div id="factsBox" class="kv"></div>
+        <div class="actions">
+            <button class="btn" id="themeBtn" type="button">☀️ / 🌙</button>
+            <a class="btn" href="https://geneboo.github.io/GBnfo/" target="_blank" rel="noreferrer">Gene's GitHub Page</a>
+            <button class="btn" id="copyBtn" type="button">Copy citation</button>
         </div>
-      </article>
-      <article class="card"><div class="head"><h3>Technical definition</h3><span class="pill">Wikipedia / Wikidata</span></div><div class="body definition" id="technicalDef">Waiting.</div></article>
-      <article class="card"><div class="head"><h3>Layman explainer</h3><span class="pill">client-side</span></div><div class="body layman" id="laymanDef">Waiting.</div></article>
-      <article class="card"><div class="head"><h3>Thesaurus + related concepts</h3><span class="pill">Datamuse + Wikidata</span></div><div class="body"><div class="tags" id="thesaurusBox"></div></div></article>
-      <article class="card"><div class="head"><h3>Wiktionary extract</h3><span class="pill">Wiktionary</span></div><div class="body definition muted" id="wiktionaryBox">Waiting.</div></article>
-    </div>
+    </nav>
 
-    <div class="tab-panel" id="tab-math">
-      <article class="card"><div class="head"><h3>Formulae and math markup</h3><span class="pill">Wikipedia math + DLMF</span></div><div class="body" id="formulaBox"><div class="empty">Waiting.</div></div></article>
-    </div>
+    <main class="shell">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="pill" style="margin-bottom:10px"><span class="dot" id="liveDot"></span> Live API mode · no persistent local database</div>
+                <h1>One <span class="grad">science lookup</span>, assembled live from the web.</h1>
+                <p class="lead">Calls public APIs in the browser: Wikipedia, Wikidata, Wiktionary, Datamuse, Semantic Scholar, CrossRef, plus links to NIST DLMF, Scipy docs, OpenStax, PDFDrive, Internet Archive, Wolfram, CERN, MIT OCW, MATLAB, R, Julia, Python, and more.</p>
+                <form class="search" id="searchForm">
+                    <input id="query" value="entropy" autocomplete="off" spellcheck="false" placeholder="Search entropy, photosynthesis, derivative..." />
+                    <button class="btn primary" type="submit">Search live sources</button>
+                </form>
+                <div class="chips"><button class="chip" data-term="entropy">entropy</button><button class="chip" data-term="photosynthesis">photosynthesis</button><button class="chip" data-term="derivative">derivative</button><button class="chip" data-term="quantum mechanics">quantum mechanics</button><button class="chip" data-term="mitochondrion">mitochondrion</button><button class="chip" data-term="gamma function">gamma function</button></div>
+                <div class="stats-row">
+                    <div class="stat-badge"><span>⚡ Runtime</span> <b>Static HTML + JS</b></div>
+                    <div class="stat-badge"><span>🎨 Render</span> <b>Three.js WebGL2</b></div>
+                    <div class="stat-badge"><span>💾 Storage</span> <b>None persistent</b></div>
+                    <div class="stat-badge"><span>📎 Attribution</span> <b>Per source</b></div>
+                </div>
+            </div>
+        </section>
 
-    <div class="tab-panel" id="tab-literature">
-      <article class="card"><div class="head"><h3>Academic literature</h3><span class="pill">Semantic Scholar + CrossRef</span></div><div class="body" id="papersBox"><div class="empty">Search a term to find related papers.</div></div></article>
-    </div>
-
-    <div class="tab-panel" id="tab-sources">
-      <article class="card">
-        <div class="head"><h3>Source trail &amp; external references</h3><span class="pill">links + licenses</span></div>
-        <div class="body">
-          <div class="notice">Each result includes source URL, license note and retrieval timestamp. External links open in new tabs and include Wolfram, CERN, MIT OCW, language docs, and more.</div>
-          <div id="sourcesBox"></div>
-          <h4 style="margin:16px 0 8px;color:var(--muted)">🔎 Quick search links</h4>
-          <div class="external-grid" id="externalLinksBox"></div>
+        <div class="tabs" id="tabsContainer">
+            <button class="tab-btn active" data-tab="overview">📋 Overview</button>
+            <button class="tab-btn" data-tab="math">🧮 Math & Formulas</button>
+            <button class="tab-btn" data-tab="literature">📚 Academic Literature</button>
+            <button class="tab-btn" data-tab="sources">🔗 Sources & References</button>
+            <button class="tab-btn" data-tab="apilog">📡 API Log</button>
         </div>
-      </article>
-    </div>
 
-    <div class="tab-panel" id="tab-apilog">
-      <article class="card">
-        <div class="head"><h3>Live API calls</h3><span class="pill" id="runTime">idle</span></div>
-        <div class="body" id="apiLog"></div>
-      </article>
-    </div>
+        <div class="tab-panel active" id="tab-overview">
+            <article class="card">
+                <div class="head"><h2 id="termTitle">Ready</h2><span class="pill" id="qidPill">live</span></div>
+                <div class="body">
+                    <p id="termSubtitle" class="muted">Search a term.</p>
+                    <div id="imageBox" class="imagebox" hidden></div>
+                    <div id="imageGallery" class="image-gallery" hidden></div>
+                    <div id="factsBox" class="kv"></div>
+                </div>
+            </article>
+            <article class="card"><div class="head"><h3>Technical definition</h3><span class="pill">Wikipedia / Wikidata</span></div><div class="body definition" id="technicalDef">Waiting.</div></article>
+            <article class="card"><div class="head"><h3>Layman explainer</h3><span class="pill">client-side</span></div><div class="body layman" id="laymanDef">Waiting.</div></article>
+            <article class="card"><div class="head"><h3>Thesaurus + related concepts</h3><span class="pill">Datamuse + Wikidata</span></div><div class="body"><div class="tags" id="thesaurusBox"></div></div></article>
+            <article class="card"><div class="head"><h3>Wiktionary extract</h3><span class="pill">Wiktionary</span></div><div class="body definition muted" id="wiktionaryBox">Waiting.</div></article>
+        </div>
 
-    <footer>APIs may rate-limit or change CORS behavior. For production/high-volume use, add a proxy/cache and formal license audit.</footer>
-  </main>
+        <div class="tab-panel" id="tab-math">
+            <article class="card"><div class="head"><h3>Formulae and math markup</h3><span class="pill">Wikipedia math + DLMF</span></div><div class="body" id="formulaBox"><div class="empty">Waiting.</div></div></article>
+        </div>
 
-  <script type="module">
-    import * as THREE from 'https://unpkg.com/three@0.165.0/build/three.module.js';
+        <div class="tab-panel" id="tab-literature">
+            <article class="card"><div class="head"><h3>Academic literature</h3><span class="pill">Semantic Scholar + CrossRef</span></div><div class="body" id="papersBox"><div class="empty">Search a term to find related papers.</div></div></article>
+        </div>
 
-    const $ = s => document.querySelector(s);
-    const $$ = s => [...document.querySelectorAll(s)];
-    const enc = encodeURIComponent;
-    let current = null;
-    let lastSources = [];
-    let aborter = null;
+        <div class="tab-panel" id="tab-sources">
+            <article class="card">
+                <div class="head"><h3>Source trail &amp; external references</h3><span class="pill">links + licenses</span></div>
+                <div class="body">
+                    <div class="notice">Each result includes source URL, license note and retrieval timestamp. External links open in new tabs and include Wolfram, CERN, MIT OCW, language docs, and more.</div>
+                    <div id="sourcesBox"></div>
+                    <h4 style="margin:16px 0 8px;color:var(--muted)">🔎 Quick search links</h4>
+                    <div class="external-grid" id="externalLinksBox"></div>
+                </div>
+            </article>
+        </div>
 
-    const ep = {
-      ws: q => `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${enc(q)}&format=json&origin=*`,
-      sum: t => `https://en.wikipedia.org/api/rest_v1/page/summary/${enc(t)}`,
-      parse: t => `https://en.wikipedia.org/w/api.php?action=parse&page=${enc(t)}&prop=text|sections|properties&format=json&origin=*`,
-      wds: q => `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${enc(q)}&language=en&uselang=en&type=item&limit=5&format=json&origin=*`,
-      wde: qid => `https://www.wikidata.org/wiki/Special:EntityData/${enc(qid)}.json`,
-      sparql: q => `https://query.wikidata.org/sparql?format=json&query=${enc(q)}`,
-      wikt: q => `https://en.wiktionary.org/w/api.php?action=query&prop=extracts&explaintext=1&exintro=1&titles=${enc(q)}&format=json&origin=*`,
-      dm: q => `https://api.datamuse.com/words?ml=${enc(q)}&max=18&md=d`,
-      dmt: q => `https://api.datamuse.com/words?rel_trg=${enc(q)}&max=14`,
-      dlmf: q => `https://dlmf.nist.gov/search/search?q=${enc(q)}`,
-      openstax: q => `https://openstax.org/search?Search=${enc(q)}`,
-      scipy: q => `https://docs.scipy.org/doc/scipy/search.html?q=${enc(q)}`,
-      pdfdrive: q => `https://www.pdfdrive.com/search?q=${enc(q)}`,
-      internetarchive: q => `https://archive.org/search?query=${enc(q)}`,
-      wolfram: q => `https://www.wolframalpha.com/input?i=${enc(q)}`,
-      cern: q => `https://cds.cern.ch/search?q=${enc(q)}`,
-      mitocw: q => `https://ocw.mit.edu/search/?q=${enc(q)}`,
-      matlab: q => `https://www.mathworks.com/help/search.html?qdoc=${enc(q)}`,
-      rlang: q => `https://www.rdocumentation.org/search?q=${enc(q)}`,
-      julia: q => `https://docs.julialang.org/en/v1/search/?q=${enc(q)}`,
-      python: q => `https://docs.python.org/3/search.html?q=${enc(q)}`,
-      scholar: q => `https://scholar.google.com/scholar?q=${enc(q)}`,
-      duckduckgo: q => `https://duckduckgo.com/?q=${enc(q)}+site%3Aen.wikipedia.org`,
-      googleImages: q => `https://www.google.com/search?tbm=isch&q=${enc(q)}`,
-      semanticScholar: q => `https://api.semanticscholar.org/graph/v1/paper/search?query=${enc(q)}&limit=6&fields=title,year,authors,url,abstract,externalIds,publicationVenue`,
-      crossref: q => `https://api.crossref.org/works?query=${enc(q)}&rows=5&select=title,DOI,URL,publisher,type,issued`,
-      commonsSearch: q => `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${enc(q)}&srnamespace=6&srlimit=8&format=json&origin=*`,
-    };
+        <div class="tab-panel" id="tab-apilog">
+            <article class="card">
+                <div class="head"><h3>Live API calls</h3><span class="pill" id="runTime">idle</span></div>
+                <div class="body" id="apiLog"></div>
+            </article>
+        </div>
 
-    const lic = {
-      wikipedia: 'CC BY-SA; verify page footer',
-      wikidata: 'CC0 structured data',
-      wiktionary: 'Wikimedia license; verify page footer',
-      datamuse: 'Datamuse API terms',
-      dlmf: 'NIST public access; cite permalinks',
-      openstax: 'Check book-specific license',
-      scipy: 'BSD license; SciPy documentation',
-      pdfdrive: 'Verify individual document licenses',
-      internetarchive: 'Various; check per item',
-      wolfram: 'Wolfram Alpha terms of use',
-      cern: 'CERN document server',
-      mitocw: 'Creative Commons BY-NC-SA',
-      matlab: 'MathWorks documentation license',
-      rlang: 'R documentation license',
-      julia: 'Julia documentation license',
-      python: 'Python Software Foundation license',
-      scholar: 'Google Scholar terms',
-      duckduckgo: 'DuckDuckGo privacy terms',
-      semanticScholar: 'OAI-PMH; Semantic Scholar terms',
-      crossref: 'CrossRef terms; metadata only',
-    };
+        <footer>APIs may rate-limit or change CORS behavior. For production/high-volume use, add a proxy/cache and formal license audit.</footer>
+    </main>
 
-    // Tab switching
-    document.getElementById('tabsContainer').addEventListener('click', (e) => {
-      const btn = e.target.closest('.tab-btn');
-      if (!btn) return;
-      const tabId = btn.dataset.tab;
-      // Deactivate all
-      $$('.tab-btn').forEach(b => b.classList.remove('active'));
-      $$('.tab-panel').forEach(p => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(`tab-${tabId}`).classList.add('active');
-    });
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-    function initThree() {
-      const scene = new THREE.Scene();
-      const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-      $('#webgl').appendChild(renderer.domElement);
-      const material = new THREE.ShaderMaterial({
-        glslVersion: THREE.GLSL3,
-        uniforms: { t: { value: 0 }, res: { value: new THREE.Vector2(1, 1) }, light: { value: 0 } },
-        vertexShader: `#version 300 es
-          in vec3 position;
-          in vec2 uv;
-          out vec2 vUv;
-          void main(){
-            vUv = uv;
-            gl_Position = vec4(position.xy, 0.0, 1.0);
-          }`,
-        fragmentShader: `#version 300 es
-          precision highp float;
-          uniform float t; uniform vec2 res; uniform float light; in vec2 vUv; out vec4 outColor;
-          float h(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5); }
-          float n(vec2 p){ vec2 i=floor(p), f=fract(p), u=f*f*(3.0-2.0*f); return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y); }
-          float fbm(vec2 p){ float v=0.0,a=.5; for(int i=0;i<5;i++){ v+=a*n(p); p*=2.02; a*=.5; } return v; }
-          void main(){
-            vec2 uv=(gl_FragCoord.xy*2.0-res.xy)/min(res.x,res.y);
-            float f=fbm(uv*1.6+vec2(t*.08,-t*.05));
-            float aur=smoothstep(.18,.95,(sin(uv.x*2.8+f*4.0+t*.18)*.5+.5)*f);
-            vec3 base=mix(vec3(.035,.055,.115),vec3(.93,.97,1.0),light);
-            vec3 col=base+vec3(.05,.92,1.0)*aur*.25+vec3(.72,.35,1.0)*(.07/length(uv-vec2(sin(t*.12)*.75,cos(t*.1)*.32)))*.2;
-            outColor=vec4(col,1.0);
-          }`
-      });
-      scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material));
-      function resize(){ const d=Math.min(devicePixelRatio||1,2); renderer.setPixelRatio(d); renderer.setSize(innerWidth,innerHeight,false); material.uniforms.res.value.set(innerWidth*d,innerHeight*d); }
-      addEventListener('resize', resize, { passive: true });
-      resize();
-      function loop(x){ material.uniforms.t.value=x*.001; material.uniforms.light.value=document.body.classList.contains('light') ? 1 : 0; renderer.render(scene,cam); requestAnimationFrame(loop); }
-      requestAnimationFrame(loop);
-    }
+        // ──────────────────────────────────────────────
+        // DOM UTILITIES (preserved from original)
+        // ──────────────────────────────────────────────
+        const $ = s => document.querySelector(s);
+        const $$ = s => [...document.querySelectorAll(s)];
+        const enc = encodeURIComponent;
+        let current = null;
+        let lastSources = [];
+        let aborter = null;
 
-    async function get(name, url, signal, parseJson = true) {
-      log(name, 'pending', url);
-      const started = performance.now();
-      try {
-        const r = await fetch(url, { signal, headers: { accept: parseJson ? 'application/json' : 'application/json, text/xml' } });
-        if (!r.ok) throw Error(r.status + ' ' + r.statusText);
-        const data = parseJson ? await r.json() : await r.text();
-        log(name, 'ok', url, Math.round(performance.now() - started) + ' ms');
-        return data;
-      } catch (e) {
-        if (e.name === 'AbortError') throw e;
-        log(name, 'bad', url, e.message);
-        return null;
-      }
-    }
-    function log(name, status, url, detail='') {
-      let row = $(`#apiLog [data-api="${CSS.escape(name)}"]`);
-      if (!row) { row = document.createElement('div'); row.className = 'apirow'; row.dataset.api = name; $('#apiLog').appendChild(row); }
-      let host = url;
-      try { host = new URL(url).hostname; } catch {}
-      row.innerHTML = `<div><b>${esc(name)}</b><br><code>${esc(host)}</code></div><span class="pill"><span class="dot ${status==='ok'?'ok':status==='bad'?'bad':''}"></span>${esc(detail || status)}</span>`;
-    }
+        // ──────────────────────────────────────────────
+        // API ENDPOINTS (fully preserved)
+        // ──────────────────────────────────────────────
+        const ep = {
+            ws: q => `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${enc(q)}&format=json&origin=*`,
+            sum: t => `https://en.wikipedia.org/api/rest_v1/page/summary/${enc(t)}`,
+            parse: t => `https://en.wikipedia.org/w/api.php?action=parse&page=${enc(t)}&prop=text|sections|properties&format=json&origin=*`,
+            wds: q => `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${enc(q)}&language=en&uselang=en&type=item&limit=5&format=json&origin=*`,
+            wde: qid => `https://www.wikidata.org/wiki/Special:EntityData/${enc(qid)}.json`,
+            sparql: q => `https://query.wikidata.org/sparql?format=json&query=${enc(q)}`,
+            wikt: q => `https://en.wiktionary.org/w/api.php?action=query&prop=extracts&explaintext=1&exintro=1&titles=${enc(q)}&format=json&origin=*`,
+            dm: q => `https://api.datamuse.com/words?ml=${enc(q)}&max=18&md=d`,
+            dmt: q => `https://api.datamuse.com/words?rel_trg=${enc(q)}&max=14`,
+            dlmf: q => `https://dlmf.nist.gov/search/search?q=${enc(q)}`,
+            openstax: q => `https://openstax.org/search?Search=${enc(q)}`,
+            scipy: q => `https://docs.scipy.org/doc/scipy/search.html?q=${enc(q)}`,
+            pdfdrive: q => `https://www.pdfdrive.com/search?q=${enc(q)}`,
+            internetarchive: q => `https://archive.org/search?query=${enc(q)}`,
+            wolfram: q => `https://www.wolframalpha.com/input?i=${enc(q)}`,
+            cern: q => `https://cds.cern.ch/search?q=${enc(q)}`,
+            mitocw: q => `https://ocw.mit.edu/search/?q=${enc(q)}`,
+            matlab: q => `https://www.mathworks.com/help/search.html?qdoc=${enc(q)}`,
+            rlang: q => `https://www.rdocumentation.org/search?q=${enc(q)}`,
+            julia: q => `https://docs.julialang.org/en/v1/search/?q=${enc(q)}`,
+            python: q => `https://docs.python.org/3/search.html?q=${enc(q)}`,
+            scholar: q => `https://scholar.google.com/scholar?q=${enc(q)}`,
+            duckduckgo: q => `https://duckduckgo.com/?q=${enc(q)}+site%3Aen.wikipedia.org`,
+            googleImages: q => `https://www.google.com/search?tbm=isch&q=${enc(q)}`,
+            semanticScholar: q =>
+                `https://api.semanticscholar.org/graph/v1/paper/search?query=${enc(q)}&limit=6&fields=title,year,authors,url,abstract,externalIds,publicationVenue`,
+            crossref: q => `https://api.crossref.org/works?query=${enc(q)}&rows=5&select=title,DOI,URL,publisher,type,issued`,
+            commonsSearch: q =>
+                `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${enc(q)}&srnamespace=6&srlimit=8&format=json&origin=*`,
+        };
 
-    async function fetchCommonsImages(q, signal) {
-      try {
-        const searchData = await get('Commons search', ep.commonsSearch(q), signal);
-        const titles = (searchData?.query?.search || []).map(r => r.title).filter(t => t.startsWith('File:'));
-        if (!titles.length) return [];
-        const titlesParam = titles.slice(0,8).join('|');
-        const imageInfo = await get('Commons imageinfo', `https://commons.wikimedia.org/w/api.php?action=query&titles=${enc(titlesParam)}&prop=imageinfo&iiprop=url&format=json&origin=*`, signal);
-        const pages = imageInfo?.query?.pages || {};
-        const images = [];
-        for (const page of Object.values(pages)) {
-          const url = page.imageinfo?.[0]?.url;
-          if (url) images.push({ src: url, caption: page.title.replace(/^File:/, '').replace(/\.[^.]+$/, '') });
+        const lic = {
+            wikipedia: 'CC BY-SA; verify page footer',
+            wikidata: 'CC0 structured data',
+            wiktionary: 'Wikimedia license; verify page footer',
+            datamuse: 'Datamuse API terms',
+            dlmf: 'NIST public access; cite permalinks',
+            openstax: 'Check book-specific license',
+            scipy: 'BSD license; SciPy documentation',
+            pdfdrive: 'Verify individual document licenses',
+            internetarchive: 'Various; check per item',
+            wolfram: 'Wolfram Alpha terms of use',
+            cern: 'CERN document server',
+            mitocw: 'Creative Commons BY-NC-SA',
+            matlab: 'MathWorks documentation license',
+            rlang: 'R documentation license',
+            julia: 'Julia documentation license',
+            python: 'Python Software Foundation license',
+            scholar: 'Google Scholar terms',
+            duckduckgo: 'DuckDuckGo privacy terms',
+            semanticScholar: 'OAI-PMH; Semantic Scholar terms',
+            crossref: 'CrossRef terms; metadata only',
+        };
+
+        // ──────────────────────────────────────────────
+        // LOGGING & API HELPERS (preserved)
+        // ──────────────────────────────────────────────
+        async function get(name, url, signal, parseJson = true) {
+            log(name, 'pending', url);
+            const started = performance.now();
+            try {
+                const r = await fetch(url, { signal, headers: { accept: parseJson ? 'application/json' :
+                            'application/json, text/xml' } });
+                if (!r.ok) throw Error(r.status + ' ' + r.statusText);
+                const data = parseJson ? await r.json() : await r.text();
+                log(name, 'ok', url, Math.round(performance.now() - started) + ' ms');
+                return data;
+            } catch (e) {
+                if (e.name === 'AbortError') throw e;
+                log(name, 'bad', url, e.message);
+                return null;
+            }
         }
-        return images;
-      } catch (e) {
-        return [];
-      }
-    }
 
-    async function searchLive(q) {
-      q = q.trim(); if (!q) return;
-      if (aborter) aborter.abort(); aborter = new AbortController(); const signal = aborter.signal;
-      clear(); $('#termTitle').textContent = q; $('#runTime').textContent = 'running'; $('#liveDot').className = 'dot';
-      try {
-        const start = performance.now();
-        const ws = await get('Wikipedia search', ep.ws(q), signal);
-        const title = ws?.query?.search?.[0]?.title || titleCase(q);
-        const [sum, wds, parse, wikt, dm, dmt, semSch, crossRef, commonsImages] = await Promise.all([
-          get('Wikipedia summary', ep.sum(title), signal),
-          get('Wikidata search', ep.wds(q), signal),
-          get('Wikipedia parse/math', ep.parse(title), signal),
-          get('Wiktionary extract', ep.wikt(q), signal),
-          get('Datamuse similar', ep.dm(q), signal),
-          get('Datamuse triggered', ep.dmt(q), signal),
-          get('Semantic Scholar', ep.semanticScholar(q), signal).catch(() => null),
-          get('CrossRef', ep.crossref(q), signal).catch(() => null),
-          fetchCommonsImages(q, signal),
-        ]);
-        const qid = sum?.wikibase_item || wds?.search?.[0]?.id;
-        const [ent, rel] = await Promise.all([qid ? get('Wikidata entity', ep.wde(qid), signal) : null, qid ? get('Wikidata SPARQL', ep.sparql(sparql(qid)), signal) : null]);
-        render(assemble({ q, title, sum, qid, ent, rel, parse, wikt, dm, dmt, semSch, crossRef, commonsImages }));
-        $('#runTime').textContent = Math.round(performance.now() - start) + ' ms'; $('#liveDot').className = 'dot ok';
-      } catch (e) { if (e.name !== 'AbortError') { $('#technicalDef').textContent = 'Fetch failed: ' + e.message; $('#liveDot').className = 'dot bad'; } }
-    }
-    function clear(){ ['apiLog','sourcesBox','thesaurusBox','factsBox','externalLinksBox','papersBox'].forEach(id => $('#'+id).innerHTML = ''); $('#formulaBox').innerHTML = '<div class="empty">Searching formulae…</div>'; $('#wiktionaryBox').textContent='Waiting.'; $('#imageBox').hidden = true; $('#imageBox').innerHTML=''; $('#imageGallery').hidden = true; $('#imageGallery').innerHTML=''; $('#papersBox').innerHTML = '<div class="empty">Searching academic literature…</div>'; lastSources=[]; }
-    function sparql(qid){ return `SELECT ?item ?itemLabel WHERE { VALUES ?root { wd:${qid} } { ?root wdt:P279 ?item. } UNION { ?item wdt:P279 ?root. } UNION { ?root wdt:P31 ?item. } SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } } LIMIT 18`; }
+        function log(name, status, url, detail = '') {
+            let row = $(`#apiLog [data-api="${CSS.escape(name)}"]`);
+            if (!row) {
+                row = document.createElement('div');
+                row.className = 'apirow';
+                row.dataset.api = name;
+                $('#apiLog').appendChild(row);
+            }
+            let host = url;
+            try { host = new URL(url).hostname; } catch {}
+            row.innerHTML =
+                `<div><b>${esc(name)}</b><br><code>${esc(host)}</code></div><span class="pill"><span class="dot ${status==='ok'?'ok':status==='bad'?'bad':''}"></span>${esc(detail || status)}</span>`;
+        }
 
-    function assemble(d){
-      const e = d.ent?.entities?.[d.qid];
-      const term = e?.labels?.en?.value || d.sum?.title || d.title;
-      const desc = e?.descriptions?.en?.value || d.sum?.description || '';
-      const aliases = (e?.aliases?.en || []).map(a => a.value);
-      const rel = d.rel?.results?.bindings?.map(x => x.itemLabel?.value).filter(Boolean) || [];
-      const dm = [...(d.dm || []), ...(d.dmt || [])].map(x => x.word).filter(Boolean);
-      const wiki = d.sum?.extract || '';
-      const url = d.sum?.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${enc(d.title)}`;
-      const retrieved = new Date().toISOString();
-      const sources = [
-        { label:'Wikipedia summary', url, license: lic.wikipedia, retrieved },
-        ...(d.qid ? [{ label:`Wikidata ${d.qid}`, url:`https://www.wikidata.org/wiki/${d.qid}`, license:lic.wikidata, retrieved }] : []),
-        { label:'Wiktionary', url:`https://en.wiktionary.org/wiki/${enc(d.q)}`, license:lic.wiktionary, retrieved },
-        { label:'Datamuse', url:ep.dm(d.q), license:lic.datamuse, retrieved },
-        { label:'NIST DLMF search', url:ep.dlmf(d.q), license:lic.dlmf, retrieved },
-        { label:'OpenStax search', url:ep.openstax(d.q), license:lic.openstax, retrieved },
-        { label:'Scipy docs search', url:ep.scipy(d.q), license:lic.scipy, retrieved },
-        { label:'PDFDrive search', url:ep.pdfdrive(d.q), license:lic.pdfdrive, retrieved },
-        { label:'Internet Archive', url:ep.internetarchive(d.q), license:lic.internetarchive, retrieved },
-        ...(d.semSch ? [{ label:'Semantic Scholar', url:ep.semanticScholar(d.q), license:lic.semanticScholar, retrieved }] : []),
-        ...(d.crossRef ? [{ label:'CrossRef', url:ep.crossref(d.q), license:lic.crossref, retrieved }] : []),
-        { label:'Wolfram Alpha', url:ep.wolfram(d.q), license:lic.wolfram, retrieved },
-        { label:'CERN Document Server', url:ep.cern(d.q), license:lic.cern, retrieved },
-        { label:'MIT OpenCourseWare', url:ep.mitocw(d.q), license:lic.mitocw, retrieved },
-        { label:'MATLAB Documentation', url:ep.matlab(d.q), license:lic.matlab, retrieved },
-        { label:'R Documentation', url:ep.rlang(d.q), license:lic.rlang, retrieved },
-        { label:'Julia Documentation', url:ep.julia(d.q), license:lic.julia, retrieved },
-        { label:'Python Documentation', url:ep.python(d.q), license:lic.python, retrieved },
-        { label:'Google Scholar', url:ep.scholar(d.q), license:lic.scholar, retrieved },
-      ];
-      const formulas = extractFormulae(d.parse).slice(0,14);
-      const wikiImages = extractAllImages(d.parse, d.sum);
-      const commonsImgs = (d.commonsImages || []).filter(img => !wikiImages.some(wi => wi.src === img.src));
-      const allImages = [...wikiImages, ...commonsImgs].slice(0,12);
-      const papers = extractPapers(d.semSch, d.crossRef);
-      return { term, query:d.q, title:d.title, desc, qid:d.qid, wiki, url, img: allImages.length>0 ? allImages[0] : (d.sum?.thumbnail?.source || d.sum?.originalimage?.source || null), allImages: allImages.length>1 ? allImages : [], imgCaption: extractImageCaption(d.parse, d.sum), tags:unique([...aliases,...dm,...rel]), formulas, wikt:extractWikt(d.wikt), sources, papers };
-    }
+        // ──────────────────────────────────────────────
+        // SEARCH & DATA FETCHING (preserved)
+        // ──────────────────────────────────────────────
+        async function fetchCommonsImages(q, signal) {
+            try {
+                const searchData = await get('Commons search', ep.commonsSearch(q), signal);
+                const titles = (searchData?.query?.search || []).map(r => r.title).filter(t => t.startsWith('File:'));
+                if (!titles.length) return [];
+                const titlesParam = titles.slice(0, 8).join('|');
+                const imageInfo = await get('Commons imageinfo',
+                    `https://commons.wikimedia.org/w/api.php?action=query&titles=${enc(titlesParam)}&prop=imageinfo&iiprop=url&format=json&origin=*`,
+                    signal);
+                const pages = imageInfo?.query?.pages || {};
+                const images = [];
+                for (const page of Object.values(pages)) {
+                    const url = page.imageinfo?.[0]?.url;
+                    if (url) images.push({ src: url, caption: page.title.replace(/^File:/, '').replace(/\.[^.]+$/, '') });
+                }
+                return images;
+            } catch (e) { return []; }
+        }
 
-    function extractAllImages(parse, sum){
-      const images = [];
-      if (sum?.thumbnail?.source) images.push({ src: sum.thumbnail.source, caption: sum.title || '' });
-      if (sum?.originalimage?.source && sum.originalimage.source !== sum?.thumbnail?.source) { images.push({ src: sum.originalimage.source, caption: sum.title || 'Original image' }); }
-      if (parse?.parse?.text?.['*']) {
-        const d = new DOMParser().parseFromString(parse.parse.text['*'], 'text/html');
-        d.querySelectorAll('img[src*="upload.wikimedia.org"]').forEach(img => { const src = img.getAttribute('src'); if (src && !images.find(i => i.src === src) && images.length < 8) { images.push({ src, caption: img.getAttribute('alt') || '' }); } });
-      }
-      return images;
-    }
-    function extractImageCaption(parse, sum){
-      if (parse?.parse?.text?.['*']) { const d = new DOMParser().parseFromString(parse.parse.text['*'], 'text/html'); const figcaption = d.querySelector('figcaption, .thumbcaption'); if (figcaption) return figcaption.textContent.trim().slice(0,200); }
-      return sum?.description || '';
-    }
-    function extractPapers(semSch, crossRef){
-      const papers = [];
-      if (semSch?.data && Array.isArray(semSch.data)) { semSch.data.forEach(p => { papers.push({ title: p.title || 'Untitled', year: p.year || '', authors: (p.authors || []).map(a=>a.name).join(', '), url: p.url || (p.externalIds?.DOI ? `https://doi.org/${p.externalIds.DOI}` : ''), abstract: p.abstract || '', venue: p.publicationVenue?.name || '', source:'Semantic Scholar', doi: p.externalIds?.DOI || '' }); }); }
-      if (crossRef?.message?.items && Array.isArray(crossRef.message.items)) { crossRef.message.items.forEach(item => { const doi = item.DOI || ''; if (!papers.find(p=>p.doi===doi) && papers.length<12) { papers.push({ title: (item.title||['Untitled'])[0]||'Untitled', year: item.issued?.['date-parts']?.[0]?.[0]||'', authors: '', url: item.URL||(doi?`https://doi.org/${doi}`:''), abstract:'', venue: item.publisher||'', source:'CrossRef', doi }); } }); }
-      return papers.slice(0,10);
-    }
+        async function searchLive(q) {
+            q = q.trim();
+            if (!q) return;
+            if (aborter) aborter.abort();
+            aborter = new AbortController();
+            const signal = aborter.signal;
+            clear();
+            $('#termTitle').textContent = q;
+            $('#runTime').textContent = 'running';
+            $('#liveDot').className = 'dot';
+            // Trigger 3D ripple
+            if (typeof triggerSearchRipple === 'function') triggerSearchRipple(q);
+            try {
+                const start = performance.now();
+                const ws = await get('Wikipedia search', ep.ws(q), signal);
+                const title = ws?.query?.search?.[0]?.title || titleCase(q);
+                const [sum, wds, parse, wikt, dm, dmt, semSch, crossRef, commonsImages] = await Promise.all([
+                    get('Wikipedia summary', ep.sum(title), signal),
+                    get('Wikidata search', ep.wds(q), signal),
+                    get('Wikipedia parse/math', ep.parse(title), signal),
+                    get('Wiktionary extract', ep.wikt(q), signal),
+                    get('Datamuse similar', ep.dm(q), signal),
+                    get('Datamuse triggered', ep.dmt(q), signal),
+                    get('Semantic Scholar', ep.semanticScholar(q), signal).catch(() => null),
+                    get('CrossRef', ep.crossref(q), signal).catch(() => null),
+                    fetchCommonsImages(q, signal),
+                ]);
+                const qid = sum?.wikibase_item || wds?.search?.[0]?.id;
+                const [ent, rel] = await Promise.all([
+                    qid ? get('Wikidata entity', ep.wde(qid), signal) : null,
+                    qid ? get('Wikidata SPARQL', ep.sparql(sparql(qid)), signal) : null
+                ]);
+                render(assemble({ q, title, sum, qid, ent, rel, parse, wikt, dm, dmt, semSch, crossRef,
+                    commonsImages }));
+                $('#runTime').textContent = Math.round(performance.now() - start) + ' ms';
+                $('#liveDot').className = 'dot ok';
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    $('#technicalDef').textContent = 'Fetch failed: ' + e.message;
+                    $('#liveDot').className = 'dot bad';
+                }
+            }
+        }
 
-    function render(x){
-      current = x; lastSources = x.sources;
-      $('#termTitle').textContent = x.term; $('#qidPill').textContent = x.qid || 'no QID'; $('#termSubtitle').textContent = x.desc || `Resolved from ${x.query}.`;
-      $('#technicalDef').textContent = x.wiki || x.desc || 'No definition returned.'; $('#laymanDef').textContent = simplify(x.wiki || x.desc || x.term);
+        function clear() {
+            ['apiLog', 'sourcesBox', 'thesaurusBox', 'factsBox', 'externalLinksBox', 'papersBox'].forEach(id => $('#' + id)
+                .innerHTML = '');
+            $('#formulaBox').innerHTML = '<div class="empty">Searching formulae…</div>';
+            $('#wiktionaryBox').textContent = 'Waiting.';
+            $('#imageBox').hidden = true;
+            $('#imageBox').innerHTML = '';
+            $('#imageGallery').hidden = true;
+            $('#imageGallery').innerHTML = '';
+            $('#papersBox').innerHTML = '<div class="empty">Searching academic literature…</div>';
+            lastSources = [];
+        }
 
-      if (x.img) {
-        $('#imageBox').hidden = false;
-        $('#imageBox').innerHTML = `<img src="${attr(x.img)}" alt="${attr(x.term)}" loading="lazy" id="mainImage"><div class="img-caption">${esc(x.imgCaption || x.term)}</div>`;
-        if (x.allImages.length > 1) {
-          $('#imageGallery').hidden = false;
-          $('#imageGallery').innerHTML = x.allImages.map((img, i) => {
-            const isActive = img.src === x.img;
-            return `<img src="${attr(img.src)}" alt="${attr(img.caption||'')}" loading="lazy" class="gallery-thumb ${isActive ? 'active' : ''}" data-src="${attr(img.src)}" data-caption="${esc(img.caption||'')}" title="${attr(img.caption||'Image '+(i+1))}">`;
-          }).join('');
-          $('#imageGallery').onclick = function(e) {
-            const thumb = e.target.closest('.gallery-thumb');
-            if (!thumb) return;
-            const mainImg = document.getElementById('mainImage');
-            const captionEl = document.querySelector('#imageBox .img-caption');
-            if (mainImg) mainImg.src = thumb.dataset.src;
-            if (captionEl) captionEl.textContent = thumb.dataset.caption;
-            this.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
-            thumb.classList.add('active');
-          };
-        } else { $('#imageGallery').hidden = true; $('#imageGallery').innerHTML = ''; }
-      } else { $('#imageBox').hidden = true; $('#imageBox').innerHTML = ''; $('#imageGallery').hidden = true; $('#imageGallery').innerHTML = ''; }
+        function sparql(qid) {
+            return `SELECT ?item ?itemLabel WHERE { VALUES ?root { wd:${qid} } { ?root wdt:P279 ?item. } UNION { ?item wdt:P279 ?root. } UNION { ?root wdt:P31 ?item. } SERVICE wikibase:label { bd:serviceParam wikibase:language "en". } } LIMIT 18`;
+        }
 
-      $('#factsBox').innerHTML = [['Resolved page',x.title],['Wikidata QID',x.qid||'Not found'],['Data mode','Live fetch only'],['Retrieved',new Date().toLocaleString()]].map(([a,b])=>`<div>${esc(a)}</div><div>${esc(b)}</div>`).join('');
-      $('#thesaurusBox').innerHTML = x.tags.slice(0,40).map(t=>`<button class="tag" data-term="${attr(t)}">${esc(t)}</button>`).join('') || '<div class="empty">No related terms.</div>';
-      $('#thesaurusBox').querySelectorAll('[data-term]').forEach(b => b.onclick = () => { $('#query').value = b.dataset.term; searchLive(b.dataset.term); });
-      renderFormulae(x); renderPapers(x); $('#wiktionaryBox').textContent = x.wikt || 'No concise Wiktionary extract returned.'; $('#sourcesBox').innerHTML = x.sources.map(sourceRow).join(''); $('#externalLinksBox').innerHTML = renderExternalLinks(x);
-    }
+        function assemble(d) {
+            const e = d.ent?.entities?.[d.qid];
+            const term = e?.labels?.en?.value || d.sum?.title || d.title;
+            const desc = e?.descriptions?.en?.value || d.sum?.description || '';
+            const aliases = (e?.aliases?.en || []).map(a => a.value);
+            const rel = d.rel?.results?.bindings?.map(x => x.itemLabel?.value).filter(Boolean) || [];
+            const dm = [...(d.dm || []), ...(d.dmt || [])].map(x => x.word).filter(Boolean);
+            const wiki = d.sum?.extract || '';
+            const url = d.sum?.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${enc(d.title)}`;
+            const retrieved = new Date().toISOString();
+            const sources = [
+                { label: 'Wikipedia summary', url, license: lic.wikipedia, retrieved },
+                ...(d.qid ? [{ label: `Wikidata ${d.qid}`, url: `https://www.wikidata.org/wiki/${d.qid}`,
+                    license: lic.wikidata, retrieved }] : []),
+                { label: 'Wiktionary', url: `https://en.wiktionary.org/wiki/${enc(d.q)}`, license: lic.wiktionary,
+                    retrieved },
+                { label: 'Datamuse', url: ep.dm(d.q), license: lic.datamuse, retrieved },
+                { label: 'NIST DLMF search', url: ep.dlmf(d.q), license: lic.dlmf, retrieved },
+                { label: 'OpenStax search', url: ep.openstax(d.q), license: lic.openstax, retrieved },
+                { label: 'Scipy docs search', url: ep.scipy(d.q), license: lic.scipy, retrieved },
+                { label: 'PDFDrive search', url: ep.pdfdrive(d.q), license: lic.pdfdrive, retrieved },
+                { label: 'Internet Archive', url: ep.internetarchive(d.q), license: lic.internetarchive, retrieved },
+                ...(d.semSch ? [{ label: 'Semantic Scholar', url: ep.semanticScholar(d.q), license: lic.semanticScholar,
+                    retrieved }] : []),
+                ...(d.crossRef ? [{ label: 'CrossRef', url: ep.crossref(d.q), license: lic.crossref, retrieved }] : []),
+                { label: 'Wolfram Alpha', url: ep.wolfram(d.q), license: lic.wolfram, retrieved },
+                { label: 'CERN Document Server', url: ep.cern(d.q), license: lic.cern, retrieved },
+                { label: 'MIT OpenCourseWare', url: ep.mitocw(d.q), license: lic.mitocw, retrieved },
+                { label: 'MATLAB Documentation', url: ep.matlab(d.q), license: lic.matlab, retrieved },
+                { label: 'R Documentation', url: ep.rlang(d.q), license: lic.rlang, retrieved },
+                { label: 'Julia Documentation', url: ep.julia(d.q), license: lic.julia, retrieved },
+                { label: 'Python Documentation', url: ep.python(d.q), license: lic.python, retrieved },
+                { label: 'Google Scholar', url: ep.scholar(d.q), license: lic.scholar, retrieved },
+            ];
+            const formulas = extractFormulae(d.parse).slice(0, 14);
+            const wikiImages = extractAllImages(d.parse, d.sum);
+            const commonsImgs = (d.commonsImages || []).filter(img => !wikiImages.some(wi => wi.src === img.src));
+            const allImages = [...wikiImages, ...commonsImgs].slice(0, 12);
+            const papers = extractPapers(d.semSch, d.crossRef);
+            return {
+                term,
+                query: d.q,
+                title: d.title,
+                desc,
+                qid: d.qid,
+                wiki,
+                url,
+                img: allImages.length > 0 ? allImages[0] : (d.sum?.thumbnail?.source || d.sum?.originalimage?.source ||
+                    null),
+                allImages: allImages.length > 1 ? allImages : [],
+                imgCaption: extractImageCaption(d.parse, d.sum),
+                tags: unique([...aliases, ...dm, ...rel]),
+                formulas,
+                wikt: extractWikt(d.wikt),
+                sources,
+                papers
+            };
+        }
 
-    function renderFormulae(x){
-      const box = $('#formulaBox');
-      const dlmfSource = sourceRow({label:'Search NIST DLMF',url:ep.dlmf(x.query),license:lic.dlmf,retrieved:new Date().toISOString()});
-      if (!x.formulas.length) { box.innerHTML = '<div class="empty">No Wikipedia math markup found. Try searching a mathematical term.</div>' + dlmfSource; return; }
-      box.innerHTML = x.formulas.map((f,i)=>{
-        let contextHtml = '';
-        if (f.context && isCleanContext(f.context)) { contextHtml = `<span class="context">from "${esc(f.context)}"</span>`; }
-        const formulaTex = f.tex || f;
-        return `<div class="formula"><div class="formula-label"><b>📐 Formula ${i+1}</b>${contextHtml}</div><div class="formula-code">\\(${escapeLatex(formulaTex)}\\)</div></div>`;
-      }).join('') + dlmfSource;
-      if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise([box]).catch(()=>{});
-    }
+        function extractAllImages(parse, sum) {
+            const images = [];
+            if (sum?.thumbnail?.source) images.push({ src: sum.thumbnail.source, caption: sum.title || '' });
+            if (sum?.originalimage?.source && sum.originalimage.source !== sum?.thumbnail?.source) {
+                images.push({ src: sum.originalimage.source, caption: sum.title || 'Original image' });
+            }
+            if (parse?.parse?.text?.['*']) {
+                const d = new DOMParser().parseFromString(parse.parse.text['*'], 'text/html');
+                d.querySelectorAll('img[src*="upload.wikimedia.org"]').forEach(img => {
+                    const src = img.getAttribute('src');
+                    if (src && !images.find(i => i.src === src) && images.length < 8) {
+                        images.push({ src, caption: img.getAttribute('alt') || '' });
+                    }
+                });
+            }
+            return images;
+        }
 
-    function isCleanContext(str) {
-      if (!str || str.length < 3) return false;
-      if (/[{}]/.test(str) || /\\displaystyle|\\frac|\\sum|\\int|\\sqrt|\\alpha|\\beta|\\gamma|\\delta|\\epsilon|\\zeta|\\eta|\\theta|\\iota|\\kappa|\\lambda|\\mu|\\nu|\\xi|\\pi|\\rho|\\sigma|\\tau|\\upsilon|\\phi|\\chi|\\psi|\\omega/.test(str)) return false;
-      if (/=.*\{/.test(str)) return false;
-      return true;
-    }
+        function extractImageCaption(parse, sum) {
+            if (parse?.parse?.text?.['*']) {
+                const d = new DOMParser().parseFromString(parse.parse.text['*'], 'text/html');
+                const figcaption = d.querySelector('figcaption, .thumbcaption');
+                if (figcaption) return figcaption.textContent.trim().slice(0, 200);
+            }
+            return sum?.description || '';
+        }
 
-    function renderPapers(x){
-      const box = $('#papersBox');
-      if (!x.papers || !x.papers.length) { box.innerHTML = '<div class="empty">No academic papers found for this term. Try a more specific scientific query.</div>'; return; }
-      box.innerHTML = x.papers.map(p=>`<div class="paper-item"><div class="paper-title"><a href="${attr(p.url||'#')}" target="_blank" rel="noreferrer">${esc(p.title)}</a></div><div class="paper-meta">${p.year?`<span>📅 ${esc(String(p.year))}</span>`:''}${p.authors?`<span>👤 ${esc(p.authors.slice(0,120))}${p.authors.length>120?'…':''}</span>`:''}${p.venue?`<span>📰 ${esc(p.venue)}</span>`:''}<span class="pill" style="font-size:10px">${esc(p.source)}</span></div>${p.abstract?`<div class="paper-abstract">${esc(p.abstract.slice(0,300))}${p.abstract.length>300?'…':''}</div>`:''}</div>`).join('');
-    }
+        function extractPapers(semSch, crossRef) {
+            const papers = [];
+            if (semSch?.data && Array.isArray(semSch.data)) {
+                semSch.data.forEach(p => {
+                    papers.push({
+                        title: p.title || 'Untitled',
+                        year: p.year || '',
+                        authors: (p.authors || []).map(a => a.name).join(', '),
+                        url: p.url || (p.externalIds?.DOI ? `https://doi.org/${p.externalIds.DOI}` : ''),
+                        abstract: p.abstract || '',
+                        venue: p.publicationVenue?.name || '',
+                        source: 'Semantic Scholar',
+                        doi: p.externalIds?.DOI || ''
+                    });
+                });
+            }
+            if (crossRef?.message?.items && Array.isArray(crossRef.message.items)) {
+                crossRef.message.items.forEach(item => {
+                    const doi = item.DOI || '';
+                    if (!papers.find(p => p.doi === doi) && papers.length < 12) {
+                        papers.push({
+                            title: (item.title || ['Untitled'])[0] || 'Untitled',
+                            year: item.issued?.['date-parts']?.[0]?.[0] || '',
+                            authors: '',
+                            url: item.URL || (doi ? `https://doi.org/${doi}` : ''),
+                            abstract: '',
+                            venue: item.publisher || '',
+                            source: 'CrossRef',
+                            doi
+                        });
+                    }
+                });
+            }
+            return papers.slice(0, 10);
+        }
 
-    function renderExternalLinks(x){
-      const links = [
-        { label:'📘 Scipy Docs', url:ep.scipy(x.query) },
-        { label:'📚 PDFDrive', url:ep.pdfdrive(x.query) },
-        { label:'🏛️ Internet Archive', url:ep.internetarchive(x.query) },
-        { label:'📖 OpenStax', url:ep.openstax(x.query) },
-        { label:'🔢 NIST DLMF', url:ep.dlmf(x.query) },
-        { label:'🧮 Wolfram Alpha', url:ep.wolfram(x.query) },
-        { label:'🔬 CERN DS', url:ep.cern(x.query) },
-        { label:'🎓 MIT OCW', url:ep.mitocw(x.query) },
-        { label:'📊 MATLAB', url:ep.matlab(x.query) },
-        { label:'📈 R', url:ep.rlang(x.query) },
-        { label:'⚡ Julia', url:ep.julia(x.query) },
-        { label:'🐍 Python', url:ep.python(x.query) },
-        { label:'🎓 Google Scholar', url:ep.scholar(x.query) },
-        { label:'🔎 DuckDuckGo', url:ep.duckduckgo(x.query) },
-        { label:'🖼️ Google Images', url:ep.googleImages(x.query) },
-      ];
-      return links.map(l=>`<a class="ext-link" href="${attr(l.url)}" target="_blank" rel="noreferrer">${l.label}</a>`).join('');
-    }
+        function render(x) {
+            current = x;
+            lastSources = x.sources;
+            $('#termTitle').textContent = x.term;
+            $('#qidPill').textContent = x.qid || 'no QID';
+            $('#termSubtitle').textContent = x.desc || `Resolved from ${x.query}.`;
+            $('#technicalDef').textContent = x.wiki || x.desc || 'No definition returned.';
+            $('#laymanDef').textContent = simplify(x.wiki || x.desc || x.term);
 
-    function extractFormulae(p){
-      const h = p?.parse?.text?.['*']; if (!h) return [];
-      const d = new DOMParser().parseFromString(h,'text/html'); const out=[];
-      d.querySelectorAll('math annotation[encoding="application/x-tex"], math annotation[encoding="tex"]').forEach(el=>{ const tex=el.textContent.trim(); if(tex&&tex.length<400&&/[=\\+\-∑∫√\^_{}]/.test(tex)&&hasBalancedBraces(tex)){ const context=findContext(el,d); out.push({tex,context}); } });
-      d.querySelectorAll('.mwe-math-element img[alt], img.mwe-math-fallback-image-inline[alt], img.mwe-math-fallback-image-display[alt], .mwe-math-fallback-image-inline[alt], .mwe-math-fallback-image-display[alt]').forEach(i=>{ const a=i.getAttribute('alt'); if(a&&a.length<400&&/[=\\+\-∑∫√\^_{}]/.test(a)&&!a.startsWith('c = {\\displaystyle')&&hasBalancedBraces(a)&&!out.find(o=>o.tex===a.trim())){ const context=findContext(i,d); out.push({tex:a.trim(),context}); } });
-      if(out.length<3){ d.querySelectorAll('pre, code, .latex, .math').forEach(el=>{ const text=el.textContent.trim(); if(text&&text.length<500&&/[=\\+\-∑∫√\^_{}]/.test(text)&&text.includes('\\')&&hasBalancedBraces(text)&&!out.find(o=>o.tex===text)){ const context=findContext(el,d); out.push({tex:text,context}); } }); }
-      const seen=new Set(); return out.filter(item=>{ const key=item.tex.slice(0,80); if(seen.has(key)) return false; seen.add(key); return true; });
-    }
+            if (x.img) {
+                $('#imageBox').hidden = false;
+                $('#imageBox').innerHTML =
+                    `<img src="${attr(x.img)}" alt="${attr(x.term)}" loading="lazy" id="mainImage"><div class="img-caption">${esc(x.imgCaption || x.term)}</div>`;
+                if (x.allImages.length > 1) {
+                    $('#imageGallery').hidden = false;
+                    $('#imageGallery').innerHTML = x.allImages.map((img, i) => {
+                        const isActive = img.src === x.img;
+                        return `<img src="${attr(img.src)}" alt="${attr(img.caption||'')}" loading="lazy" class="gallery-thumb ${isActive ? 'active' : ''}" data-src="${attr(img.src)}" data-caption="${esc(img.caption||'')}" title="${attr(img.caption||'Image '+(i+1))}">`;
+                    }).join('');
+                    $('#imageGallery').onclick = function(e) {
+                        const thumb = e.target.closest('.gallery-thumb');
+                        if (!thumb) return;
+                        const mainImg = document.getElementById('mainImage');
+                        const captionEl = document.querySelector('#imageBox .img-caption');
+                        if (mainImg) mainImg.src = thumb.dataset.src;
+                        if (captionEl) captionEl.textContent = thumb.dataset.caption;
+                        this.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove(
+                            'active'));
+                        thumb.classList.add('active');
+                    };
+                } else {
+                    $('#imageGallery').hidden = true;
+                    $('#imageGallery').innerHTML = '';
+                }
+            } else {
+                $('#imageBox').hidden = true;
+                $('#imageBox').innerHTML = '';
+                $('#imageGallery').hidden = true;
+                $('#imageGallery').innerHTML = '';
+            }
 
-    function hasBalancedBraces(str) { let balance=0; for(const ch of str){ if(ch==='{') balance++; else if(ch==='}') balance--; if(balance<0) return false; } return balance===0; }
-    function findContext(el, doc){
-      let node=el.closest('section, div, p'); if(!node) node=el.parentElement;
-      let heading=null; let current=el;
-      for(let i=0;i<6;i++){ if(!current) break; const prev=current.previousElementSibling; if(prev&&/^H[1-4]$/i.test(prev.tagName)){ const text=prev.textContent.trim(); if(text&&!/[{}]/.test(text)&&!/\\displaystyle/.test(text)){ heading=text.slice(0,60); break; } } current=current.parentElement; }
-      if(!heading&&node){ const text=node.textContent.trim().split(/\s+/).slice(0,6).join(' '); if(text&&!/[{}]/.test(text)) heading=text; }
-      return heading||null;
-    }
-    function extractWikt(w){ const p=Object.values(w?.query?.pages||{}).find(x=>x&&!x.missing); return (p?.extract||'').split('\n').filter(Boolean).slice(0,8).join('\n'); }
-    function simplify(t){ const b=String(t).replace(/\([^)]*\)/g,'').split(/(?<=[.!?])\s+/).slice(0,3).join(' '); return b?'In simple terms: '+b+' Check source links for exact wording.':'No plain-language summary generated.'; }
-    function sourceRow(s){ return `<a class="source" href="${attr(s.url)}" target="_blank" rel="noreferrer"><div><b>${esc(s.label)}</b><span>${esc(s.license)} · retrieved ${esc(s.retrieved)}</span></div><span>↗</span></a>`; }
-    function titleCase(s){ return s.replace(/\w\S*/g,t=>t[0].toUpperCase()+t.slice(1)); }
-    function unique(a){ return [...new Set(a.map(x=>String(x||'').trim()).filter(Boolean))]; }
-    function esc(s){ return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-    function attr(s){ return esc(s).replace(/'/g,'&#39;'); }
-    function escapeLatex(s){ return String(s??'').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+            $('#factsBox').innerHTML = [
+                ['Resolved page', x.title],
+                ['Wikidata QID', x.qid || 'Not found'],
+                ['Data mode', 'Live fetch only'],
+                ['Retrieved', new Date().toLocaleString()]
+            ].map(([a, b]) => `<div>${esc(a)}</div><div>${esc(b)}</div>`).join('');
+            $('#thesaurusBox').innerHTML = x.tags.slice(0, 40).map(t =>
+                `<button class="tag" data-term="${attr(t)}">${esc(t)}</button>`).join('') ||
+                '<div class="empty">No related terms.</div>';
+            $('#thesaurusBox').querySelectorAll('[data-term]').forEach(b => b.onclick = () => {
+                $('#query').value = b.dataset.term;
+                searchLive(b.dataset.term);
+            });
+            renderFormulae(x);
+            renderPapers(x);
+            $('#wiktionaryBox').textContent = x.wikt || 'No concise Wiktionary extract returned.';
+            $('#sourcesBox').innerHTML = x.sources.map(sourceRow).join('');
+            $('#externalLinksBox').innerHTML = renderExternalLinks(x);
+            // Re-trigger card animations
+            $$('.card').forEach((c, i) => { c.style.animation = 'none';
+                c.offsetHeight;
+                c.style.animation = `cardAppear 0.5s cubic-bezier(0.22,0.61,0.36,1) ${i*0.04}s both`; });
+        }
 
-    $('#searchForm').onsubmit = e => { e.preventDefault(); searchLive($('#query').value); };
-    $$('.chip[data-term]').forEach(b => b.onclick = () => { $('#query').value = b.dataset.term; searchLive(b.dataset.term); });
-    $('#themeBtn').onclick = () => document.body.classList.toggle('light');
-    $('#copyBtn').onclick = async () => { if(!current) return; await navigator.clipboard.writeText(current.term + ' — ' + lastSources.map(s=>`${s.label}: ${s.url}`).join('; ')); $('#copyBtn').textContent='Copied'; setTimeout(()=>$('#copyBtn').textContent='Copy citation',1200); };
-    initThree();
-    searchLive('entropy');
-  </script>
+        function renderFormulae(x) {
+            const box = $('#formulaBox');
+            const dlmfSource = sourceRow({ label: 'Search NIST DLMF', url: ep.dlmf(x.query), license: lic.dlmf,
+                retrieved: new Date().toISOString() });
+            if (!x.formulas.length) {
+                box.innerHTML = '<div class="empty">No Wikipedia math markup found. Try searching a mathematical term.</div>' +
+                    dlmfSource;
+                return;
+            }
+            box.innerHTML = x.formulas.map((f, i) => {
+                let contextHtml = '';
+                if (f.context && isCleanContext(f.context)) { contextHtml =
+                    `<span class="context">from "${esc(f.context)}"</span>`; }
+                const formulaTex = f.tex || f;
+                return `<div class="formula"><div class="formula-label"><b>📐 Formula ${i+1}</b>${contextHtml}</div><div class="formula-code">\\(${escapeLatex(formulaTex)}\\)</div></div>`;
+            }).join('') + dlmfSource;
+            if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise([box]).catch(() => {});
+        }
+
+        function isCleanContext(str) {
+            if (!str || str.length < 3) return false;
+            if (/[{}]/.test(str) || /\\displaystyle|\\frac|\\sum|\\int|\\sqrt|\\alpha|\\beta|\\gamma|\\delta|\\epsilon|\\zeta|\\eta|\\theta|\\iota|\\kappa|\\lambda|\\mu|\\nu|\\xi|\\pi|\\rho|\\sigma|\\tau|\\upsilon|\\phi|\\chi|\\psi|\\omega/
+                .test(str)) return false;
+            if (/=.*\{/.test(str)) return false;
+            return true;
+        }
+
+        function renderPapers(x) {
+            const box = $('#papersBox');
+            if (!x.papers || !x.papers.length) {
+                box.innerHTML =
+                    '<div class="empty">No academic papers found for this term. Try a more specific scientific query.</div>';
+                return;
+            }
+            box.innerHTML = x.papers.map(p =>
+                `<div class="paper-item"><div class="paper-title"><a href="${attr(p.url||'#')}" target="_blank" rel="noreferrer">${esc(p.title)}</a></div><div class="paper-meta">${p.year?`<span>📅 ${esc(String(p.year))}</span>`:''}${p.authors?`<span>👤 ${esc(p.authors.slice(0,120))}${p.authors.length>120?'…':''}</span>`:''}${p.venue?`<span>📰 ${esc(p.venue)}</span>`:''}<span class="pill" style="font-size:10px">${esc(p.source)}</span></div>${p.abstract?`<div class="paper-abstract">${esc(p.abstract.slice(0,300))}${p.abstract.length>300?'…':''}</div>`:''}</div>`
+            ).join('');
+        }
+
+        function renderExternalLinks(x) {
+            const links = [
+                { label: '📘 Scipy Docs', url: ep.scipy(x.query) },
+                { label: '📚 PDFDrive', url: ep.pdfdrive(x.query) },
+                { label: '🏛️ Internet Archive', url: ep.internetarchive(x.query) },
+                { label: '📖 OpenStax', url: ep.openstax(x.query) },
+                { label: '🔢 NIST DLMF', url: ep.dlmf(x.query) },
+                { label: '🧮 Wolfram Alpha', url: ep.wolfram(x.query) },
+                { label: '🔬 CERN DS', url: ep.cern(x.query) },
+                { label: '🎓 MIT OCW', url: ep.mitocw(x.query) },
+                { label: '📊 MATLAB', url: ep.matlab(x.query) },
+                { label: '📈 R', url: ep.rlang(x.query) },
+                { label: '⚡ Julia', url: ep.julia(x.query) },
+                { label: '🐍 Python', url: ep.python(x.query) },
+                { label: '🎓 Google Scholar', url: ep.scholar(x.query) },
+                { label: '🔎 DuckDuckGo', url: ep.duckduckgo(x.query) },
+                { label: '🖼️ Google Images', url: ep.googleImages(x.query) },
+            ];
+            return links.map(l =>
+                `<a class="ext-link" href="${attr(l.url)}" target="_blank" rel="noreferrer">${l.label}</a>`).join('');
+        }
+
+        function extractFormulae(p) {
+            const h = p?.parse?.text?.['*'];
+            if (!h) return [];
+            const d = new DOMParser().parseFromString(h, 'text/html');
+            const out = [];
+            d.querySelectorAll(
+                    'math annotation[encoding="application/x-tex"], math annotation[encoding="tex"]').forEach(el => {
+                const tex = el.textContent.trim();
+                if (tex && tex.length < 400 && /[=\+\-∑∫√\^_{}]/.test(tex) && hasBalancedBraces(tex)) {
+                    const context = findContext(el, d);
+                    out.push({ tex, context });
+                }
+            });
+            d.querySelectorAll(
+                    '.mwe-math-element img[alt], img.mwe-math-fallback-image-inline[alt], img.mwe-math-fallback-image-display[alt], .mwe-math-fallback-image-inline[alt], .mwe-math-fallback-image-display[alt]'
+                ).forEach(i => {
+                const a = i.getAttribute('alt');
+                if (a && a.length < 400 && /[=\+\-∑∫√\^_{}]/.test(a) && !a.startsWith('c = {\\displaystyle') &&
+                    hasBalancedBraces(a) && !out.find(o => o.tex === a.trim())) {
+                    const context = findContext(i, d);
+                    out.push({ tex: a.trim(), context });
+                }
+            });
+            if (out.length < 3) {
+                d.querySelectorAll('pre, code, .latex, .math').forEach(el => {
+                    const text = el.textContent.trim();
+                    if (text && text.length < 500 && /[=\+\-∑∫√\^_{}]/.test(text) && text.includes('\\') &&
+                        hasBalancedBraces(text) && !out.find(o => o.tex === text)) {
+                        const context = findContext(el, d);
+                        out.push({ tex: text, context });
+                    }
+                });
+            }
+            const seen = new Set();
+            return out.filter(item => { const key = item.tex.slice(0, 80); if (seen.has(key)) return false;
+                seen.add(key); return true; });
+        }
+
+        function hasBalancedBraces(str) { let balance = 0; for (const ch of str) { if (ch === '{') balance++; else if (
+                ch === '}') balance--; if (balance < 0) return false; } return balance === 0; }
+
+        function findContext(el, doc) {
+            let node = el.closest('section, div, p');
+            if (!node) node = el.parentElement;
+            let heading = null;
+            let current = el;
+            for (let i = 0; i < 6; i++) {
+                if (!current) break;
+                const prev = current.previousElementSibling;
+                if (prev && /^H[1-4]$/i.test(prev.tagName)) { const text = prev.textContent.trim(); if (text && !/[{}]/
+                        .test(text) && !/\\displaystyle/.test(text)) { heading = text.slice(0, 60); break; } }
+                current = current.parentElement;
+            }
+            if (!heading && node) { const text = node.textContent.trim().split(/\s+/).slice(0, 6).join(' '); if (text && !/[{}]/
+                    .test(text)) heading = text; }
+            return heading || null;
+        }
+
+        function extractWikt(w) { const p = Object.values(w?.query?.pages || {}).find(x => x && !x.missing); return (p
+            ?.extract || '').split('\n').filter(Boolean).slice(0, 8).join('\n'); }
+
+        function simplify(t) { const b = String(t).replace(/\([^)]*\)/g, '').split(/(?<=[.!?])\s+/).slice(0, 3).join(
+            ' '); return b ? 'In simple terms: ' + b +
+                ' Check source links for exact wording.' : 'No plain-language summary generated.'; }
+
+        function sourceRow(s) {
+            return `<a class="source" href="${attr(s.url)}" target="_blank" rel="noreferrer"><div><b>${esc(s.label)}</b><span>${esc(s.license)} · retrieved ${esc(s.retrieved)}</span></div><span>↗</span></a>`;
+        }
+
+        function titleCase(s) { return s.replace(/\w\S*/g, t => t[0].toUpperCase() + t.slice(1)); }
+
+        function unique(a) { return [...new Set(a.map(x => String(x || '').trim()).filter(Boolean))]; }
+
+        function esc(s) { return String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;',
+                '"': '&quot;' }[c])); }
+
+        function attr(s) { return esc(s).replace(/'/g, '&#39;'); }
+
+        function escapeLatex(s) { return String(s ?? '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        // ──────────────────────────────────────────────
+        // THREE.JS SCENE SETUP
+        // ──────────────────────────────────────────────
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+        renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight, false);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.1;
+        document.getElementById('webgl').appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2('#050816', 0.000025);
+
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 200);
+        camera.position.set(0, 8, 28);
+        camera.lookAt(0, -2, 0);
+
+        // ──────────────────────────────────────────────
+        // LIGHTING SYSTEM
+        // ──────────────────────────────────────────────
+        const hemiLight = new THREE.HemisphereLight('#8A7BFF', '#1a2040', 0.6);
+        scene.add(hemiLight);
+
+        const ambientLight = new THREE.AmbientLight('#1a2a40', 0.3);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight('#63F2FF', 40, 60, 1.5);
+        pointLight1.position.set(15, 8, 10);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight('#8A7BFF', 30, 50, 1.5);
+        pointLight2.position.set(-12, -3, 15);
+        scene.add(pointLight2);
+
+        const pointLight3 = new THREE.PointLight('#5DA8FF', 25, 45, 1.5);
+        pointLight3.position.set(0, 12, -8);
+        scene.add(pointLight3);
+
+        const rimLight = new THREE.PointLight('#63F2FF', 15, 30, 2);
+        rimLight.position.set(0, 2, -20);
+        scene.add(rimLight);
+
+        // ──────────────────────────────────────────────
+        // POST PROCESSING
+        // ──────────────────────────────────────────────
+        const composer = new EffectComposer(renderer);
+        const renderPass = new RenderPass(scene, camera);
+        composer.addPass(renderPass);
+        const bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            0.5, // strength - subtle
+            0.4, // radius
+            0.85 // threshold - only bright things glow
+        );
+        composer.addPass(bloomPass);
+
+        // ──────────────────────────────────────────────
+        // BACKGROUND GRID - Infinite perspective grid
+        // ──────────────────────────────────────────────
+        const gridShaderMaterial = new THREE.ShaderMaterial({
+            glslVersion: THREE.GLSL3,
+            uniforms: {
+                uTime: { value: 0 },
+                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                uCameraPos: { value: new THREE.Vector3() },
+                uFogColor: { value: new THREE.Color('#050816') },
+            },
+            vertexShader: `#version 300 es
+                in vec3 position;
+                out vec3 vWorldPos;
+                out vec3 vViewDir;
+                uniform vec3 uCameraPos;
+                void main() {
+                    vec4 worldPos = vec4(position, 1.0);
+                    vWorldPos = worldPos.xyz;
+                    vViewDir = normalize(worldPos.xyz - uCameraPos);
+                    gl_Position = vec4(position.xy, 0.0, 1.0);
+                }`,
+            fragmentShader: `#version 300 es
+                precision highp float;
+                in vec3 vWorldPos;
+                in vec3 vViewDir;
+                uniform float uTime;
+                uniform vec2 uResolution;
+                uniform vec3 uCameraPos;
+                uniform vec3 uFogColor;
+                out vec4 outColor;
+
+                // Ray-plane intersection for y=0 ground plane
+                float intersectGround(vec3 ro, vec3 rd) {
+                    if (abs(rd.y) < 0.0001) return -1.0;
+                    float t = -ro.y / rd.y;
+                    return t > 0.0 ? t : -1.0;
+                }
+
+                float gridLine(float coord, float thickness, float pulse) {
+                    float halfT = thickness * 0.5;
+                    float dist = abs(fract(coord) - 0.5);
+                    float line = 1.0 - smoothstep(halfT - 0.015, halfT + 0.015, dist);
+                    // Major grid lines every 5 units
+                    float major = abs(fract(coord / 5.0) - 0.5);
+                    float majorLine = 1.0 - smoothstep(halfT * 1.3 - 0.01, halfT * 1.3 + 0.02, major);
+                    return max(line * 0.35, majorLine * 0.7) * (0.7 + 0.3 * pulse);
+                }
+
+                void main() {
+                    vec2 uv = (gl_FragCoord.xy * 2.0 - uResolution.xy) / min(uResolution.x, uResolution.y);
+                    vec3 ro = uCameraPos;
+                    vec3 rd = normalize(vec3(uv * 1.2, -1.8));
+
+                    float t = intersectGround(ro, rd);
+                    if (t < 0.0) {
+                        outColor = vec4(uFogColor, 0.0);
+                        return;
+                    }
+
+                    vec3 hitPos = ro + rd * t;
+                    float dist = length(hitPos.xz);
+                    float fogFactor = 1.0 - exp(-dist * 0.018);
+
+                    float pulse = 1.0 + 0.06 * sin(uTime * 0.7 + dist * 0.3) * cos(uTime * 0.5 + dist * 0.15);
+
+                    float gx = gridLine(hitPos.x, 0.025, pulse);
+                    float gz = gridLine(hitPos.z, 0.025, pulse);
+                    float grid = max(gx, gz);
+
+                    // Node dots at intersections
+                    float nodeX = abs(fract(hitPos.x) - 0.5);
+                    float nodeZ = abs(fract(hitPos.z) - 0.5);
+                    float nodeDist = sqrt(nodeX * nodeX + nodeZ * nodeZ);
+                    float node = 1.0 - smoothstep(0.03, 0.08, nodeDist);
+                    node *= 0.5 + 0.5 * sin(uTime * 1.2 + hitPos.x * 2.7) * cos(uTime * 0.9 + hitPos.z * 2.1);
+
+                    float alpha = max(grid * 0.55, node * 0.5);
+                    alpha *= (1.0 - fogFactor);
+
+                    vec3 gridColor = mix(vec3(0.22, 0.55, 1.0), vec3(0.55, 0.42, 1.0), node * 0.6);
+                    vec3 col = mix(uFogColor, gridColor, alpha);
+
+                    outColor = vec4(col, alpha);
+                }`,
+            transparent: true,
+            depthWrite: false,
+        });
+
+        const gridPlane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), gridShaderMaterial);
+        gridPlane.renderOrder = -1;
+        gridPlane.material.depthTest = false;
+        scene.add(gridPlane);
+
+        // ──────────────────────────────────────────────
+        // PHOTON NETWORK - InstancedMesh nodes + edges + packets
+        // ──────────────────────────────────────────────
+        const NODE_COUNT = 1800;
+        const nodePositions = new Float32Array(NODE_COUNT * 3);
+        const nodeBasePositions = new Float32Array(NODE_COUNT * 3);
+        const nodePhases = new Float32Array(NODE_COUNT);
+        const dummy = new THREE.Object3D();
+        const sphereGeo = new THREE.SphereGeometry(0.08, 8, 6);
+        const nodeMaterial = new THREE.MeshStandardMaterial({
+            color: '#63F2FF',
+            emissive: '#3a80cc',
+            emissiveIntensity: 0.7,
+            roughness: 0.25,
+            metalness: 0.1,
+        });
+        const nodeInstanced = new THREE.InstancedMesh(sphereGeo, nodeMaterial, NODE_COUNT);
+        nodeInstanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        nodeInstanced.castShadow = false;
+        nodeInstanced.receiveShadow = false;
+        scene.add(nodeInstanced);
+
+        // Generate node positions in a disc-like volume
+        for (let i = 0; i < NODE_COUNT; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 4 + Math.random() * 22;
+            const height = (Math.random() - 0.5) * 8;
+            const x = Math.cos(angle) * radius;
+            const z = Math.sin(angle) * radius;
+            const y = height - 2;
+            nodeBasePositions[i * 3] = x;
+            nodeBasePositions[i * 3 + 1] = y;
+            nodeBasePositions[i * 3 + 2] = z;
+            nodePositions[i * 3] = x;
+            nodePositions[i * 3 + 1] = y;
+            nodePositions[i * 3 + 2] = z;
+            nodePhases[i] = Math.random() * Math.PI * 2;
+            dummy.position.set(x, y, z);
+            dummy.scale.setScalar(0.7 + Math.random() * 0.6);
+            dummy.updateMatrix();
+            nodeInstanced.setMatrixAt(i, dummy.matrix);
+        }
+        nodeInstanced.instanceMatrix.needsUpdate = true;
+
+        // Build edges between nearby nodes
+        const edgeLines = [];
+        const MAX_EDGE_DIST = 5.5;
+        const MAX_EDGES = 3500;
+        for (let i = 0; i < NODE_COUNT && edgeLines.length < MAX_EDGES; i++) {
+            const ix = nodeBasePositions[i * 3];
+            const iy = nodeBasePositions[i * 3 + 1];
+            const iz = nodeBasePositions[i * 3 + 2];
+            for (let j = i + 1; j < NODE_COUNT && edgeLines.length < MAX_EDGES; j++) {
+                const dx = nodeBasePositions[j * 3] - ix;
+                const dy = nodeBasePositions[j * 3 + 1] - iy;
+                const dz = nodeBasePositions[j * 3 + 2] - iz;
+                const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                if (dist < MAX_EDGE_DIST) {
+                    edgeLines.push(i, j);
+                }
+            }
+        }
+
+        const edgePositionsArr = new Float32Array(edgeLines.length * 3);
+        const edgeGeometry = new THREE.BufferGeometry();
+        edgeGeometry.setAttribute('position', new THREE.BufferAttribute(edgePositionsArr, 3));
+        edgeGeometry.setDrawRange(0, edgeLines.length);
+        const edgeMaterial = new THREE.LineBasicMaterial({
+            color: '#3a6090',
+            transparent: true,
+            opacity: 0.35,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+        });
+        const edgeLineSegments = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+        edgeLineSegments.frustumCulled = false;
+        scene.add(edgeLineSegments);
+
+        // Update edge positions
+        function updateEdgePositions() {
+            for (let k = 0; k < edgeLines.length; k++) {
+                const nodeIdx = edgeLines[k];
+                edgePositionsArr[k * 3] = nodePositions[nodeIdx * 3];
+                edgePositionsArr[k * 3 + 1] = nodePositions[nodeIdx * 3 + 1];
+                edgePositionsArr[k * 3 + 2] = nodePositions[nodeIdx * 3 + 2];
+            }
+            edgeGeometry.attributes.position.needsUpdate = true;
+        }
+
+        // Packet system - glowing spheres traveling along edges
+        const PACKET_COUNT = 60;
+        const packetData = new Float32Array(PACKET_COUNT * 6); // x,y,z, edgeIdx, t, speed
+        const packetGeo = new THREE.SphereGeometry(0.06, 6, 4);
+        const packetMaterial = new THREE.MeshBasicMaterial({
+            color: '#FFFFFF',
+            transparent: true,
+            opacity: 0.9,
+            depthWrite: false,
+        });
+        const packetInstanced = new THREE.InstancedMesh(packetGeo, packetMaterial, PACKET_COUNT);
+        packetInstanced.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        packetInstanced.frustumCulled = false;
+        scene.add(packetInstanced);
+
+        // Glow sprites for packets
+        const glowTex = createGlowTexture();
+        const glowMaterial = new THREE.SpriteMaterial({
+            map: glowTex,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.7,
+            depthWrite: false,
+            color: '#63F2FF',
+        });
+        const glowSprites = [];
+        for (let i = 0; i < PACKET_COUNT; i++) {
+            const sprite = new THREE.Sprite(glowMaterial.clone());
+            sprite.scale.set(0.6, 0.6, 1);
+            sprite.visible = false;
+            scene.add(sprite);
+            glowSprites.push(sprite);
+        }
+
+        function createGlowTexture() {
+            const size = 64;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(0.15, 'rgba(99,242,255,0.9)');
+            gradient.addColorStop(0.4, 'rgba(93,168,255,0.4)');
+            gradient.addColorStop(0.7, 'rgba(138,123,255,0.05)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.needsUpdate = true;
+            return tex;
+        }
+
+        // Initialize packets
+        for (let i = 0; i < PACKET_COUNT; i++) {
+            const edgePairIdx = Math.floor(Math.random() * (edgeLines.length / 2)) * 2;
+            packetData[i * 6] = edgePairIdx;
+            packetData[i * 6 + 1] = Math.random();
+            packetData[i * 6 + 2] = 0.3 + Math.random() * 1.5;
+            packetData[i * 6 + 3] = 0;
+            packetData[i * 6 + 4] = 0;
+            packetData[i * 6 + 5] = 0;
+        }
+
+        function updatePackets(time, dt) {
+            for (let i = 0; i < PACKET_COUNT; i++) {
+                let edgePairIdx = Math.floor(packetData[i * 6]);
+                let t = packetData[i * 6 + 1];
+                let speed = packetData[i * 6 + 2];
+
+                t += speed * dt * 0.3;
+
+                if (t > 1.0 || t < 0) {
+                    // Pick new random edge
+                    edgePairIdx = Math.floor(Math.random() * (edgeLines.length / 2)) * 2;
+                    t = 0;
+                    speed = 0.3 + Math.random() * 1.8;
+                    packetData[i * 6] = edgePairIdx;
+                    packetData[i * 6 + 1] = t;
+                    packetData[i * 6 + 2] = speed;
+                } else {
+                    packetData[i * 6 + 1] = t;
+                }
+
+                const nA = edgeLines[edgePairIdx];
+                const nB = edgeLines[edgePairIdx + 1];
+                if (nA === undefined || nB === undefined) continue;
+                const ax = nodePositions[nA * 3];
+                const ay = nodePositions[nA * 3 + 1];
+                const az = nodePositions[nA * 3 + 2];
+                const bx = nodePositions[nB * 3];
+                const by = nodePositions[nB * 3 + 1];
+                const bz = nodePositions[nB * 3 + 2];
+
+                const px = ax + (bx - ax) * t;
+                const py = ay + (by - ay) * t;
+                const pz = az + (bz - az) * t;
+
+                packetData[i * 6 + 3] = px;
+                packetData[i * 6 + 4] = py;
+                packetData[i * 6 + 5] = pz;
+
+                dummy.position.set(px, py, pz);
+                dummy.scale.setScalar(0.5 + 0.5 * Math.sin(t * Math.PI));
+                dummy.updateMatrix();
+                packetInstanced.setMatrixAt(i, dummy.matrix);
+
+                if (glowSprites[i]) {
+                    glowSprites[i].position.copy(dummy.position);
+                    glowSprites[i].visible = true;
+                    glowSprites[i].material.opacity = 0.3 + 0.4 * Math.sin(t * Math.PI);
+                    glowSprites[i].scale.setScalar(0.4 + 0.3 * Math.sin(t * Math.PI));
+                }
+            }
+            packetInstanced.instanceMatrix.needsUpdate = true;
+        }
+
+        // ──────────────────────────────────────────────
+        // LIGHT PULSE SYSTEM
+        // ──────────────────────────────────────────────
+        let pulseWavePhase = 0;
+        let pulseWaveActive = false;
+        let pulseWaveOrigin = new THREE.Vector3();
+
+        function triggerNetworkPulse(origin) {
+            pulseWaveActive = true;
+            pulseWavePhase = 0;
+            pulseWaveOrigin.copy(origin || new THREE.Vector3(0, 0, 0));
+        }
+
+        function updateLightPulse(time, dt) {
+            if (!pulseWaveActive) {
+                // Occasional spontaneous pulse
+                if (Math.random() < 0.002) {
+                    const rx = (Math.random() - 0.5) * 30;
+                    const rz = (Math.random() - 0.5) * 30;
+                    triggerNetworkPulse(new THREE.Vector3(rx, (Math.random() - 0.5) * 6, rz));
+                }
+                return;
+            }
+            pulseWavePhase += dt * 0.8;
+            if (pulseWavePhase > 25) {
+                pulseWaveActive = false;
+                return;
+            }
+            // Illuminate nodes based on distance from wavefront
+            const waveRadius = pulseWavePhase * 1.5;
+            const waveWidth = 2.5;
+            for (let i = 0; i < NODE_COUNT; i++) {
+                const nx = nodePositions[i * 3];
+                const ny = nodePositions[i * 3 + 1];
+                const nz = nodePositions[i * 3 + 2];
+                const dist = Math.sqrt((nx - pulseWaveOrigin.x) ** 2 + (ny - pulseWaveOrigin.y) ** 2 + (nz - pulseWaveOrigin
+                    .z) ** 2);
+                const waveHit = 1.0 - Math.abs(dist - waveRadius) / waveWidth;
+                if (waveHit > 0) {
+                    const emissiveBoost = waveHit * 1.5;
+                    nodeMaterial.emissiveIntensity = 0.7 + emissiveBoost;
+                }
+            }
+            // Decay back
+            if (!pulseWaveActive) {
+                nodeMaterial.emissiveIntensity += (0.7 - nodeMaterial.emissiveIntensity) * 0.1;
+            }
+        }
+
+        // ──────────────────────────────────────────────
+        // PARTICLE SYSTEM - GPU-driven subtle particles
+        // ──────────────────────────────────────────────
+        const PARTICLE_COUNT = 800;
+        const particlePositionsArr = new Float32Array(PARTICLE_COUNT * 3);
+        const particleVelocitiesArr = new Float32Array(PARTICLE_COUNT * 3);
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particlePositionsArr[i * 3] = (Math.random() - 0.5) * 40;
+            particlePositionsArr[i * 3 + 1] = (Math.random() - 0.5) * 16;
+            particlePositionsArr[i * 3 + 2] = (Math.random() - 0.5) * 35;
+            particleVelocitiesArr[i * 3] = (Math.random() - 0.5) * 0.15;
+            particleVelocitiesArr[i * 3 + 1] = (Math.random() - 0.5) * 0.08;
+            particleVelocitiesArr[i * 3 + 2] = (Math.random() - 0.5) * 0.15;
+        }
+        const particleGeo = new THREE.BufferGeometry();
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositionsArr, 3));
+        const particleMat = new THREE.PointsMaterial({
+            color: '#8A7BFF',
+            size: 0.04,
+            blending: THREE.AdditiveBlending,
+            transparent: true,
+            opacity: 0.45,
+            depthWrite: false,
+        });
+        const particles = new THREE.Points(particleGeo, particleMat);
+        particles.frustumCulled = false;
+        scene.add(particles);
+
+        // ──────────────────────────────────────────────
+        // FLOATING SYMBOLS
+        // ──────────────────────────────────────────────
+        const SYMBOLS = ['∫', 'Σ', 'π', '∞', '∇', 'λ', 'Δ', 'Γ', 'μ', 'σ', '∂', 'ℏ', 'α', 'β', 'γ', 'Ω', 'Φ', 'Ψ'];
+        const SYMBOL_COUNT = 28;
+        const symbolSprites = [];
+        const symbolData = [];
+
+        for (let i = 0; i < SYMBOL_COUNT; i++) {
+            const sym = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'rgba(255,255,255,0)';
+            ctx.fillRect(0, 0, 64, 64);
+            ctx.fillStyle = 'rgba(138,123,255,0.7)';
+            ctx.font = '36px serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(sym, 32, 32);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.needsUpdate = true;
+            const spriteMat = new THREE.SpriteMaterial({
+                map: tex,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                opacity: 0,
+                depthWrite: false,
+            });
+            const sprite = new THREE.Sprite(spriteMat);
+            sprite.position.set(
+                (Math.random() - 0.5) * 35,
+                (Math.random() - 0.5) * 12,
+                (Math.random() - 0.5) * 30
+            );
+            sprite.scale.set(1.2, 1.2, 1);
+            scene.add(sprite);
+            symbolSprites.push(sprite);
+            symbolData.push({
+                baseY: sprite.position.y,
+                phase: Math.random() * Math.PI * 2,
+                speed: 0.3 + Math.random() * 0.7,
+                fadePhase: Math.random() * Math.PI * 2,
+                fadeSpeed: 0.2 + Math.random() * 0.5,
+                opacity: 0,
+                targetOpacity: 0,
+            });
+        }
+
+        function updateSymbols(time, dt) {
+            for (let i = 0; i < SYMBOL_COUNT; i++) {
+                const sd = symbolData[i];
+                const sprite = symbolSprites[i];
+                sd.fadePhase += sd.fadeSpeed * dt;
+                const fadeVal = Math.sin(sd.fadePhase);
+                sd.targetOpacity = fadeVal > 0.3 ? fadeVal * 0.35 : 0.05;
+                sd.opacity += (sd.targetOpacity - sd.opacity) * 2 * dt;
+                sprite.material.opacity = sd.opacity;
+                sprite.position.y = sd.baseY + Math.sin(time * sd.speed + sd.phase) * 1.5;
+                sprite.position.x += (Math.sin(time * 0.3 + sd.phase) * 0.02) * dt;
+                sprite.position.z += (Math.cos(time * 0.35 + sd.phase) * 0.02) * dt;
+                sprite.scale.setScalar(0.8 + sd.opacity * 2.5);
+            }
+        }
+
+        // ──────────────────────────────────────────────
+        // CAMERA RIG - Breathing motion
+        // ──────────────────────────────────────────────
+        const cameraBasePos = new THREE.Vector3(0, 6, 26);
+        const cameraBaseLook = new THREE.Vector3(0, -1.5, 0);
+        let cameraBreathTime = 0;
+        let cameraTargetPos = cameraBasePos.clone();
+        let cameraTargetLook = cameraBaseLook.clone();
+
+        function updateCameraBreathing(time, dt) {
+            cameraBreathTime += dt;
+            const bx = Math.sin(cameraBreathTime * 0.25) * 1.2;
+            const by = Math.cos(cameraBreathTime * 0.3) * 0.6;
+            const bz = Math.cos(cameraBreathTime * 0.22) * 0.9;
+            const rx = Math.sin(cameraBreathTime * 0.18) * 0.15;
+            const ry = Math.cos(cameraBreathTime * 0.2) * 0.12;
+            const targetX = cameraBasePos.x + bx;
+            const targetY = cameraBasePos.y + by;
+            const targetZ = cameraBasePos.z + bz;
+            cameraTargetPos.lerp(new THREE.Vector3(targetX, targetY, targetZ), 0.5 * dt);
+            cameraTargetLook.lerp(new THREE.Vector3(cameraBaseLook.x + rx, cameraBaseLook.y + ry, cameraBaseLook.z), 0.5 *
+                dt);
+            camera.position.lerp(cameraTargetPos, 1.5 * dt);
+            const currentLook = new THREE.Vector3();
+            camera.getWorldDirection(currentLook);
+            const desiredLook = cameraTargetLook.clone().sub(camera.position).normalize();
+            const lerpedLook = new THREE.Vector3().copy(currentLook).lerp(desiredLook, 1.2 * dt).normalize();
+            const lookTarget = camera.position.clone().add(lerpedLook.multiplyScalar(20));
+            camera.lookAt(lookTarget);
+        }
+
+        // ──────────────────────────────────────────────
+        // WHEEL MENU - Floating glass panels
+        // ──────────────────────────────────────────────
+        const wheelGroup = new THREE.Group();
+        wheelGroup.position.set(0, 2, 4);
+        scene.add(wheelGroup);
+
+        const PANEL_COUNT = 8;
+        const wheelPanels = [];
+        const wheelRadius = 4.5;
+        const panelLabels = ['Search', 'Overview', 'Math', 'Papers', 'Sources', 'API Log', 'Images', 'Thesaurus'];
+        const panelIcons = ['🔍', '📋', '🧮', '📚', '🔗', '📡', '🖼️', '🏷️'];
+
+        for (let i = 0; i < PANEL_COUNT; i++) {
+            const angle = (i / PANEL_COUNT) * Math.PI * 2;
+            const panelGroup = new THREE.Group();
+
+            // Glass panel body
+            const panelGeo = new THREE.BoxGeometry(1.3, 0.8, 0.06);
+            const panelMat = new THREE.MeshPhysicalMaterial({
+                color: '#ffffff',
+                metalness: 0.05,
+                roughness: 0.15,
+                transparent: true,
+                opacity: 0.35,
+                clearcoat: 0.4,
+                clearcoatRoughness: 0.2,
+                emissive: '#1a3050',
+                emissiveIntensity: 0.3,
+                envMapIntensity: 0.5,
+            });
+            const panelMesh = new THREE.Mesh(panelGeo, panelMat);
+            panelGroup.add(panelMesh);
+
+            // Emissive edge frame
+            const edgeGeo = new THREE.EdgesGeometry(panelGeo);
+            const edgeLineMat = new THREE.LineBasicMaterial({
+                color: '#63F2FF',
+                transparent: true,
+                opacity: 0.5,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+            });
+            const edgeLine = new THREE.LineSegments(edgeGeo, edgeLineMat);
+            panelGroup.add(edgeLine);
+
+            // Label sprite
+            const labelCanvas = document.createElement('canvas');
+            labelCanvas.width = 256;
+            labelCanvas.height = 64;
+            const lctx = labelCanvas.getContext('2d');
+            lctx.fillStyle = 'rgba(255,255,255,0.9)';
+            lctx.font = 'bold 28px Inter, sans-serif';
+            lctx.textAlign = 'center';
+            lctx.textBaseline = 'middle';
+            lctx.fillText(panelIcons[i] + ' ' + panelLabels[i], 128, 32);
+            const labelTex = new THREE.CanvasTexture(labelCanvas);
+            labelTex.needsUpdate = true;
+            const labelSpriteMat = new THREE.SpriteMaterial({
+                map: labelTex,
+                transparent: true,
+                opacity: 0.85,
+                depthWrite: false,
+            });
+            const labelSprite = new THREE.Sprite(labelSpriteMat);
+            labelSprite.scale.set(1.6, 0.4, 1);
+            labelSprite.position.set(0, 0, 0.06);
+            panelGroup.add(labelSprite);
+
+            // Position on wheel
+            panelGroup.position.set(
+                Math.cos(angle) * wheelRadius,
+                Math.sin(angle) * wheelRadius * 0.3,
+                0
+            );
+            panelGroup.rotation.z = angle;
+            panelGroup.lookAt(new THREE.Vector3(
+                Math.cos(angle) * wheelRadius * 2,
+                Math.sin(angle) * wheelRadius * 0.3 * 2,
+                0
+            ));
+
+            wheelGroup.add(panelGroup);
+            wheelPanels.push({
+                group: panelGroup,
+                mesh: panelMesh,
+                edgeLine,
+                labelSprite,
+                angle,
+                baseAngle: angle,
+                hoverScale: 1,
+                targetScale: 1,
+                hoverEmissive: 0.3,
+                targetEmissive: 0.3,
+            });
+        }
+
+        let wheelRotation = 0;
+        let wheelVelocity = 0;
+        let wheelDragging = false;
+        let wheelPrevMouseX = 0;
+        let wheelSnapTarget = null;
+
+        function updateWheel(time, dt) {
+            // Apply inertia and damping
+            if (!wheelDragging) {
+                wheelVelocity *= Math.exp(-3.5 * dt);
+                if (Math.abs(wheelVelocity) < 0.001) wheelVelocity = 0;
+                wheelRotation += wheelVelocity * dt;
+            }
+
+            // Snap to nearest panel when velocity is very low
+            if (!wheelDragging && Math.abs(wheelVelocity) < 0.015 && wheelSnapTarget === null) {
+                const anglePerPanel = (Math.PI * 2) / PANEL_COUNT;
+                const normalizedRotation = ((wheelRotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+                const nearestIdx = Math.round(normalizedRotation / anglePerPanel) % PANEL_COUNT;
+                const snapAngle = nearestIdx * anglePerPanel;
+                let diff = snapAngle - normalizedRotation;
+                if (diff > Math.PI) diff -= Math.PI * 2;
+                if (diff < -Math.PI) diff += Math.PI * 2;
+                if (Math.abs(diff) > 0.01) {
+                    wheelSnapTarget = wheelRotation + diff;
+                }
+            }
+
+            if (wheelSnapTarget !== null) {
+                const diff = wheelSnapTarget - wheelRotation;
+                if (Math.abs(diff) < 0.002) {
+                    wheelRotation = wheelSnapTarget;
+                    wheelSnapTarget = null;
+                    wheelVelocity = 0;
+                } else {
+                    wheelRotation += diff * 6 * dt;
+                    wheelVelocity *= 0.3;
+                }
+            }
+
+            wheelGroup.rotation.y = wheelRotation;
+
+            // Update panel hover states
+            for (const panel of wheelPanels) {
+                panel.targetScale = 1;
+                panel.targetEmissive = 0.3;
+                // Smooth transitions
+                panel.hoverScale += (panel.targetScale - panel.hoverScale) * 6 * dt;
+                panel.hoverEmissive += (panel.targetEmissive - panel.hoverEmissive) * 6 * dt;
+                panel.mesh.scale.setScalar(panel.hoverScale);
+                panel.mesh.material.emissiveIntensity = panel.hoverEmissive;
+                panel.edgeLine.material.opacity = 0.3 + panel.hoverEmissive;
+            }
+        }
+
+        // ──────────────────────────────────────────────
+        // CLICK RIPPLE ON NODES
+        // ──────────────────────────────────────────────
+        const rippleData = [];
+        const MAX_RIPPLES = 15;
+
+        function triggerNodeRipple(worldPos) {
+            rippleData.push({
+                origin: worldPos.clone(),
+                radius: 0,
+                maxRadius: 6,
+                strength: 1,
+                life: 1,
+            });
+            if (rippleData.length > MAX_RIPPLES) rippleData.shift();
+            // Also trigger light pulse
+            triggerNetworkPulse(worldPos);
+        }
+
+        function updateRipples(time, dt) {
+            for (let i = rippleData.length - 1; i >= 0; i--) {
+                const r = rippleData[i];
+                r.radius += dt * 4;
+                r.life -= dt * 0.8;
+                if (r.life <= 0) {
+                    rippleData.splice(i, 1);
+                    continue;
+                }
+                // Displace nearby nodes
+                for (let j = 0; j < NODE_COUNT; j++) {
+                    const nx = nodeBasePositions[j * 3];
+                    const ny = nodeBasePositions[j * 3 + 1];
+                    const nz = nodeBasePositions[j * 3 + 2];
+                    const dist = Math.sqrt((nx - r.origin.x) ** 2 + (ny - r.origin.y) ** 2 + (nz - r.origin.z) ** 2);
+                    const ringDist = Math.abs(dist - r.radius);
+                    const influence = Math.max(0, 1 - ringDist / 1.2) * r.life * r.strength;
+                    if (influence > 0.001) {
+                        const pushDir = new THREE.Vector3(nx - r.origin.x, ny - r.origin.y, nz - r.origin.z).normalize();
+                        nodePositions[j * 3] = nodeBasePositions[j * 3] + pushDir.x * influence * 0.8;
+                        nodePositions[j * 3 + 1] = nodeBasePositions[j * 3 + 1] + pushDir.y * influence * 0.5;
+                        nodePositions[j * 3 + 2] = nodeBasePositions[j * 3 + 2] + pushDir.z * influence * 0.8;
+                    }
+                }
+            }
+        }
+
+        // ──────────────────────────────────────────────
+        // GLOBAL TRIGGER FOR SEARCH (called from searchLive)
+        // ──────────────────────────────────────────────
+        window.triggerSearchRipple = function(q) {
+            const origin = new THREE.Vector3(
+                (Math.random() - 0.5) * 12,
+                (Math.random() - 0.5) * 3,
+                (Math.random() - 0.5) * 10
+            );
+            triggerNetworkPulse(origin);
+            rippleData.push({
+                origin: origin.clone(),
+                radius: 0,
+                maxRadius: 8,
+                strength: 1.5,
+                life: 1,
+            });
+            if (rippleData.length > MAX_RIPPLES) rippleData.shift();
+        };
+
+        // ──────────────────────────────────────────────
+        // RAYCASTER FOR NODE CLICKS
+        // ──────────────────────────────────────────────
+        const raycaster = new THREE.Raycaster();
+        raycaster.params.Points.threshold = 0.3;
+        raycaster.params.Line = { threshold: 0.2 };
+
+        function onCanvasClick(event) {
+            const mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(nodeInstanced);
+            if (intersects.length > 0) {
+                const instanceId = intersects[0].instanceId;
+                if (instanceId !== undefined) {
+                    const pos = new THREE.Vector3(
+                        nodePositions[instanceId * 3],
+                        nodePositions[instanceId * 3 + 1],
+                        nodePositions[instanceId * 3 + 2]
+                    );
+                    triggerNodeRipple(pos);
+                }
+            }
+        }
+
+        // ──────────────────────────────────────────────
+        // WHEEL DRAG INTERACTION
+        // ──────────────────────────────────────────────
+        function onPointerDown(event) {
+            wheelPrevMouseX = event.clientX;
+            // Check if clicking on wheel area
+            const rect = renderer.domElement.getBoundingClientRect();
+            const mx = event.clientX - rect.left;
+            const my = event.clientY - rect.top;
+            if (mx > rect.width * 0.35 && my < rect.height * 0.55) {
+                wheelDragging = true;
+                wheelSnapTarget = null;
+                renderer.domElement.style.cursor = 'grabbing';
+            }
+        }
+
+        function onPointerMove(event) {
+            if (wheelDragging) {
+                const dx = event.clientX - wheelPrevMouseX;
+                wheelVelocity = dx * 0.012;
+                wheelRotation += dx * 0.012;
+                wheelPrevMouseX = event.clientX;
+                wheelSnapTarget = null;
+            }
+        }
+
+        function onPointerUp() {
+            if (wheelDragging) {
+                wheelDragging = false;
+                renderer.domElement.style.cursor = 'default';
+                wheelVelocity = Math.max(-3, Math.min(3, wheelVelocity));
+            }
+        }
+
+        // ──────────────────────────────────────────────
+        // RESIZE HANDLER
+        // ──────────────────────────────────────────────
+        function onResize() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h, false);
+            composer.setSize(w, h);
+            gridShaderMaterial.uniforms.uResolution.value.set(w * Math.min(devicePixelRatio || 1, 2), h * Math.min(
+                devicePixelRatio || 1, 2));
+            bloomPass.resolution.set(w, h);
+        }
+        window.addEventListener('resize', onResize, { passive: true });
+
+        // ──────────────────────────────────────────────
+        // ANIMATION LOOP
+        // ──────────────────────────────────────────────
+        const clock = new THREE.Clock();
+        let lastPacketUpdate = 0;
+
+        function animate(timestamp) {
+            requestAnimationFrame(animate);
+
+            const dt = Math.min(clock.getDelta(), 0.1);
+            const time = timestamp * 0.001;
+
+            // Update grid shader
+            gridShaderMaterial.uniforms.uTime.value = time;
+            gridShaderMaterial.uniforms.uCameraPos.value.copy(camera.position);
+
+            // Update camera breathing
+            updateCameraBreathing(time, dt);
+
+            // Update node positions - gentle oscillation + ripple recovery
+            for (let i = 0; i < NODE_COUNT; i++) {
+                const recoveryForce = 0.3;
+                nodePositions[i * 3] += (nodeBasePositions[i * 3] - nodePositions[i * 3]) * recoveryForce * dt;
+                nodePositions[i * 3 + 1] += (nodeBasePositions[i * 3 + 1] - nodePositions[i * 3 + 1]) * recoveryForce * dt;
+                nodePositions[i * 3 + 2] += (nodeBasePositions[i * 3 + 2] - nodePositions[i * 3 + 2]) * recoveryForce * dt;
+                // Subtle idle oscillation
+                const ox = Math.sin(time * 1.3 + nodePhases[i]) * 0.06;
+                const oy = Math.cos(time * 1.1 + nodePhases[i]) * 0.04;
+                const oz = Math.sin(time * 0.9 + nodePhases[i] + 1) * 0.06;
+                nodePositions[i * 3] += ox * dt;
+                nodePositions[i * 3 + 1] += oy * dt;
+                nodePositions[i * 3 + 2] += oz * dt;
+                dummy.position.set(nodePositions[i * 3], nodePositions[i * 3 + 1], nodePositions[i * 3 + 2]);
+                dummy.scale.setScalar(0.7 + Math.sin(time * 2 + nodePhases[i]) * 0.15);
+                dummy.updateMatrix();
+                nodeInstanced.setMatrixAt(i, dummy.matrix);
+            }
+            nodeInstanced.instanceMatrix.needsUpdate = true;
+
+            // Update ripples
+            updateRipples(time, dt);
+
+            // Update light pulse
+            updateLightPulse(time, dt);
+            // Decay emissive
+            if (!pulseWaveActive && nodeMaterial.emissiveIntensity > 0.71) {
+                nodeMaterial.emissiveIntensity += (0.7 - nodeMaterial.emissiveIntensity) * 2 * dt;
+            }
+
+            // Update edge positions
+            updateEdgePositions();
+
+            // Update packets
+            lastPacketUpdate += dt;
+            if (lastPacketUpdate > 0.016) {
+                updatePackets(time, lastPacketUpdate);
+                lastPacketUpdate = 0;
+            }
+
+            // Update particles
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particlePositionsArr[i * 3] += particleVelocitiesArr[i * 3] * dt;
+                particlePositionsArr[i * 3 + 1] += particleVelocitiesArr[i * 3 + 1] * dt;
+                particlePositionsArr[i * 3 + 2] += particleVelocitiesArr[i * 3 + 2] * dt;
+                // Wrap around
+                if (Math.abs(particlePositionsArr[i * 3]) > 20) particlePositionsArr[i * 3] *= -0.95;
+                if (Math.abs(particlePositionsArr[i * 3 + 1]) > 8) particlePositionsArr[i * 3 + 1] *= -0.95;
+                if (Math.abs(particlePositionsArr[i * 3 + 2]) > 17) particlePositionsArr[i * 3 + 2] *= -0.95;
+                // Occasional attraction toward nearest node
+                if (Math.random() < 0.003) {
+                    let nearestDist = Infinity;
+                    let nearestIdx = 0;
+                    const px = particlePositionsArr[i * 3];
+                    const py = particlePositionsArr[i * 3 + 1];
+                    const pz = particlePositionsArr[i * 3 + 2];
+                    for (let j = 0; j < Math.min(NODE_COUNT, 200); j++) {
+                        const idx = Math.floor(Math.random() * NODE_COUNT);
+                        const dx = nodePositions[idx * 3] - px;
+                        const dy = nodePositions[idx * 3 + 1] - py;
+                        const dz = nodePositions[idx * 3 + 2] - pz;
+                        const d = dx * dx + dy * dy + dz * dz;
+                        if (d < nearestDist) { nearestDist = d;
+                            nearestIdx = idx; }
+                    }
+                    if (nearestDist < 400) {
+                        particleVelocitiesArr[i * 3] += (nodePositions[nearestIdx * 3] - px) * 0.003;
+                        particleVelocitiesArr[i * 3 + 1] += (nodePositions[nearestIdx * 3 + 1] - py) * 0.003;
+                        particleVelocitiesArr[i * 3 + 2] += (nodePositions[nearestIdx * 3 + 2] - pz) * 0.003;
+                    }
+                }
+                // Damping
+                particleVelocitiesArr[i * 3] *= 0.998;
+                particleVelocitiesArr[i * 3 + 1] *= 0.998;
+                particleVelocitiesArr[i * 3 + 2] *= 0.998;
+            }
+            particleGeo.attributes.position.needsUpdate = true;
+
+            // Update floating symbols
+            updateSymbols(time, dt);
+
+            // Update wheel
+            updateWheel(time, dt);
+
+            // Render
+            composer.render();
+        }
+
+        // ──────────────────────────────────────────────
+        // EVENT LISTENERS
+        // ──────────────────────────────────────────────
+        const webglContainer = document.getElementById('webgl');
+        webglContainer.addEventListener('click', onCanvasClick);
+        webglContainer.addEventListener('pointerdown', onPointerDown);
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+
+        // Tab switching
+        document.getElementById('tabsContainer').addEventListener('click', (e) => {
+            const btn = e.target.closest('.tab-btn');
+            if (!btn) return;
+            const tabId = btn.dataset.tab;
+            $$('.tab-btn').forEach(b => b.classList.remove('active'));
+            $$('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            const panel = document.getElementById(`tab-${tabId}`);
+            panel.classList.add('active');
+            // Re-trigger card animations
+            panel.querySelectorAll('.card').forEach((c, i) => {
+                c.style.animation = 'none';
+                c.offsetHeight;
+                c.style.animation = `cardAppear 0.5s cubic-bezier(0.22,0.61,0.36,1) ${i*0.05}s both`;
+            });
+        });
+
+        // Search form
+        $('#searchForm').onsubmit = e => { e.preventDefault();
+            searchLive($('#query').value); };
+        $$('.chip[data-term]').forEach(b => b.onclick = () => { $('#query').value = b.dataset.term;
+            searchLive(b.dataset.term); });
+        $('#themeBtn').onclick = () => {
+            document.body.classList.toggle('light');
+            const isLight = document.body.classList.contains('light');
+            hemiLight.intensity = isLight ? 1.0 : 0.6;
+            ambientLight.intensity = isLight ? 0.6 : 0.3;
+            scene.fog = isLight ? new THREE.FogExp2('#d8e4f0', 0.00002) : new THREE.FogExp2('#050816', 0.000025);
+            gridShaderMaterial.uniforms.uFogColor.value.set(isLight ? '#d8e4f0' : '#050816');
+        };
+        $('#copyBtn').onclick = async () => {
+            if (!current) return;
+            await navigator.clipboard.writeText(current.term + ' — ' + lastSources.map(s => `${s.label}: ${s.url}`)
+                .join('; '));
+            $('#copyBtn').textContent = 'Copied';
+            setTimeout(() => $('#copyBtn').textContent = 'Copy citation', 1200);
+        };
+
+        // ──────────────────────────────────────────────
+        // INITIALIZATION
+        // ──────────────────────────────────────────────
+        onResize();
+        requestAnimationFrame(animate);
+        // Initial search
+        searchLive('entropy');
+        // Occasional spontaneous pulse
+        setInterval(() => {
+            const rx = (Math.random() - 0.5) * 30;
+            const rz = (Math.random() - 0.5) * 30;
+            triggerNetworkPulse(new THREE.Vector3(rx, (Math.random() - 0.5) * 6, rz));
+        }, 8000 + Math.random() * 6000);
+
+        console.log('🔬 SciLexicon Premium · Scientific Visualization Platform Active');
+        console.log('   Grid · Network · Packets · Particles · Symbols · Wheel · Bloom');
+        console.log('   All APIs preserved · 60 FPS target');
+    </script>
 </body>
 </html>
