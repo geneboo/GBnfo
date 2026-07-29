@@ -1,0 +1,377 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Userguide.md</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="genes-text-concatenator-–-user-guide-v0.7.0">Gene’s Text Concatenator – User Guide v0.7.0</h1>
+<h4 id="gene-boo-2024-jul-2026">Gene Boo, 2024, Jul 2026</h4>
+<p>A high‑performance, multi‑threaded tool for <strong>concatenating</strong> text files from a directory tree into a single portable archive (plain text or LLM‑friendly Markdown) and <strong>extracting</strong> them back into a full directory structure.<br>
+Version 0.7.0 adds intelligent file splitting (by size, file count, or number of parts), custom naming, and the ability to extract split archives.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#use-cases">Use Cases</a></li>
+<li><a href="#command-line-interface">Command‑Line Interface</a>
+<ul>
+<li><a href="#concatenation-mode">Concatenation Mode</a></li>
+<li><a href="#extraction-mode">Extraction Mode</a></li>
+<li><a href="#filtering-options">Filtering Options</a></li>
+<li><a href="#format--path-options">Format &amp; Path Options</a></li>
+<li><a href="#splitting-the-output">Splitting the Output</a></li>
+<li><a href="#naming-the-output">Naming the Output</a></li>
+<li><a href="#pattern-files">Pattern Files</a></li>
+</ul>
+</li>
+<li><a href="#how-filtering-works">How Filtering Works</a></li>
+<li><a href="#binary-file-detection">Binary File Detection</a></li>
+<li><a href="#output-formats">Output Formats</a>
+<ul>
+<li><a href="#plain-text-txt">Plain Text (<code>.txt</code>)</a></li>
+<li><a href="#markdown-md">Markdown (<code>.md</code>)</a></li>
+</ul>
+</li>
+<li><a href="#extraction-details">Extraction Details</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#performance">Performance</a></li>
+<li><a href="#notes--limitations">Notes &amp; Limitations</a></li>
+</ul>
+<hr>
+<h2 id="installation">Installation</h2>
+<p>The <strong>Text Concatenator</strong> is a <strong>completely portable, single‑file executable</strong>.<br>
+No installation or external dependencies are required.</p>
+<ol>
+<li>
+<p><strong>Download</strong> the appropriate binary for your platform:</p>
+<ul>
+<li>Windows: <code>TextConcatenator_v0.7.0_Portable.exe</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Place it anywhere</strong> – your desktop, a project folder, a USB drive, or even add it to your <code>PATH</code> for system‑wide access. It runs straight out of the box.</p>
+</li>
+</ol>
+<hr>
+<h2 id="quick-start">Quick Start</h2>
+<p><strong>Concatenate the current directory with auto‑naming (uses folder name):</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text
+</code></pre>
+<p>If you are inside a folder called <code>my_project</code>, this creates <code>my_project.txt</code> containing all text files.</p>
+<p><strong>Markdown output, relative paths, and a file tree:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -r -f md --tree
+</code></pre>
+<p>Creates <code>my_project.md</code> (if in <code>my_project/</code>).</p>
+<p><strong>Split the output into 3 equal‑sized parts (Markdown):</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -r -f md -n 3
+</code></pre>
+<p>Produces <code>my_project_part001.md</code>, <code>my_project_part002.md</code>, <code>my_project_part003.md</code>.</p>
+<p><strong>Extract a split archive:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -x --split my_project_part001.md restored/
+</code></pre>
+<p>Reads all parts (<code>_part001</code>, <code>_part002</code>, …) and restores the original files into <code>restored/</code>.</p>
+<hr>
+<h2 id="use-cases">Use Cases</h2>
+<ul>
+<li><strong>LLM Context Preparation</strong> – Combine your entire project into one Markdown file with syntax‑highlighted code blocks and a file tree. LLMs can easily consume the result.</li>
+<li><strong>Code Archiving / Sharing</strong> – Send a single file (or a few parts) instead of a zip. The recipient can extract the original structure.</li>
+<li><strong>Large Project Splitting</strong> – Break a huge concatenated output into manageable chunks (by size or number of parts) for easy upload or email.</li>
+<li><strong>Duplicate / Backup</strong> – Create a snapshot of a codebase, then later extract it to another location.</li>
+<li><strong>Filtering</strong> – Include only certain file types (e.g., <code>*.rs</code>, <code>*.toml</code>) or exclude logs and binaries.</li>
+<li><strong>Portable Documentation</strong> – Merge multiple text resources (notes, configs, logs) into one scrollable document.</li>
+</ul>
+<hr>
+<h2 id="command‑line-interface">Command‑Line Interface</h2>
+<pre><code>concat_text [OPTIONS] [POSITIONAL...]
+</code></pre>
+<p>The first positional argument changes meaning depending on mode:</p>
+
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Positional 1</th>
+<th>Positional 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Concatenation</td>
+<td>Starting directory</td>
+<td>Output file</td>
+</tr>
+<tr>
+<td>Extraction</td>
+<td>Input archive file</td>
+<td>Output directory</td>
+</tr>
+</tbody>
+</table><p>If omitted, defaults are:</p>
+<ul>
+<li>Start dir = current directory</li>
+<li>Output file = <strong>automatically named</strong> (see <a href="#naming-the-output">Naming the Output</a>)</li>
+<li>Extraction output dir = current directory</li>
+</ul>
+<h3 id="concatenation-mode">Concatenation Mode</h3>
+
+<table>
+<thead>
+<tr>
+<th>Flag / Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>Output format: <code>txt</code> (default) or <code>md</code> / <code>markdown</code>.</td>
+</tr>
+<tr>
+<td><code>--relative</code>, <code>-r</code></td>
+<td>Store file paths relative to the starting directory (portable).</td>
+</tr>
+<tr>
+<td><code>--tree</code></td>
+<td>(Markdown only) Prepend a directory tree.</td>
+</tr>
+<tr>
+<td><code>--include</code> <em>PATTERNS</em></td>
+<td>Only process files that match any of these comma‑separated patterns.</td>
+</tr>
+<tr>
+<td><code>--exclude</code> <em>PATTERNS</em></td>
+<td>Skip files that match any of these patterns.</td>
+</tr>
+<tr>
+<td><code>--include-file</code> <em>FILE</em></td>
+<td>Read include patterns from a file (one per line).</td>
+</tr>
+<tr>
+<td><code>--exclude-file</code> <em>FILE</em></td>
+<td>Read exclude patterns from a file.</td>
+</tr>
+<tr>
+<td><code>--name</code> <em>NAME</em></td>
+<td>Set base name for the output file(s). If not given, uses the directory name.</td>
+</tr>
+<tr>
+<td><code>--split-size</code> <em>SIZE</em></td>
+<td>Split output into parts of at most <em>SIZE</em> (e.g., <code>"2 MB"</code>, <code>"1024kb"</code>).</td>
+</tr>
+<tr>
+<td><code>--split-files</code> <em>N</em></td>
+<td>Start a new part every <em>N</em> files.</td>
+</tr>
+<tr>
+<td><code>--split-into</code>, <code>-n</code> <em>K</em></td>
+<td>Split the final output into exactly <em>K</em> equal‑sized parts (by size).</td>
+</tr>
+</tbody>
+</table><p><strong>Note:</strong> If both <code>--include</code> and <code>--exclude</code> are used, the last one wins (they set the <em>mode</em>). You cannot combine include and exclude in a single run.</p>
+<h3 id="extraction-mode">Extraction Mode</h3>
+<p>Activated with <code>--extract</code> or <code>-x</code>.</p>
+
+<table>
+<thead>
+<tr>
+<th>Flag / Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--format</code>, <code>-f</code></td>
+<td>Force input format (<code>txt</code> or <code>md</code>). If omitted, auto‑detected.</td>
+</tr>
+<tr>
+<td><code>--output-dir</code>, <code>-o</code></td>
+<td>Directory where files will be extracted (default: current dir).</td>
+</tr>
+<tr>
+<td><code>--split</code></td>
+<td>Treat the input file as the first part of a split archive.</td>
+</tr>
+</tbody>
+</table><p><strong>Note:</strong> <code>--relative</code> and <code>--tree</code> have no effect in extraction mode.</p>
+<h3 id="filtering-options-concatenation-only">Filtering Options (concatenation only)</h3>
+<p>Filtering works by matching <strong>patterns</strong> against file names, extensions, and paths. Details in <a href="#how-filtering-works">How Filtering Works</a>.</p>
+<h3 id="format--path-options">Format &amp; Path Options</h3>
+<ul>
+<li><strong><code>--relative</code> / <code>-r</code></strong> – When concatenating, file headers will show relative paths (e.g., <code>src/main.rs</code> instead of <code>/home/user/project/src/main.rs</code>). This makes the archive portable and allows extraction under any directory. In Markdown mode, all paths are written with forward slashes.</li>
+<li><strong><code>--tree</code></strong> – (Markdown only) Adds a pretty‑printed directory tree at the top of the output, inside a <code>text</code> code block.</li>
+</ul>
+<h3 id="splitting-the-output">Splitting the Output</h3>
+<p>You can split the concatenated result into multiple part files. The parts are named with a <code>_part001</code>, <code>_part002</code>, … suffix before the file extension.</p>
+<ul>
+<li><strong>By file size</strong>: <code>--split-size "2 MB"</code> or <code>--split-size 1024kb</code>. The size parser understands <code>b</code>, <code>kb</code>, <code>mb</code>, <code>gb</code> and allows decimals (e.g., <code>1.5 MB</code>).</li>
+<li><strong>By file count</strong>: <code>--split-files 50</code> starts a new part after every 50 files have been written.</li>
+<li><strong>By number of parts</strong>: <code>--split-into 3</code> (or <code>-n 3</code>) will create exactly 3 parts, dividing the final archive into <strong>byte‑even chunks</strong>. This is the simplest way to split for sharing.</li>
+</ul>
+<p>All split modes write a small temporary file during concatenation, then split it at the end – the temporary file is deleted automatically. For the <code>--split-into</code> option, if the total size is 0 (no files), empty part files are still created.</p>
+<h3 id="naming-the-output">Naming the Output</h3>
+<p>By default, the tool uses the <strong>name of the directory being scanned</strong> as the base name for the output file(s). For example, if you run the tool inside <code>parquet_viewer/</code>:</p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -f md -n 3
+</code></pre>
+<p>produces <code>parquet_viewer_part001.md</code>, <code>parquet_viewer_part002.md</code>, <code>parquet_viewer_part003.md</code>.</p>
+<p>You can override this with <code>--name</code>:</p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text --name project_backup -f md -n 3
+</code></pre>
+<p>will create <code>project_backup_part001.md</code>, etc.</p>
+<p>If a starting directory is given explicitly (e.g., <code>../some_folder</code>), its leaf name is used. When no explicit output file name is provided, the extension is chosen automatically based on the format (<code>.txt</code> or <code>.md</code>). You can still specify a full output file name as the second positional argument to override the automatic naming.</p>
+<h3 id="pattern-files">Pattern Files</h3>
+<p>Instead of typing many patterns on the command line, you can use <code>--exclude-file</code> or <code>--include-file</code>. The file is read line by line; empty lines and lines starting with <code>#</code> are ignored.</p>
+<p>Example <code>exclude.txt</code>:</p>
+<pre><code># Ignore build artifacts
+target
+*.log
+*.o
+</code></pre>
+<hr>
+<h2 id="how-filtering-works">How Filtering Works</h2>
+<p>Patterns are <strong>case‑insensitive</strong> and match using these rules:</p>
+<ol>
+<li><strong>Exact filename</strong> – <code>"Cargo.toml"</code> matches exactly.</li>
+<li><strong>Extension</strong> – <code>".rs"</code> or <code>"rs"</code> matches any file with that extension (e.g., <code>main.rs</code>).</li>
+<li><strong>Path contains</strong> – <code>"src"</code> matches any file whose full path contains <code>src</code>.</li>
+<li><strong>Filename contains</strong> – <code>"test"</code> matches <code>my_test.rs</code> because the filename contains <code>test</code>.</li>
+</ol>
+<p>In <strong>Include</strong> mode, only files that match at least one pattern are processed.<br>
+In <strong>Exclude</strong> mode, all files are processed <em>except</em> those that match any pattern.</p>
+<p>If no patterns are given, Include/Exclude mode act as normal (all files allowed).</p>
+<hr>
+<h2 id="binary-file-detection">Binary File Detection</h2>
+<p>To avoid corrupting the output, the tool automatically skips binary files:</p>
+<ul>
+<li><strong>By extension</strong> – A list of known binary extensions (e.g., <code>exe</code>, <code>jpg</code>, <code>zip</code>, <code>pdf</code>) is hard‑coded. Files with these extensions are immediately rejected.</li>
+<li><strong>Content sampling</strong> – The first 512 bytes are examined. If a null byte (<code>0x00</code>) is found, the file is binary. If more than 30% of the bytes are non‑printable control characters, it is also considered binary.</li>
+</ul>
+<p>Empty files are treated as text.</p>
+<hr>
+<h2 id="output-formats">Output Formats</h2>
+<h3 id="plain-text-.txt">Plain Text (<code>.txt</code>)</h3>
+<p>Each file is preceded by a header of 80 equal signs:</p>
+<pre><code>================================================================================
+path/to/file.txt
+================================================================================
+file contents...
+</code></pre>
+<p>This format is easy to parse manually and is the default.</p>
+<h3 id="markdown-.md">Markdown (<code>.md</code>)</h3>
+<p>Designed for <strong>LLM consumption</strong>. Each file becomes:</p>
+<pre><code>## `path/to/file.rs`
+
+```rust
+fn main() {}
+</code></pre>
+<hr>
+<pre><code>
+- The heading contains the path in backticks.
+- A fenced code block with an **auto‑detected language** (based on file extension) follows.
+- A horizontal rule (`---`) separates files.
+
+If `--tree` is used, a directory tree is added at the top:
+
+</code></pre>
+<h1 id="file-tree">File tree</h1>
+<pre class=" language-text"><code class="prism  language-text">.
+├── src/
+│   ├── main.rs
+│   └── lib.rs
+├── Cargo.toml
+└── README.md
+</code></pre>
+<hr>
+<pre><code>
+Supported languages include: Rust, Python, JavaScript, TypeScript, HTML, CSS, JSON, XML, Markdown, Bash, TOML, YAML, Java, Go, C/C++, Ruby, PHP, Swift, Kotlin, Scala, SQL, and more. Unknown extensions get an empty language tag (plain code block).
+
+---
+
+## Extraction Details
+
+To extract files from a concatenated archive:
+
+```bash
+concat_text -x archive.txt [output_dir]
+</code></pre>
+<p>or</p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -x -f md archive.md output/
+</code></pre>
+<ul>
+<li>The tool automatically detects the format unless you force it with <code>--format</code>.</li>
+<li><strong>TXT extraction</strong> looks for lines consisting of exactly 80 <code>=</code> signs, then reads the path line, then the next separator, and finally the content until the next separator.</li>
+<li><strong>Markdown extraction</strong> looks for level‑2 headings (<code>##</code>) followed by a code fence (<code>```</code>). It captures everything until the closing <code>```</code>.</li>
+<li>Paths stored in the archive may be <strong>absolute</strong> (default) or <strong>relative</strong> (if <code>--relative</code> was used during concatenation). During extraction, absolute paths are made safe by stripping the leading root component (e.g., <code>/</code> or <code>C:\</code>), so they become relative. This prevents accidentally writing outside the chosen output directory.</li>
+<li>Parent directories are created automatically.</li>
+</ul>
+<h3 id="extracting-split-archives">Extracting split archives</h3>
+<p>If you used any split mode during concatenation, you must use the <code>--split</code> flag when extracting. Point to the first part file (e.g., <code>my_project_part001.md</code>), and the tool will automatically find and read all consecutive parts (<code>_part002</code>, <code>_part003</code>, …). The entire archive is then restored as if it were a single file.</p>
+<p><strong>Example:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -x --split bundle_part001.md restored/
+</code></pre>
+<hr>
+<h2 id="examples">Examples</h2>
+<h3 id="concatenation">Concatenation</h3>
+<p><strong>1. Plain text, absolute paths, auto‑named (current folder):</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text
+</code></pre>
+<p>If the current folder is <code>myapp</code>, creates <code>myapp.txt</code>.</p>
+<p><strong>2. Markdown with relative paths, tree, and custom name:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -r -f md --tree --name project_docs ./src
+</code></pre>
+<p>Writes <code>project_docs.md</code> containing all files under <code>./src</code>.</p>
+<p><strong>3. Split into 3 equal parts (Markdown, relative paths):</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -r -f md -n 3
+</code></pre>
+<p>Produces <code>currentfolder_part001.md</code>, <code>_part002.md</code>, <code>_part003.md</code>.</p>
+<p><strong>4. Split by size (5 MB chunks):</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -r -f md --split-size <span class="token string">"5 MB"</span> ./src
+</code></pre>
+<p><strong>5. Include only Rust and TOML files:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text --include <span class="token string">"rs,toml"</span> <span class="token keyword">.</span> rust_code.txt
+</code></pre>
+<p><strong>6. Exclude log files and node_modules:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text --exclude <span class="token string">"*.log,node_modules"</span> <span class="token keyword">.</span> clean.txt
+</code></pre>
+<h3 id="extraction">Extraction</h3>
+<p><strong>7. Auto‑detect format and extract to current directory:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -x bundle.txt
+</code></pre>
+<p><strong>8. Force Markdown format and extract to <code>restored/</code>:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -x -f md bundle.md restored/
+</code></pre>
+<p><strong>9. Extract a split archive:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">concat_text -x --split my_project_part001.md extracted/
+</code></pre>
+<hr>
+<h2 id="performance">Performance</h2>
+<ul>
+<li>Files are collected and checked for binary content in parallel using <strong>Rayon</strong>.</li>
+<li>Large files (&gt;1 MB) are read with <strong>memory mapping</strong>; small files use buffered I/O.</li>
+<li>Output writes are serialised behind a mutex, but the processing (reading, decoding, header generation) happens in parallel.</li>
+<li>The binary can be compiled with maximum optimisations (<code>lto = true</code>, <code>opt-level = 3</code>).</li>
+</ul>
+<p>Typical performance: concatenating thousands of files from an SSD takes only a few seconds.</p>
+<hr>
+<h2 id="notes--limitations">Notes &amp; Limitations</h2>
+<ul>
+<li>The tool assumes <strong>UTF‑8</strong> encoding for all text files. Non‑UTF‑8 files may be transcoded lossily via <code>String::from_utf8_lossy</code> when using memory mapping, or correctly decoded via <code>encoding_rs</code> for buffered reads.</li>
+<li>Symbolic link cycles are prevented during directory traversal (visited set).</li>
+<li>The TXT extraction split method reads the entire input file into memory. For extremely large archives (&gt;several GB), ensure sufficient RAM.</li>
+<li>Markdown code fences can be nested only if the file itself contains <code>```</code> lines – those would break extraction. This is rare for source code.</li>
+<li>The filter pattern <code>*</code> is not a wildcard; it is a literal character. To match any extension use just the extension name (e.g., <code>rs</code>).</li>
+<li>The tool <strong>does not</strong> currently support appending to an existing output file; it always overwrites.</li>
+<li>When using <code>--split-into N</code>, the splitting is purely byte‑based; file boundaries may appear in the middle of a file’s header/content within a part. Extraction from split parts reassembles the original stream seamlessly.</li>
+</ul>
+<hr>
+<p>Enjoy using the <strong>Text Concatenator v0.7.0</strong>! For issues or contributions, see the project repository.</p>
+</div>
+</body>
+
+</html>
