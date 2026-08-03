@@ -653,7 +653,6 @@
 
                 <div class="resume-controls">
                     <div class="resume-tab active" data-resume="cover">Cover Letter</div>
-                    <div class="resume-tab" data-resume="cv2027">CV 2027</div>
                     <div class="resume-tab" data-resume="cv2026">CV 2026</div>
                     <div class="resume-tab" data-resume="cv2025">CV 2025</div>
                     <div class="resume-tab" data-resume="cv2024">CV 2024</div>
@@ -726,7 +725,6 @@
                     const downloadLink = document.getElementById('download-link');
 
                     const map = {
-                        'cv2027': { title: 'CV 2027', file: 'assets/CV of Gene Boo (2027 v1-s).pdf' },
                         'cover': { title: 'Cover Letter', file: 'assets/Cover Letter - Gene Boo.pdf' },
                         'cv2026': { title: 'CV 2026', file: 'assets/CV of Gene Boo (2026 v2-s).pdf' },
                         'cv2025': { title: 'CV 2025', file: 'assets/CV of Gene Boo (2025 v1-s).pdf' },
@@ -750,21 +748,6 @@
                 const links = container.querySelector('.pdf-link-options');
 
                 const data = {
-                                        'cv2027': {
-                        icon: 'fab fa-html5 pdf-icon pulse',
-                        title: 'CV 2027',
-                        desc: 'The latest 2027 edition of my professional CV, available as both an HTML version and downloadable PDF',
-                        links: `
-                            <a href="assets/CV of Gene Boo (2027 v1-s).html" target="_blank" class="pdf-link">
-                                <i class="fas fa-external-link-alt pdf-link-icon"></i>
-                                <div><div style="font-weight:700; font-size:1.1rem;">View HTML Version</div><div style="font-size:0.9rem;">View in browser</div></div>
-                            </a>
-                            <a href="assets/CV of Gene Boo (2027 v1-s).pdf" download="CV of Gene Boo (2027 v1-s).pdf" class="pdf-link">
-                                <i class="fas fa-download pdf-link-icon"></i>
-                                <div><div style="font-weight:700; font-size:1.1rem;">Download PDF</div><div style="font-size:0.9rem;">Save to your device</div></div>
-                            </a>
-                        `
-                    },
                     'cover': {
                         icon: 'fas fa-file-pdf pdf-icon pulse',
                         title: 'Cover Letter',
