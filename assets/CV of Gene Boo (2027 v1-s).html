@@ -1,152 +1,711 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gene Boo Ee Jin Technology Portfolio CV - Magazine CV</title>
-<style>
-:root{--hero-mark:"∑";
-  --paper:#fffdf8; --ink:#17202a; --muted:#5e6877; --line:#e5dccd; --shadow:0 30px 80px rgba(27,31,40,.16);
-  --accent:#0f4c81; --accent2:#f4a261; --accent3:#2a9d8f; --soft:#fff4de; --soft2:#eaf6ff; --dark:#092f53;
-}
-*{box-sizing:border-box;min-width:0}
-html{scroll-behavior:smooth}
-body{margin:0;background:linear-gradient(135deg,#f7f2e8,#edf5ff 55%,#f8f1fb);font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);line-height:1.47;font-size:14px;overflow-wrap:break-word;word-wrap:break-word;hyphens:auto}
-a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(15,76,129,.25);overflow-wrap:anywhere;word-break:break-word}
-p,li,span,b,h1,h2,h3,h4,div{overflow-wrap:break-word;word-wrap:break-word;hyphens:auto}
-.toolbar{position:sticky;top:10px;z-index:20;display:flex;gap:10px;justify-content:flex-end;max-width:1180px;margin:12px auto 0;padding:0 18px}.toolbar button{border:0;border-radius:999px;background:linear-gradient(135deg,var(--accent),var(--accent3));color:white;font-weight:800;padding:10px 16px;box-shadow:0 12px 28px rgba(15,76,129,.26);cursor:pointer}.page{max-width:1180px;margin:16px auto 34px;padding:0 18px}.sheet{background:var(--paper);border:1px solid rgba(40,40,40,.10);box-shadow:var(--shadow);border-radius:30px;overflow:hidden;position:relative}.sheet:before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(15,76,129,.08) 1px, transparent 1px);background-size:22px 22px;opacity:.55;pointer-events:none}.hero{position:relative;isolation:isolate;padding:42px 46px 30px;background:linear-gradient(135deg,var(--dark),var(--accent) 58%,#2879b8);color:#fff;overflow:hidden}.hero:before{content:"";position:absolute;width:420px;height:420px;right:-150px;top:-170px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.26),rgba(255,255,255,.05) 55%,transparent 65%);z-index:-1}.hero:after{content:var(--hero-mark);position:absolute;right:32px;bottom:20px;font-size:90px;font-weight:900;line-height:1;color:rgba(255,255,255,.12);letter-spacing:-5px}.kicker{font-size:12px;text-transform:uppercase;letter-spacing:2.4px;font-weight:900;color:#ffe8b7;margin-bottom:10px}.hero h1{font-size:44px;line-height:.98;margin:0 0 8px;letter-spacing:-1.2px}.hero h2{font-size:17px;line-height:1.35;margin:0 0 16px;font-weight:600;color:#eff9ff}.contact{max-width:840px;color:#eef8ff;font-size:13.4px;overflow-wrap:anywhere}.ribbon{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.ribbon span{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700}.content{position:relative;padding:34px 44px 44px;display:grid;grid-template-columns:minmax(0,1.36fr) minmax(280px,.64fr);gap:28px}.section{background:rgba(255,255,255,.72);border:1px solid rgba(40,40,40,.08);border-radius:22px;padding:20px 22px;margin-bottom:18px;box-shadow:0 12px 32px rgba(30,40,50,.06)}.section h3{font-size:13px;text-transform:uppercase;letter-spacing:1.8px;color:var(--accent);margin:0 0 14px;display:flex;align-items:center;gap:10px}.section h3:before{content:"";flex:0 0 28px;width:28px;height:4px;border-radius:10px;background:linear-gradient(90deg,var(--accent2),var(--accent3))}.lede{font-size:15.2px;color:#263545;margin:0 0 10px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.stat{border-radius:18px;padding:13px;background:linear-gradient(135deg,var(--soft),#fff);border:1px solid rgba(244,162,97,.25)}.stat b{display:block;font-size:25px;line-height:1;color:var(--accent)}.stat span{font-size:11.5px;color:var(--muted);font-weight:750}.chips,.card-grid{display:grid;gap:10px}.chip,.mini-card{border-radius:16px;padding:12px 13px;background:linear-gradient(135deg,#fff,var(--soft2));border:1px solid rgba(15,76,129,.12)}.chip b,.mini-card b{display:block;color:#0f4c81;margin-bottom:3px}.chip span,.mini-card span{color:#445160;font-size:13px}.timeline{position:relative}.job{position:relative;padding:0 0 15px 22px;border-left:3px solid #dfe8f0}.job:before{content:"";position:absolute;left:-8px;top:3px;width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent3));box-shadow:0 0 0 4px #fff}.job h4{font-size:17px;margin:0 0 2px;color:#17202a}.job .meta{font-size:12.6px;color:var(--muted);font-weight:800;margin-bottom:6px}.job ul{margin:0;padding-left:16px}.job li{margin:3px 0;color:#2d3a45}.sidebar .section{background:linear-gradient(180deg,#ffffff,#fffbf2)}.edu p,.languages p{margin:0;color:#2d3a45}.footer-note{text-align:center;color:#697383;font-size:11.5px;margin-top:6px}.no-break{break-inside:avoid;page-break-inside:avoid}
-@media (max-width:860px){.page{margin:0;padding:0}.sheet{border-radius:0;border:0}.toolbar{display:none}.hero{padding:32px 24px}.hero h1{font-size:34px}.hero:after{font-size:62px}.content{grid-template-columns:1fr;padding:22px}.stats{grid-template-columns:1fr 1fr}.section{padding:17px}}
-@page{size:A4;margin:10mm}
-@media print{
-  html,body{width:210mm;max-width:210mm;background:white!important;color:#17202a;font-size:8.9pt;line-height:1.24;-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow:visible!important}
-  body{margin:0!important;padding:0!important}
-  .toolbar{display:none!important}
-  .page{width:auto;max-width:none;margin:0;padding:0}
-  .sheet{width:auto;background:white!important;border:0;box-shadow:none;border-radius:0;overflow:visible!important}
-  .sheet:before,.hero:before{display:none!important}
-  .hero{padding:7mm 8mm 4.5mm;background:var(--dark)!important;color:#fff!important;break-inside:avoid;page-break-inside:avoid;overflow:hidden!important}
-  .hero:after{font-size:42pt;right:7mm;bottom:3mm;letter-spacing:-3px}
-  .kicker{font-size:7.4pt;margin-bottom:1.5mm;letter-spacing:1.4px}.hero h1{font-size:23pt;margin-bottom:1mm}.hero h2{font-size:9.6pt;margin-bottom:1.6mm}.contact{font-size:7.5pt;max-width:none;overflow-wrap:anywhere}.ribbon{gap:3px;margin-top:2.2mm}.ribbon span{font-size:6.8pt;padding:1.6px 4.5px}
-  .content{display:block!important;padding:4.5mm 8mm 5mm;columns:auto!important;gap:0!important}
-  .maincol,.sidebar,.credential-strip{display:block;width:auto;max-width:none}
-  .section{display:block;box-shadow:none;border-color:#ddd;border-radius:6px;padding:3mm;margin:0 0 2.6mm;background:#fff!important;break-inside:auto!important;page-break-inside:auto!important;overflow:visible!important}
-  .section h3{font-size:8pt;margin:0 0 1.6mm;letter-spacing:1.1px;break-after:avoid;page-break-after:avoid}.section h3:before{flex-basis:13px;width:13px;height:2px}
-  .lede{font-size:8.7pt;margin-bottom:1.4mm}.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:1.6mm;margin-top:1.7mm;break-inside:avoid;page-break-inside:avoid}.stat{border-radius:5px;padding:1.8mm}.stat b{font-size:13pt}.stat span{font-size:6.6pt}
-  .chips,.card-grid{gap:1.6mm}.chip,.mini-card{border-radius:5px;padding:1.8mm;break-inside:avoid;page-break-inside:avoid}.chip span,.mini-card span{font-size:7.35pt}.chip b,.mini-card b{margin-bottom:.6mm}
-  .timeline,.job,.job.no-break{break-inside:auto!important;page-break-inside:auto!important}.job{padding-left:3.5mm;padding-bottom:2.2mm;border-left:1.4px solid #dfe8f0}.job:before{left:-3.3px;top:1.8px;width:5.6px;height:5.6px;box-shadow:none}.job h4{font-size:9.2pt;margin:0 0 .4mm;break-after:avoid;page-break-after:avoid}.job .meta{font-size:7.15pt;margin-bottom:.8mm;break-after:avoid;page-break-after:avoid}.job ul{padding-left:3.2mm}.job li{margin:.55mm 0;break-inside:avoid;page-break-inside:avoid;orphans:2;widows:2}
-  p{orphans:2;widows:2}.no-break{break-inside:auto!important;page-break-inside:auto!important}.stat,.mini-card,.chip,.ribbon span{break-inside:avoid!important;page-break-inside:avoid!important}.footer-note{display:none!important}a{border:0;color:#0f4c81;overflow-wrap:anywhere}
-
-  /* Page-break refinement v2: keep small sidebar/card sections from starting as a lonely header at the page foot. */
-  .sidebar .section,
-  .credential-strip,
-  .section:not(:has(.timeline)){
-    break-inside:avoid-page!important;
-    page-break-inside:avoid!important;
-  }
-  .section:has(.timeline),
-  .section:has(.timeline) .timeline,
-  .section:has(.timeline) .job,
-  .section:has(.timeline) .job.no-break{
-    break-inside:auto!important;
-    page-break-inside:auto!important;
-  }
-  .section h3{
-    break-after:avoid-page!important;
-    page-break-after:avoid!important;
-  }
-  .section h3 + .card-grid,
-  .section h3 + .chips,
-  .section h3 + p,
-  .section h3 + .timeline{
-    break-before:avoid-page!important;
-    page-break-before:avoid!important;
-  }
-  .card-grid .mini-card:first-child,
-  .chips .chip:first-child{
-    break-before:avoid-page!important;
-    page-break-before:avoid!important;
-  }
-
-}
-
-
-:root{--hero-mark:"∑";--paper:#07111f;--ink:#e8f2ff;--muted:#9db1cf;--line:#1c3558;--accent:#00d4ff;--accent2:#8b5cf6;--accent3:#21f3b8;--soft:#101c31;--soft2:#0d2430;--dark:#050914;--shadow:0 30px 90px rgba(0,0,0,.38)}
-body{background:radial-gradient(circle at 15% 0%,rgba(0,212,255,.18),transparent 30%),radial-gradient(circle at 85% 8%,rgba(139,92,246,.20),transparent 32%),linear-gradient(135deg,#030712,#08111f 58%,#060914);color:var(--ink)}
-a{color:var(--accent)}.sheet{background:linear-gradient(180deg,#09111f,#060b15);border-color:rgba(0,212,255,.22)}.sheet:before{background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:28px 28px}.hero{background:linear-gradient(135deg,rgba(0,212,255,.18),rgba(139,92,246,.18) 58%,rgba(33,243,184,.08)),#07111f}.section{background:rgba(12,24,42,.84);border-color:rgba(0,212,255,.16);box-shadow:0 12px 34px rgba(0,0,0,.16)}.section h3{color:#8beeff}.lede,.job li,.edu p,.languages p{color:#dce7ff}.chip,.mini-card{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(139,92,246,.08));border-color:rgba(0,212,255,.18)}.chip b,.mini-card b,.job h4{color:#fff}.chip span,.mini-card span,.job .meta{color:#b7c7df}.stat{background:linear-gradient(135deg,rgba(139,92,246,.16),rgba(0,212,255,.08));border-color:rgba(139,92,246,.25)}.stat b{color:#21f3b8}.sidebar .section{background:linear-gradient(180deg,rgba(13,27,48,.92),rgba(9,17,31,.92))}.job{border-left-color:#1c3558}.job:before{background:linear-gradient(135deg,#00d4ff,#8b5cf6)}
-@media print{:root{--paper:#fff;--ink:#17202a;--muted:#5e6877;--line:#e5dccd;--accent:#065a8f;--accent2:#6d48d5;--accent3:#00a383;--soft:#fff;--soft2:#f2fbff;--dark:#07162a}body{background:white!important;color:#17202a}.sheet{background:white!important}.hero{background:#07162a!important}.section,.sidebar .section{background:#fff!important;border-color:#ddd}.lede,.job li,.edu p,.languages p,.chip span,.mini-card span{color:#17202a}.chip,.mini-card{background:#f2fbff!important}.chip b,.mini-card b,.job h4{color:#07162a}.job .meta{color:#5e6877}.stat{background:#f7f0ff!important}.stat b{color:#07162a}}
-
-</style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Gene Boo – Quantitative Finance, Mathematics & Computational Systems Architect · 2027 v2-s</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+	<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+	
+	:root {
+		--bg-dark: #0b1219;
+		--surface: #14222e;
+		--primary-glow: #00d4ff;
+		--accent-neon: #f46b5b;
+		--text-light: #e3eaf0;
+		--text-muted: #a0b8cc;
+		--border-dim: #2a3a4a;
+		--card-bg: #1a2937;
+	}
+	
+	@page {
+		size: A4;
+		margin: 1.65cm 1.35cm;
+	}
+	
+	body {
+		background-color: #0f1a24;
+		font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+		font-size: 13.5px;
+		line-height: 1.45;
+		color: var(--text-light);
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		min-height: 100vh;
+		padding: 24px 16px;
+	}
+	
+	.cv-container {
+		max-width: 1100px;
+		width: 100%;
+		background: var(--bg-dark);
+		border-radius: 28px;
+		padding: 30px 32px 28px 32px;
+		box-shadow: 0 20px 35px -8px rgba(0, 212, 255, 0.2);
+		border: 1px solid #2d4b5e;
+	}
+	
+	.name {
+		font-size: 34px;
+		font-weight: 700;
+		background: linear-gradient(130deg, #ffffff, #a7e9ff);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+		letter-spacing: -0.02em;
+		margin-bottom: 4px;
+	}
+	
+	.title {
+		font-size: 20px;
+		font-weight: 500;
+		color: var(--primary-glow);
+		margin: 6px 0 14px 0;
+		border-bottom: 1px dashed var(--border-dim);
+		padding-bottom: 8px;
+		display: inline-block;
+	}
+	
+	.contact-info {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 18px 24px;
+		margin: 12px 0 8px;
+		font-size: 13px;
+		background: rgba(20, 46, 64, 0.5);
+		padding: 10px 20px;
+		border-radius: 60px;
+		border: 1px solid #2c4b5e;
+	}
+	
+	.contact-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		color: var(--text-muted);
+	}
+	
+	.contact-item i {
+		color: var(--primary-glow);
+		width: 16px;
+	}
+	
+	.contact-item a {
+		color: #b4d9f0;
+		text-decoration: none;
+		border-bottom: 1px dotted #3a637a;
+	}
+	
+	.section-title {
+		font-size: 19px;
+		font-weight: 600;
+		color: white;
+		margin: 20px 0 12px 0;
+		padding-bottom: 5px;
+		border-bottom: 2px solid;
+		border-image: linear-gradient(90deg, var(--primary-glow), #2e5f7a, transparent) 1;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+	
+	.section-title i {
+		color: var(--primary-glow);
+	}
+	
+	.summary-box {
+		background: #142e3d;
+		padding: 14px 18px;
+		border-radius: 28px;
+		border: 1px solid #2a586d;
+	}
+	
+	.subsection {
+		margin-bottom: 20px;
+		background: var(--card-bg);
+		padding: 16px 18px 12px 18px;
+		border-radius: 18px;
+		border: 1px solid #263e4f;
+		box-shadow: 0 6px 12px -5px rgba(0, 0, 0, 0.7);
+		page-break-inside: avoid;
+	}
+	
+	.subsection-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: 6px 12px;
+		margin-bottom: 10px;
+	}
+	
+	.position {
+		font-weight: 650;
+		font-size: 16px;
+		color: #b3e5ff;
+	}
+	
+	.company {
+		font-weight: 600;
+		color: #93c5e0;
+		margin-left: 5px;
+		font-size: 14.5px;
+	}
+	
+	.date {
+		color: #7f9fb5;
+		font-family: 'JetBrains Mono', monospace;
+		font-size: 12px;
+		background: #1b3343;
+		padding: 3px 12px;
+		border-radius: 30px;
+		white-space: nowrap;
+	}
+	
+	ul {
+		list-style: none;
+		margin: 8px 0 2px;
+	}
+	
+	li {
+		margin-bottom: 6px;
+		padding-left: 20px;
+		position: relative;
+		color: #d1e2ed;
+	}
+	
+	li::before {
+		content: "▹";
+		color: var(--primary-glow);
+		position: absolute;
+		left: 2px;
+	}
+	
+	.tool-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 12px;
+		margin: 12px 0 4px;
+	}
+	
+	.tool-tags span {
+		background: #0f2633;
+		border: 1px solid #1e5068;
+		color: #bce5fd;
+		padding: 3px 12px 3px 8px;
+		border-radius: 24px;
+		font-size: 11.5px;
+		font-family: 'JetBrains Mono', monospace;
+	}
+	
+	.tool-tags i {
+		color: var(--primary-glow);
+	}
+	
+	.skills-container {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+		gap: 16px 20px;
+		margin-top: 5px;
+	}
+	
+	.skill-category h4 {
+		color: var(--primary-glow);
+		font-size: 15px;
+		margin: 0 0 6px 0;
+	}
+	
+	.two-column-section {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 24px;
+		margin: 10px 0 8px;
+	}
+	
+	.hobby-projects {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 12px;
+		margin-top: 6px;
+	}
+	
+	.project-card {
+		background: #10232f;
+		border: 1px solid #294d5e;
+		border-radius: 18px;
+		padding: 14px 14px 12px;
+		page-break-inside: avoid;
+	}
+	
+	.project-card h4 {
+		color: #c0e6ff;
+		font-size: 15px;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+	}
+	
+	.website-link {
+		font-size: 11.5px;
+		word-break: break-all;
+		color: #7eb6d0;
+	}
+	
+	.written-work {
+		background: #10232f;
+		border-radius: 18px;
+		padding: 14px 16px;
+		margin-bottom: 14px;
+		border: 1px solid #254c5c;
+		page-break-inside: avoid;
+	}
+	
+	.link-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-top: 4px;
+	}
+	
+	.language-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 10px;
+		background: var(--card-bg);
+		padding: 16px 18px;
+		border-radius: 20px;
+		border: 1px solid #2e4a5a;
+	}
+	
+	.cloud-ai-card {
+		background: var(--card-bg);
+		border-radius: 20px;
+		padding: 16px 18px;
+		border: 1px solid #2e4a5a;
+		margin-bottom: 12px;
+		page-break-inside: avoid;
+	}
+	
+	.download-buttons {
+		display: flex;
+		justify-content: center;
+		margin: 25px 0 10px;
+	}
+	
+	.btn {
+		background: transparent;
+		border: 2px solid var(--primary-glow);
+		color: var(--primary-glow);
+		padding: 10px 28px;
+		border-radius: 50px;
+		font-weight: 600;
+		text-decoration: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+	}
+	
+	.btn:hover {
+		background: var(--primary-glow);
+		color: #0b1219;
+	}
+	
+	@media (max-width: 900px) {
+		body {
+			padding: 12px 0;
+		}
+		.cv-container {
+			border-radius: 0;
+			padding: 22px 18px;
+		}
+		.two-column-section {
+			grid-template-columns: 1fr;
+			gap: 12px;
+		}
+		.contact-info {
+			border-radius: 20px;
+			justify-content: flex-start;
+		}
+		.name {
+			font-size: 30px;
+		}
+		.title {
+			font-size: 17px;
+		}
+	}
+	
+	@media print {
+		body {
+			background: white;
+			padding: 0;
+			display: block;
+			font-size: 11.4px;
+			line-height: 1.32;
+		}
+		.cv-container {
+			max-width: 100%;
+			background: white;
+			box-shadow: none;
+			border: none;
+			padding: 0.15cm 0.22cm;
+			margin: 0 auto;
+			border-radius: 0;
+		}
+		.name {
+			background: none;
+			-webkit-text-fill-color: #0a2a3a;
+			color: #0a2a3a;
+			text-shadow: none;
+		}
+		.title {
+			color: #1a5276;
+			border-bottom: 1px solid #aaa;
+		}
+		.section-title {
+			color: #1a2b3c;
+			border-bottom: 2px solid #2c3e50;
+			margin: 14px 0 8px;
+		}
+		.summary-box,
+		.contact-info {
+			background: #f0f4fa;
+			border: 1px solid #ccc;
+			color: #333;
+		}
+		.subsection {
+			background: #f7fafd;
+			border: 1px solid #b0c4d9;
+			box-shadow: none;
+			padding: 11px 13px;
+			margin-bottom: 10px;
+		}
+		.tool-tags span {
+			background: #e5ecf3;
+			border: 1px solid #96aebb;
+			color: #1f3a4c;
+		}
+		.project-card,
+		.written-work,
+		.language-grid,
+		.cloud-ai-card {
+			background: #f2f6fc;
+			border: 1px solid #bacddc;
+		}
+		.btn,
+		.download-buttons {
+			display: none;
+		}
+		a {
+			color: #11557c;
+		}
+		li::before {
+			color: #1177aa;
+		}
+		p,
+		li {
+			widows: 2;
+			orphans: 2;
+		}
+		.section:has(.subsection) {
+			page-break-inside: auto;
+		}
+		.subsection,
+		.project-card,
+		.written-work,
+		.cloud-ai-card {
+			break-inside: avoid;
+			page-break-inside: avoid;
+		}
+		.two-column-section {
+			break-inside: avoid;
+			page-break-inside: avoid;
+		}
+	}
+	</style>
 </head>
-<body>
-<div class="toolbar"><button onclick="window.print()">Print / Save PDF</button></div>
-<main class="page"><article class="sheet">
-<header class="hero">
-  <div class="kicker">Technology Portfolio CV</div>
-  <h1>Gene Boo Ee Jin</h1>
-  <h2>Quantitative Finance, Mathematics &amp; Computational Systems Architect</h2>
-  <div class="contact">gene.boo@aol.com · gene.boo@gmail.com · linkedin.com/in/gene-boo-007 · geneboo.github.io/GBnfo · 3D Portfolio: geneboo.github.io/GBnfo/index3d.html</div>
-  <div class="ribbon"><span>Python</span><span>WebGL</span><span>Three.js</span><span>LLMs</span><span>Fourier</span><span>Parquet / SQL</span><span>Rust / C++</span><span>DSP</span></div>
-</header>
-<section class="content">
-  <div class="maincol">
-    <section class="section no-break"><h3>Profile</h3>
-      <p class="lede">Quantitative finance practitioner and computational systems builder with 25+ years across derivatives, risk analytics, numerical methods, model validation, balance sheet risk, software engineering and creative computing.</p>
-      <p>Personal and research projects extend into WebGL, Three.js, Python, Rust, C++, REST services, audio/DSP, generative visuals, educational math tools and browser-based computational interfaces.</p>
-      <div class="stats"><div class="stat"><b>25+</b><span>Years across risk, quant and systems</span></div><div class="stat"><b>3</b><span>Core domains: finance, math, software</span></div><div class="stat"><b>A4</b><span>Readable on screen and print</span></div></div>
-    </section>
-    <section class="section"><h3>Professional Experience</h3><div class="timeline"><article class="job no-break"><h4>IBMR Projects Consultant</h4><div class="meta">AmBank Group · Mar 2025 – Present</div><ul>
-<li>Built governed IRRBB behavioural modelling engines for CASA/NMD and FD/TDRR portfolios under BNM-aligned methodology.</li>
-<li>Implemented out-of-core Python/SQL pipelines using Polars, DuckDB, pandas, NumPy, Parquet, YAML and SQL Server/T-SQL.</li>
-<li>Developed CASA/NMD logic for stable balances, core/non-core decomposition, PTR calibration, BNM caps, WAM schedules, 19-bucket tenor grids, shocks and EVE attribution.</li>
-<li>Built scalar PTR and PCA/PCR-vector PTR challenger approaches with curve governance, missing-rate treatment, audit visibility and reporting.</li>
-<li>Built FD/TDRR early-redemption models using monthly account-history reconstruction, cohort calibration, scenario-scaled redemption ratios and contractual maturity scheduling.</li>
-</ul></article>
-<article class="job no-break"><h4>Product Specialist</h4><div class="meta">Qontigo / AxiomaRisk / SimCorp · Dec 2021 – Jun 2023</div><ul>
-<li>Delivered quantitative product support for AxiomaRisk and performance attribution across buy-side multi-asset workflows.</li>
-<li>Built Python/API automation for position loading, report extraction, validation and Excel analytics.</li>
-<li>Explained factor models, VaR, ES, liquidity analytics, PCA modes and multi-asset risk outputs to clients.</li>
-</ul></article>
-<article class="job no-break"><h4>Senior Quantitative Analyst</h4><div class="meta">Maybank Group · Sep 2019 – Aug 2021</div><ul>
-<li>Developed Monte Carlo, bootstrap, copula and Euler allocation models for operational-risk capital.</li>
-<li>Built FFT convolution and distribution-fitting tools in Python for arbitrary empirical distributions.</li>
-<li>Created COVID-19 R0 estimation models and automated enterprise risk templates.</li>
-</ul></article>
-<article class="job no-break"><h4>Head of Market Risk Model Validation</h4><div class="meta">Maybank Group · Mar 2014 – Mar 2019</div><ul>
-<li>Validated derivative pricing, valuation and risk models across FX, IR, equity, commodity, credit, liquidity and IRRBB domains.</li>
-<li>Developed independent pricing and validation engines using Python, C++/XLL, VBA, R and SQL-connected sources.</li>
-<li>Authored documentation standards, workflow policies, validation thresholds and governance frameworks.</li>
-</ul></article>
-<article class="job no-break"><h4>Senior Quantitative Analyst</h4><div class="meta">AmBank Group · Apr 2009 – Mar 2014</div><ul>
-<li>Developed benchmark pricing models, volatility-surface builders, correlation tools and derivative analytics for FX, equity and interest-rate products.</li>
-<li>Implemented practical quant utilities in C++, Python and VBA for valuation review, sensitivities, market-data treatment and model behaviour analysis.</li>
-<li>Supported market-risk methodology and quant coaching, translating derivative concepts into maintainable tools for day-to-day risk and validation workflows.</li>
-</ul></article>
-<article class="job no-break"><h4>Risk Specialist</h4><div class="meta">Pilot Multimedia · Jun 2007 – Jan 2008</div><ul>
-<li>Built XML staging tools and VB/VBA plug-ins for a proprietary C# credit-risk application, connecting formula definitions to executable model components.</li>
-<li>Implemented logistic-regression based probability-of-default utilities and supported translation of credit-risk concepts into software workflows.</li>
-<li>Worked across risk logic, data staging and application design, strengthening the bridge between quantitative methodology and production-style tooling.</li>
-</ul></article>
-<article class="job no-break"><h4>Market Risk Analyst</h4><div class="meta">Fortis Bank / BNP Paribas Fortis · Aug 2006 – Jan 2007</div><ul>
-<li>Developed Asian Basket option pricing and Greeks models in C++ and Python, combining analytical approximation, FFT and Monte Carlo methods.</li>
-<li>Implemented and compared Deelstra, Curran, Ju, Gram-Charlier and simulation-based techniques to understand pricing behaviour and sensitivity profiles.</li>
-<li>Built quantitative prototypes for exotic-option market-risk review, with emphasis on numerical approach, performance and transparent model behaviour.</li>
-</ul></article>
-<article class="job no-break"><h4>Contracts Analyst</h4><div class="meta">Electrabel / ENGIE Electrabel · Aug 2000 – May 2006</div><ul>
-<li>Developed spark-spread and crack-spread pricers in VBA/C++ for energy derivative workflows, connecting contract economics to valuation and risk treatment.</li>
-<li>Supported energy derivatives integration into Murex-related risk processes, helping align contract representation, pricing tools and risk-engine treatment.</li>
-<li>Built SAS-based hourly power-profile tools using Winter-method approaches, supporting load-shape analysis and power-market exposure modelling.</li>
-</ul></article></div></section>
-  </div>
-  <section class="section credential-strip no-break"><h3>Education &amp; Certifications</h3><div class="card-grid"><div class="mini-card no-break"><b>MBA, Global Management</b><span>Hochschule Bremen, Germany · Sep 1999 · Grade 1.0</span></div><div class="mini-card no-break"><b>BA, Business Administration</b><span>University of Hertfordshire, UK · Mar 1998 · 2nd Upper Honours</span></div><div class="mini-card no-break"><b>AICB Risk Management</b><span>Principles &amp; Framework · Risk Models, Capital &amp; ALM</span></div><div class="mini-card no-break"><b>Microsoft Visual Basic 6</b><span>Certification</span></div></div></section>
 
-  <aside class="sidebar">
-    <section class="section"><h3>Signature Toolkit</h3><div class="chips"><div class="chip no-break"><b>Quant Finance</b><span>Derivative pricing · market risk · operational risk · IRRBB · EVE · SA-CCR · VaR / ES · Euler allocation · model validation · ALM</span></div><div class="chip no-break"><b>Computational Math</b><span>Monte Carlo · copulae · FFT · convolution · PCA / PCR · distribution fitting · KDE · quadrature · local volatility · optimisation</span></div><div class="chip no-break"><b>Software &amp; Data</b><span>Python · NumPy · SciPy · pandas · Polars · DuckDB · mpmath · SQL Server · MySQL · Parquet · YAML · C++ · Rust · REST APIs</span></div><div class="chip no-break"><b>Creative Computing</b><span>JavaScript · HTML · CSS · WebGL · Three.js · SVG · Canvas · Fourier epicycles · audio-reactive systems · DSP experiments</span></div><div class="chip no-break"><b>AI Build Suite</b><span>Copilot · ChatGPT · Gemini · Grok · DeepSeek · Kimi · Ollama · Hugging Face · local LLM inference · Cursor · AI-assisted analytics</span></div></div></section>
-    <section class="section"><h3>Research Notes</h3><div class="card-grid"><div class="mini-card no-break"><b>Understanding Fourier Transform</b><span>Fourier foundations, convolution-based option pricing and Python implementation.</span></div><div class="mini-card no-break"><b>FFT Cross Correlation vs Pearson Correlation</b><span>FFT-based correlation methods compared with Pearson correlation.</span></div><div class="mini-card no-break"><b>Analytical Black-Scholes-like Pricing</b><span>Moment-generating-function drift correction under risk-neutral valuation.</span></div><div class="mini-card no-break"><b>Mind the Gap (Under the Curve)</b><span>Numerical integration, quadrature and financial engineering applications.</span></div><div class="mini-card no-break"><b>Art of Buy-Side Arbitrage Strategy</b><span>Quantitative perspective on buy-side arbitrage operations.</span></div><div class="mini-card no-break"><b>CUDA / Matrix Multiplication Notes</b><span>CUDA tiling and high-performance numerical computing explorations.</span></div></div></section>
-    <section class="section"><h3>Selected Projects</h3><div class="card-grid"><div class="mini-card no-break"><b>ExcelBridge</b><span>Zero-install spreadsheet analytics connected to server-side Python numerical computing.</span></div><div class="mini-card no-break"><b>Fit_it!</b><span>Distribution fitting and KDE platform for empirical data analysis.</span></div><div class="mini-card no-break"><b>FunkyGraffy</b><span>Interactive mathematical visualization and edutainment platform.</span></div><div class="mini-card no-break"><b>FourierDoodler</b><span>Browser-based Fourier epicycle drawing and animation tool.</span></div><div class="mini-card no-break"><b>Convolve!</b><span>Empirical convolution tool for arbitrary distributions and joint-distribution modelling.</span></div><div class="mini-card no-break"><b>Gene’s SaaS Universe</b><span>Mini REST endpoints for derivative pricing, quant analytics, Kalman filtering and forecasting.</span></div><div class="mini-card no-break"><b>Large Parquet Viewer / Rust-Polars tools</b><span>Lightweight tooling for exploring large parquet datasets with SQL/PRQL-style queries.</span></div><div class="mini-card no-break"><b>WebGL Audio Visualizer</b><span>Real-time Three.js/Web Audio visual system for GPU-accelerated reactive visuals.</span></div><div class="mini-card no-break"><b>Sonic Art / DSP Experiments</b><span>C++/Rust/JUCE learning projects around synthesizers, mastering plugins and generative audio-visual systems.</span></div><div class="mini-card no-break"><b>Private Security Concepts</b><span>PersVa encrypted storage, AES/XOR file obfuscation and VPN encryption experiments.</span></div></div></section>
-    <section class="section languages"><h3>Languages</h3><p>English: Native · Mandarin: Fluent · German: Intermediate · French: Basic · Flemish: Basic · Cantonese: Basic · Malay: Basic.</p></section>
-  </aside>
-</section>
-<div class="footer-note">Magazine-style responsive HTML CV · Optimized for all screens and refined A4 printing</div>
-</article></main>
+<body>
+	<div class="cv-container">
+		<div class="header" style="text-align: center;">
+			<h1 class="name">Gene Boo Ee Jin</h1>
+			<div class="title">Quantitative Finance, Mathematics &amp; Computational Systems Architect</div>
+			<div class="contact-info">
+				<div class="contact-item"><i class="fas fa-envelope"></i> gene.boo@aol.com | gene.boo@gmail.com</div>
+				<div class="contact-item"><i class="fas fa-phone-alt"></i> +60-17-2935647 (KL) | +852-65078429 (HK)</div>
+				<div class="contact-item"><i class="fas fa-map-pin"></i> Kuala Lumpur</div>
+				<div class="contact-item"><i class="fab fa-linkedin"></i> <a href="https://www.linkedin.com/in/gene-boo-007/">linkedin.com/in/gene-boo-007</a></div>
+				<div class="contact-item"><i class="fas fa-globe"></i> <a href="https://geneboo.github.io/GBnfo/">geneboo.github.io/GBnfo</a></div>
+				<div class="contact-item"><i class="fas fa-cube"></i> <a href="https://geneboo.github.io/GBnfo/index3d.html">3D Portfolio</a></div>
+			</div>
+		</div>
+		<div class="section">
+			<h2 class="section-title"><i class="fas fa-bolt"></i> Professional Summary</h2>
+			<p class="summary-box">Quantitative finance and computational systems practitioner with 25+ years across derivatives, risk analytics, numerical methods, model validation, balance sheet risk, software engineering and creative computing. Current work spans IRRBB behavioural modelling, SA-CCR interpretation, structured-product valuation optimisation, local-volatility implementation, Python/SQL automation, OCR-enabled reporting workflows and model-risk defensibility. Broader portfolio work includes cloud-hosted analytics, WebGL/Three.js visualisation, local LLM experimentation, technical writing and mathematical edutainment tools.</p>
+		</div>
+		<div class="section">
+			<h2 class="section-title"><i class="fas fa-cube"></i> Core Competencies</h2>
+			<div class="skills-container">
+				<div class="skill-category">
+					<h4>Quantitative Finance</h4>
+					<ul>
+						<li>Derivatives Pricing: FFT, Quadrature, MGFs, Local Vol, SABR, FD, Variance-Reduced MC</li>
+						<li>Autocallables, FXO/IRO, Equity, Commodity and Energy Derivatives</li>
+						<li>Risk Metrics: VaR, ES, PFCE, Euler Allocation</li>
+						<li>SA-CCR, Risk-Neutral Valuation, PCA/PCR and Factor Models</li>
+					</ul>
+				</div>
+				<div class="skill-category">
+					<h4>Risk & Governance</h4>
+					<ul>
+						<li>Market, Operational, Liquidity and Banking Book Risk</li>
+						<li>IRRBB / EVE / CA-SA NMD / TDRR Behavioural Modelling</li>
+						<li>Model Validation for Traded and Non-Traded Portfolios</li>
+						<li>Regulatory Contexts: BNM, MAS, HKMA, Basel</li>
+					</ul>
+				</div>
+				<div class="skill-category">
+					<h4>Technical Engineering</h4>
+					<ul>
+						<li>Python: NumPy, SciPy, pandas, Polars, mpmath, DuckDB, joblib</li>
+						<li>VBA/Excel, C++ Quant Libraries, SQL Server/T-SQL, MySQL</li>
+						<li>REST APIs, Postman, Grafana, Salesforce, Google Cloud Run</li>
+						<li>HTML, CSS, JavaScript, WebGL, Three.js, YAML, Parquet</li>
+					</ul>
+				</div>
+				<div class="skill-category">
+					<h4>Automation, AI & Creative Computing</h4>
+					<ul>
+						<li>OCR/PDF table extraction, Power Query and reporting automation</li>
+						<li>ChatGPT, Copilot, Gemini, Grok, DeepSeek, Kimi, Ollama, Hugging Face</li>
+						<li>NL-to-PRQL/SQL local LLM experimentation for Parquet Viewer</li>
+						<li>Fourier epicycles, audio-reactive systems, DSP and mathematical edutainment</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="section">
+			<h2 class="section-title"><i class="fas fa-briefcase"></i> Professional Experience</h2>
+			<div class="subsection">
+				<div class="subsection-header">
+					<div><span class="position">IBMR Projects Consultant</span> <span class="company">Ambank Group</span></div>
+					<div class="date">Mar 2025 – Present</div>
+				</div>
+				<ul>
+					<li>Implemented BNM-aligned TDRR behavioural modelling for term deposits, covering a base cohort model and two challenger smoothing approaches using EWMA and tail-smoothed redemption curves.</li>
+					<li>Implemented CA-SA/NMD behavioural modelling using cohort-based best-choice scalar yield-curve pillar PTR against market rates, plus multivariate PCA-PTR regression across the full yield curve to capture broader repricing behaviour while reducing multicollinearity-related instability; also explored cohort-based challenger modelling using Logistic Regression and XGBoost.</li>
+					<li>Corrected and optimised an autocallable structured-product valuation module, upgrading the NumPy implementation with disk caching and vectorised antithetic/control-variate logspace Monte Carlo routines; reduced convergence requirement from approximately 1,000,000 paths to 15,000 paths and single-contract runtime from around 3 minutes to 40 ms.</li>
+					<li>Corrected and vectorised an existing NumPy Dupire local-volatility implementation, reducing L-BFGS solver time from approximately 13 minutes to 4 seconds for a grid of five local-volatility pillar estimations.</li>
+					<li>Implemented automation scripts for annual-report PDF table extraction across major Malaysian peer banks using OCR and Power Query techniques, improving access to risk-reporting fields and numerics and reducing peer-comparison turnaround from approximately 2 days to 2 hours.</li>
+					<li>Provided SA-CCR implementation guidance for structures that did not fit neatly within vanilla framework interpretation, and supported prepayment/OOC early-withdrawal analytics using Python, Polars, SQL and large historical datasets.</li>
+				</ul>
+				<div class="tool-tags"><span><i class="fas fa-code"></i> Python / NumPy / SciPy / pandas / Polars</span><span><i class="fas fa-database"></i> SQL Server / DuckDB / Parquet</span><span><i class="fas fa-file-excel"></i> Excel / Power Query / VBA</span><span><i class="fas fa-eye"></i> OCR / PDF Extraction</span></div>
+			</div>
+			<div class="subsection">
+				<div class="subsection-header">
+					<div><span class="position">Product Specialist</span> <span class="company">Qontigo / AxiomaRisk (SimCorp)</span></div>
+					<div class="date">Dec 2021 – Jun 2023</div>
+				</div>
+				<ul>
+					<li>Delivered quantitative multi-asset-class product support for AxiomaRisk and performance attribution across buy-side institutional workflows.</li>
+					<li>Conducted pre- and post-sales demonstrations showcasing AxiomaRisk functionality to existing and potential clients, covering VaR, ES, liquidity analytics, factor models, PCA modes and multi-asset risk outputs.</li>
+					<li>Built Python/API automation using AxiomaRisk REST API, cURL, requests and Postman for client and internal training workflows, including position loading, report extraction, validation and Excel analytics.</li>
+					<li>Built external model validation spreadsheets and Jupyter notebooks explaining selected AxiomaRisk computations including VaR, structured-product pricing, Euler decomposition and risk attribution analytics.</li>
+					<li>Worked with Kubernetes monitoring tools including Grafana and Kibana, development tools such as Jira and sales tooling such as Salesforce.</li>
+				</ul>
+				<div class="tool-tags"><span><i class="fas fa-code"></i> Python / Pandas / XLWings</span><span><i class="fas fa-cloud"></i> REST API</span><span><i class="fas fa-plug"></i> Postman / Grafana / Kibana</span><span><i class="fas fa-chart-pie"></i> Salesforce / Jira</span></div>
+			</div>
+			<div class="subsection">
+				<div class="subsection-header">
+					<div><span class="position">Senior Quantitative Analyst</span> <span class="company">Maybank Group</span></div>
+					<div class="date">Sep 2019 – Aug 2021</div>
+				</div>
+				<ul>
+					<li>Developed Quasi Monte Carlo-bootstrap operational-risk (loss-distribution building using severity and frequency curves using ORX external data combined with internal loss-event database containing losses, near-misses etc) capital frameworks using empirical + Student-t copula treatment and Euler allocation for capital carving across major business units.</li>
+                    <li>Helped to automate and quicken several manual processes used by the team.</li>
+                    <li>Generated ideas for handling then yet uncovered operational risk items including Cyber-risk as well as Climate-risk.</li>
+					<li>Built FFT-based convolution tools using NumPy and SciPy for joint-distribution modelling, and Python distribution-fitting tools for arbitrary empirical distributions.</li>
+					<li>Created COVID-19 R0 estimation models using polynomial regression and automated enterprise risk templates for emerging-risk capture.</li>
+					<li>Studied the impacts of cyber risk, climate risk and legislative risk within operational-risk assessment contexts.</li>
+				</ul>
+				<div class="tool-tags"><span><i class="fas fa-code"></i> Python / NumPy / SciPy / Pandas</span><span><i class="fas fa-file-excel"></i> Excel / VBA</span><span><i class="fas fa-calculator"></i> C++ Libraries</span></div>
+			</div>
+			<div class="subsection">
+				<div class="subsection-header">
+					<div><span class="position">Head of Market Risk Model Validation</span> <span class="company">Maybank Group</span></div>
+					<div class="date">Mar 2014 – Mar 2019</div>
+				</div>
+				<ul>
+					<li>Led a regional team of five model validators across Singapore and Malaysia, validating traded and non-traded portfolio valuation and risk models.</li>
+					<li>Validated multi-asset-class instrument and derivative pricing, valuation and risk models across FX, IR, equity, commodity, credit, liquidity and IRRBB domains.</li>
+					<li>Developed independent pricing and validation engines using Python, C++/XLL, VBA, R and SQL-connected data sources.</li>
+					<li>Authored model documentation standards, workflow policies, validation thresholds and governance frameworks, and presented findings to senior management, auditors and banking supervisors.</li>
+				</ul>
+				<div class="tool-tags"><span><i class="fas fa-code"></i> C++ / XLL</span><span><i class="fas fa-code"></i> Python / SciPy / NumPy / pyxll</span><span><i class="fas fa-file-excel"></i> VBA</span><span><i class="fas fa-database"></i> SQL</span></div>
+			</div>
+			<div class="subsection">
+				<div class="subsection-header">
+					<div><span class="position">Senior Quantitative Analyst</span> <span class="company">Ambank Group</span></div>
+					<div class="date">Apr 2009 – Mar 2014</div>
+				</div>
+				<ul>
+					<li>Developed benchmark pricing models, implied and (Dupire-Gatheral) local FX volatility-surface and Swaption volatility-cube builders, correlation tools and derivative analytics for FX, equity and interest-rate products.</li>
+					<li>Implemented practical quant utilities in C++, Python and VBA for valuation review, sensitivities, market-data treatment and model behaviour analysis.</li>
+                    <li>Implemented parallel risk models for validation of Murex calibration and pricing engines as well as black-box 3rd party engines like Bloomberg et al - for plain vanilla derivatives to full structured products with complex payout structures.</li>
+					<li>Supported market-risk methodology and quant coaching, translating derivative concepts into maintainable tools for day-to-day risk and validation workflows.</li>
+				</ul>
+				<div class="tool-tags"><span><i class="fas fa-code"></i> C++</span><span><i class="fas fa-code"></i> Python / early NumPy</span><span><i class="fas fa-file-excel"></i> VBA</span></div>
+			</div>
+			<div class="subsection">
+				<div class="subsection-header">
+					<div><span class="position">Risk Specialist</span> <span class="company">Pilot Multimedia</span></div>
+					<div class="date">Jun 2007 – Jan 2008</div>
+				</div>
+				<ul>
+					<li>Built XML staging tools and VB/VBA plug-ins for a proprietary C# credit-risk application, connecting formula definitions to executable model components.</li>
+					<li>Implemented logistic-regression based probability-of-default utilities and supported translation of credit-risk concepts into software workflows.</li>
+				</ul>
+				<div class="tool-tags"><span><i class="fas fa-code"></i> VB6 / VBA</span><span><i class="fas fa-code"></i> C#</span><span><i class="fas fa-file-code"></i> XML</span></div>
+			</div>
+			<div class="subsection">
+				<div class="subsection-header">
+					<div><span class="position">Market Risk Analyst</span> <span class="company">Fortis Bank (BNP Paribas Fortis)</span></div>
+					<div class="date">Aug 2006 – Jan 2007</div>
+				</div>
+				<ul>
+					<li>Developed Asian Basket option pricing and Greeks models in C++ and Python, combining analytical approximation, FFT and Monte Carlo methods.</li>
+					<li>Implemented and compared PCA-Basket, Deelstra's Basket Bounds, Curran 2M+, Curran, Ju, Gram-Charlier and simulation-based techniques to understand pricing behaviour and sensitivity profiles, involving Eigenvalue decomposition, Monte Carlo, Stochastic Taylor expansion, cylindrical correction, Gaussian Quadrature and other advanced mathematical methods.</li>
+				</ul>
+				<div class="tool-tags"><span><i class="fas fa-code"></i> C++</span><span><i class="fas fa-code"></i> Python / NumPy / FFT</span></div>
+			</div>
+			<div class="subsection">
+				<div class="subsection-header">
+					<div><span class="position">Contracts Analyst</span> <span class="company">Electrabel SA (ENGIE)</span></div>
+					<div class="date">Aug 2000 – May 2006</div>
+				</div>
+				<ul>
+					<li>Developed spark-spread and crack-spread pricers in VBA/C++ for energy derivative workflows, connecting contract economics to valuation and risk treatment.</li>
+                    <li>Implemented hourly profiling tool using Winter's method in SAS (using macros and IML), GARCH-VaR, FFT-based Carr-Madan styled option pricing methods, Weibull-Dirac Ogive pricing tool for spark spread challenger model</li>
+                    <li>Implemented a rudimentary markov-based Efficient Frontier approach for discussion purposes</li>
+                    <li>Assisted the R&D and Econometrics team with Database and SQL management as well as MS Office automation of database-spreadsheet analytic tooling and reporting - forming the basis of the first dashboards used by the Middle Office team</li>
+					<li>Supported energy derivatives integration into Murex Front-Office module, with potential flow through to the back-office</li>
+				</ul>
+				<div class="tool-tags"><span><i class="fas fa-code"></i> VBA</span><span><i class="fas fa-code"></i> C++</span><span><i class="fas fa-chart-simple"></i> SAS</span><span><i class="fas fa-cube"></i> Murex</span></div>
+			</div>
+		</div>
+		<div class="two-column-section">
+			<div>
+				<h2 class="section-title"><i class="fas fa-graduation-cap"></i> Education</h2>
+				<div style="background:var(--card-bg); padding:14px 18px; border-radius:22px;"><span class="position">MBA, Global Management</span> <span class="company">Hochschule Bremen</span>
+					<div class="date" style="display:inline-block; margin-top:4px;">Sep 1999 | Grade: 1.0</div>
+					<br><span class="position">BA, Business Administration</span> <span class="company">University of Hertfordshire, UK</span>
+					<div class="date">Mar 1998 | 2nd Upper Honours</div>
+				</div>
+			</div>
+			<div>
+				<h2 class="section-title"><i class="fas fa-certificate"></i> Certifications</h2>
+				<div style="background:var(--card-bg); padding:14px 18px; border-radius:22px;">
+					<ul style="margin:0;">
+						<li>AICB – Risk Management: Principles &amp; Framework</li>
+						<li>AICB – Risk Models, Capital &amp; ALM</li>
+						<li>Microsoft Visual Basic 6</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="two-column-section">
+			<div>
+				<h2 class="section-title"><i class="fas fa-flask"></i> Hobby Projects</h2>
+				<div class="hobby-projects">
+					<div class="project-card">
+						<h4><i class="fas fa-bolt"></i> ExcelBridge</h4>
+						<p>Zero-install spreadsheet analytics connected to server-side Python numerical computing.</p><a href="https://github.com/geneboo/gene_products/releases/tag/v2.2.8" class="website-link">github.com/geneboo/gene_products/releases/tag/v2.2.8</a></div>
+					<div class="project-card">
+						<h4><i class="fas fa-chart-bar"></i> Fit_it!</h4>
+						<p>Distribution fitting and KDE platform for empirical data analysis.</p><a href="https://fit-it-app-29330439259.asia-southeast1.run.app/#top" class="website-link">fit-it-app.run.app</a></div>
+					<div class="project-card">
+						<h4><i class="fas fa-chart-line"></i> FunkyGraffy</h4>
+						<p>Interactive mathematical visualization and edutainment platform.</p><a href="https://funkygraffy.onrender.com" class="website-link">funkygraffy.onrender.com</a></div>
+					<div class="project-card">
+						<h4><i class="fas fa-pen-nib"></i> FourierDoodler</h4>
+						<p>Browser-based Fourier epicycle drawing and animation tool.</p>
+					</div>
+					<div class="project-card">
+						<h4><i class="fas fa-wave-square"></i> WebGL Audio Visualizer</h4>
+						<p>Three.js/Web Audio GPU-accelerated reactive visual system.</p>
+					</div>
+					<div class="project-card">
+						<h4><i class="fas fa-database"></i> Large Parquet Viewer</h4>
+						<p>Rust/Polars-style tooling for large parquet datasets with SQL/PRQL queries and local LLM NL-to-query experiments.</p>
+					</div>
+					<div class="project-card">
+						<h4><i class="fas fa-cloud"></i> SaaS Universe</h4>
+						<p>Mini REST endpoints for derivative pricing, quant analytics, Kalman filters and forecasting tools.</p>
+					</div>
+				</div>
+			</div>
+			<div>
+				<h2 class="section-title"><i class="fas fa-pen-fancy"></i> Written Works</h2>
+				<div class="written-works">
+					<div class="written-work"><strong>Risk-Neutral Pricing via MGFs under Non-Normality</strong>
+						<p>Moment-generating-function drift correction under risk-neutral valuation.</p>
+						<div class="link-row"><a href="https://geneboo.github.io/GBnfo/assets/GB_Risk-Neutral_Pricing_via_MGF_v3.html">HTML</a><a href="https://geneboo.github.io/GBnfo/assets/GB_Risk-Neutral_Pricing_via_MGF_v3.pdf">PDF</a></div>
+					</div>
+					<div class="written-work"><strong>Mind the Gap (Under the Curve)</strong>
+						<p>Numerical integration, quadrature and financial engineering applications.</p>
+						<div class="link-row"><a href="https://geneboo.github.io/GBnfo/assets/GB_Mind_the_Gap_Under_the_Curve_with_sidebar.html">HTML</a><a href="https://geneboo.github.io/GBnfo/assets/GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf">PDF</a></div>
+					</div>
+					<div class="written-work"><strong>Understanding Fourier Transform</strong>
+						<p>Fourier foundations, convolution-based option pricing and Python implementation.</p><a href="https://geneboo.github.io/GBnfo/assets/Gene%20Boo%20-%20FFT%20Convolution%20PDF%20BlackScholes%20Python3%20v5_.pdf">PDF</a></div>
+					<div class="written-work"><strong>FFT Cross Correlation vs. Pearson</strong>
+						<p>FFT-based correlation methods compared with Pearson correlation.</p>
+						<div class="link-row"><a href="https://geneboo.github.io/GBnfo/assets/GB_FFT_Pearson_NP_Correl.html">HTML</a><a href="https://geneboo.github.io/GBnfo/assets/GB_FFT_Pearson_NP_Correl.pdf">PDF</a></div>
+					</div>
+					<div class="written-work"><strong>Art of Buy-Side Arbitrage</strong>
+						<p>Quantitative perspective on buy-side arbitrage operations.</p>
+						<div class="link-row"><a href="https://geneboo.github.io/GBnfo/assets/GB_Buy-side_Arbitrage.html">HTML</a><a href="https://geneboo.github.io/GBnfo/assets/GB_Buy-side_Arbitrage.pdf">PDF</a></div>
+					</div>
+					<div class="written-work"><strong>CUDA / Matrix Multiplication Notes</strong>
+						<p>CUDA tiling and high-performance numerical computing explorations.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="two-column-section">
+			<div>
+				<h2 class="section-title"><i class="fas fa-language"></i> Linguistics</h2>
+				<div class="language-grid">
+					<div class="language-item">English – Native</div>
+					<div class="language-item">Mandarin – Fluent</div>
+					<div class="language-item">German – Intermediate</div>
+					<div class="language-item">French – Basic +</div>
+					<div class="language-item">Flemish – Basic +</div>
+					<div class="language-item">Cantonese – Basic +</div>
+					<div class="language-item">Malay – Basic</div>
+				</div>
+			</div>
+			<div>
+				<h2 class="section-title"><i class="fas fa-microchip"></i> Cloud, AI & Creative Computing</h2>
+				<div class="cloud-ai-card">
+					<h4><i class="fas fa-cloud-upload-alt"></i> Cloud / API Deployment</h4>Google Cloud Run, serverless deployment, REST APIs, Postman, Grafana, Kibana and lightweight analytics services.</div>
+				<div class="cloud-ai-card">
+					<h4><i class="fas fa-robot"></i> AI / LLM Tooling</h4>Applied ChatGPT, Microsoft Copilot, Gemini, Grok, DeepSeek, Kimi, Ollama, Hugging Face models, Cursor and VS Code AI tooling for coding, documentation, debugging and analytics workflow prototyping; integrated local models as NL-to-PRQL/SQL translators for a parquet-viewer concept.</div>
+				<div class="cloud-ai-card">
+					<h4><i class="fas fa-music"></i> Creative Systems</h4>WebGL, Three.js, SVG, Canvas, audio-reactive visuals, Fourier epicycles, DSP experiments and C++/Rust/JUCE learning projects.</div>
+			</div>
+		</div>
+		<div class="download-buttons"><a href="#" class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print / PDF (A4)</a></div>
+	</div>
 </body>
+
 </html>
