@@ -772,11 +772,41 @@
 							icon: '🎛️',
 							title: 'Audio/Visual Engineer',
 							desc: 'Building VST3 synths, mastering plugins, and generative art.'
-						}, {
-							icon: '⚡',
-							title: 'Innovation Under Constraints',
-							desc: " < p > I run a 15‑ year‑ old computer and drive a 17‑ year‑ old car.My hobby budget is $0.This forced me to learn. < /p> < p > By leveraging free LLMs and open - source repos,
-							I 've been diving deep into Python, Rust, C++, and JUCE. When a tool requires a license, I build my own.</p> < p > You don 't need top‑tier hardware to build powerful things — you just need curiosity.</p>" }],
+function stationHTML(d) {
+    let h = `
+        <div class="modal-title">${d.title}</div>
+        <div class="modal-subtitle">${d.subtitle}</div>
+        <div class="modal-body">${d.body || ''}</div>
+    `;
+
+    if (d.cards && Array.isArray(d.cards)) {
+        h += '<div class="cards">';
+
+        d.cards.forEach(c => {
+            h += `
+                <div class="card">
+                    <div class="ico">${c.icon || '✨'}</div>
+                    <h3>${c.title || ''}</h3>
+                    <div>
+                        ${
+                            typeof c.desc === 'string'
+                                ? `<p>${c.desc}</p>`
+                                : (c.desc || '')
+                        }
+                    </div>
+                    ${renderLinks(c.links)}
+                </div>
+            `;
+        });
+
+        h += '</div>';
+    }
+
+    h += renderLinks(d.links);
+
+    return h;
+}
+
 						links: [{
 							text: '🎵 Sonic Art on SoundCloud',
 							url: 'https://soundcloud.com/gb-diz-zy-unofficial'
