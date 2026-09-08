@@ -751,31 +751,6 @@
 			/* =========================================================
 			   0.  DATA  LAYER
 			   ========================================================= */
-
-function stationHTML(d) {
-  let h = `
-    <div class="modal-title">${d.title}</div>
-    <div class="modal-subtitle">${d.subtitle}</div>
-    <div class="modal-body">${d.body || ''}</div>
-  `;
-  if (d.cards && Array.isArray(d.cards)) {
-    h += '<div class="cards">';
-    d.cards.forEach(c => {
-      h += `
-        <div class="card">
-          <div class="ico">${c.icon || '✨'}</div>
-          <h3>${c.title || ''}</h3>
-          <div>${typeof c.desc === 'string' ? `<p>${c.desc}</p>` : (c.desc || '')}</div>
-          ${renderLinks(c.links)}
-        </div>
-      `;
-    });
-    h += '</div>';
-  }
-  h += renderLinks(d.links);
-  return h;
-}
-			
 			const stationData = {
 				about: {
 					title: 'Gene Boo',
@@ -797,14 +772,23 @@ function stationHTML(d) {
 							icon: '🎛️',
 							title: 'Audio/Visual Engineer',
 							desc: 'Building VST3 synths, mastering plugins, and generative art.'
-					    }],
+						}, {
+							icon: '⚡',
+							title: 'Innovation Under Constraints',
+							desc: " < p > I run a 15‑ year‑ old computer and drive a 17‑ year‑ old car.My hobby budget is $0.This forced me to learn. < /p> < p > By leveraging free LLMs and open - source repos,
+							I 've been diving deep into Python, Rust, C++, and JUCE. When a tool requires a license, I build my own.</p> < p > You don 't need top‑tier hardware to build powerful things — you just need curiosity.</p>" }],
+						links: [{
+							text: '🎵 Sonic Art on SoundCloud',
+							url: 'https://soundcloud.com/gb-diz-zy-unofficial'
+						}]
+					},
 					projects: {
 						title: "Engineer's Desk",
 						subtitle: 'Apps, SaaS, tools and sites',
-						body: ` < p > Live demos,
+						body: ' < p > Live demos,
 						local tools,
 						quant utilities,
-						and experiments in progress. < /p>`,
+						and experiments in progress. < /p>',
 						cards: [{
 							icon: '🗃️',
 							title: "Gene's Parquet Viewer",
@@ -917,14 +901,14 @@ function stationHTML(d) {
 					written: {
 						title: "Writer's Desk",
 						subtitle: 'Written works and technical notes',
-						body: ` < p > FFT,
+						body: ' < p > FFT,
 						MGF pricing,
 						CUDA tiling,
 						arbitrage,
 						quadrature,
 						autodiff,
 						copulas,
-						VaR and ES. < /p>`,
+						VaR and ES. < /p>',
 						cards: [{
 							icon: '📄',
 							title: 'Understanding Fourier Transform',
@@ -946,17 +930,6 @@ function stationHTML(d) {
 							}, {
 								text: 'IPYNB',
 								url: 'assets/GB_FFT_Pearson_NP_Correl.ipynb'
-							}]
-						}, {
-							icon: '📈',
-							title: 'Finite Scenario Skew T Regime Models for Trading, Risk-Neutralization and Derivative Pricing',
-							desc: 'This paper develops a unified architecture in which physical returns are modelled by a Markov-switching mixture of standardized skewed Student-t distributions, while derivative pricing is performed using finite empirical scenario laws and their exact empirical moment-generating functions. The skew parameter nests the symmetric Student-t model, and large degrees of freedom approach the Gaussian limit.',
-							links: [{
-								text: 'HTML',
-								url: 'assets/finite_scenario_skew_t_regime_study_v2.html'
-							}, {
-								text: 'PDF',
-								url: 'assets/finite_scenario_skew_t_regime_study_v2.pdf'
 							}]
 						}, {
 							icon: '📈',
@@ -1387,7 +1360,23 @@ function stationHTML(d) {
 										</div>`;
 			}
 
-
+			function stationHTML(d) {
+				let h = `
+										<div class="modal-title">${d.title}</div>
+										<div class="modal-subtitle">${d.subtitle}</div>
+										<div class="modal-body">${d.body || ''}</div>`;
+				if (d.cards) {
+					h += ' < div class = "cards" > '; d.cards.forEach(c => { h += ` < div class = "card" > < div class = "ico" > $ {
+						c.icon || '✨'
+					} < /div> < h3 > $ {
+						c.title
+					} < /h3> < div > $ {
+						typeof c.desc === 'string' ? `
+													<p>${c.desc}</p>` : c.desc
+					} < /div>${renderLinks(c.links)} < /div>`; }); h += ' < /div>'; }
+					h += renderLinks(d.links);
+					return h;
+				}
 				/* =========================================================
 				   1.  AUDIO  MANAGER
 				   ========================================================= */
