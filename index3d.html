@@ -751,6 +751,31 @@
 			/* =========================================================
 			   0.  DATA  LAYER
 			   ========================================================= */
+
+function stationHTML(d) {
+  let h = `
+    <div class="modal-title">${d.title}</div>
+    <div class="modal-subtitle">${d.subtitle}</div>
+    <div class="modal-body">${d.body || ''}</div>
+  `;
+  if (d.cards && Array.isArray(d.cards)) {
+    h += '<div class="cards">';
+    d.cards.forEach(c => {
+      h += `
+        <div class="card">
+          <div class="ico">${c.icon || '✨'}</div>
+          <h3>${c.title || ''}</h3>
+          <div>${typeof c.desc === 'string' ? `<p>${c.desc}</p>` : (c.desc || '')}</div>
+          ${renderLinks(c.links)}
+        </div>
+      `;
+    });
+    h += '</div>';
+  }
+  h += renderLinks(d.links);
+  return h;
+}
+			
 			const stationData = {
 				about: {
 					title: 'Gene Boo',
@@ -772,41 +797,6 @@
 							icon: '🎛️',
 							title: 'Audio/Visual Engineer',
 							desc: 'Building VST3 synths, mastering plugins, and generative art.'
-function stationHTML(d) {
-    let h = `
-        <div class="modal-title">${d.title}</div>
-        <div class="modal-subtitle">${d.subtitle}</div>
-        <div class="modal-body">${d.body || ''}</div>
-    `;
-
-    if (d.cards && Array.isArray(d.cards)) {
-        h += '<div class="cards">';
-
-        d.cards.forEach(c => {
-            h += `
-                <div class="card">
-                    <div class="ico">${c.icon || '✨'}</div>
-                    <h3>${c.title || ''}</h3>
-                    <div>
-                        ${
-                            typeof c.desc === 'string'
-                                ? `<p>${c.desc}</p>`
-                                : (c.desc || '')
-                        }
-                    </div>
-                    ${renderLinks(c.links)}
-                </div>
-            `;
-        });
-
-        h += '</div>';
-    }
-
-    h += renderLinks(d.links);
-
-    return h;
-}
-
 						links: [{
 							text: '🎵 Sonic Art on SoundCloud',
 							url: 'https://soundcloud.com/gb-diz-zy-unofficial'
