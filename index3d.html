@@ -1387,23 +1387,7 @@ function stationHTML(d) {
 										</div>`;
 			}
 
-			function stationHTML(d) {
-				let h = `
-										<div class="modal-title">${d.title}</div>
-										<div class="modal-subtitle">${d.subtitle}</div>
-										<div class="modal-body">${d.body || ''}</div>`;
-				if (d.cards) {
-					h += ' < div class = "cards" > '; d.cards.forEach(c => { h += ` < div class = "card" > < div class = "ico" > $ {
-						c.icon || '✨'
-					} < /div> < h3 > $ {
-						c.title
-					} < /h3> < div > $ {
-						typeof c.desc === 'string' ? `
-													<p>${c.desc}</p>` : c.desc
-					} < /div>${renderLinks(c.links)} < /div>`; }); h += ' < /div>'; }
-					h += renderLinks(d.links);
-					return h;
-				}
+
 				/* =========================================================
 				   1.  AUDIO  MANAGER
 				   ========================================================= */
