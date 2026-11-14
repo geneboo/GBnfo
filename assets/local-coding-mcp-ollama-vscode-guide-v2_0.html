@@ -1,0 +1,606 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>local-coding-mcp-ollama-vscode-guide-v2_0.md</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+  <style>
+    pre, pre code {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="autonomous-local-coding-agent-guide-ollama--hugging-face-models--vs-code--mcp">Autonomous Local Coding Agent Guide: Ollama + Hugging Face Models + VS Code + MCP</h1>
+<p><strong>Version 2.0 — Corrected and Expanded (November 2026)</strong></p>
+<h4 id="gene-boo-2026">Gene Boo, 2026</h4>
+<hr>
+<p>This guide walks through setting up a fully local, autonomous AI coding environment inside <strong>Visual Studio Code</strong>. By connecting <strong>Ollama</strong> (running tool-capable Hugging Face GGUF models) to an MCP-compatible VS Code client (<strong>Continue</strong>, <strong>Cline</strong>, or <strong>Roo Code</strong>), your local AI can read project files, write code, execute terminal build commands, and iteratively fix compiler or runtime errors without sending data to external cloud APIs.</p>
+<p>Version 2.0 corrects the deprecated filesystem MCP server guidance, incorporates the Roots deprecation under MCP specification <code>2026-07-28</code>, adds security hardening for GGUF chat templates and auto-approve loops, extends the orchestrator options to include Roo Code and headless bridges, and adds an appendix cataloguing abliterated models, MCP resources, and uncensored coding stacks.</p>
+<hr>
+<h2 id="architecture-overview">1. Architecture Overview</h2>
+<p>Ollama serves models and supports native function/tool calling, but <strong>Ollama is not an MCP client itself</strong>—it does not directly launch or connect to Model Context Protocol (MCP) servers. Instead, your local stack works in three layers:</p>
+<ol>
+<li><strong>Inference Backend (<code>Ollama</code>):</strong> Loads quantized GGUF models from Hugging Face into VRAM/RAM and exposes an OpenAI-compatible local REST API (<code>http://localhost:11434</code>).</li>
+<li><strong>Agent Orchestrator (<code>Continue</code>, <code>Cline</code>, or <code>Roo Code</code>):</strong> Acts as the MCP client and contains a <strong>bridge layer</strong>. It injects available MCP tool schemas into the prompt, parses JSON tool calls returned by Ollama, executes them via MCP, and feeds terminal/compiler outputs back to the model in a self-correction loop.</li>
+<li><strong>MCP Servers (<code>Filesystem</code>, <code>Git</code>, etc.):</strong> Standardized local tools (<code>stdio</code> subprocesses) that give the agent structured access to your workspace, version control, and build environment.</li>
+</ol>
+<p>For <strong>headless/CLI</strong> automation, the orchestrator can be replaced with <strong>MCPHost</strong> (Go CLI) or <strong>ollama-mcp-bridge</strong> (API-layer bridge), covered in Section 9.</p>
+<hr>
+<h2 id="prerequisites">2. Prerequisites</h2>
+<ul>
+<li><strong>Ollama:</strong> Installed and updated (verify via <code>ollama --version</code>). A version of <strong>0.15.5 or later</strong> is strongly recommended for VRAM-tiered context defaults.</li>
+<li><strong>Visual Studio Code:</strong> Latest stable release.</li>
+<li><strong>Node.js (v18+):</strong> Required to run <code>npx</code> MCP servers. For <code>@modelcontextprotocol/server-filesystem</code> <strong>2.0.0 and later</strong>, <strong>Node.js 24 or later</strong> is required.</li>
+<li><strong>Python &amp; <code>uv</code> (Optional):</strong> Required for Python-based MCP servers such as <code>mcp-server-git</code>.</li>
+<li><strong>Hardware Recommendation:</strong>
+<ul>
+<li><strong>7B–9B models (<code>Q4_K_M</code>):</strong> ~6–8 GB VRAM/RAM (basic edits; occasionally struggles with complex multi-step tool schemas).</li>
+<li><strong>14B–32B models (<code>Q4_K_M</code>):</strong> ~12–22 GB VRAM/RAM (strongly recommended for reliable multi-file editing and autonomous error-fixing loops).</li>
+<li><strong>24 GB+ VRAM:</strong> unlocks Ollama’s <strong>32k context tier</strong> and enables larger tool schemas and source files without truncation.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="step-1-pull-tool-capable-hugging-face-models-in-ollama">3. Step 1: Pull Tool-Capable Hugging Face Models in Ollama</h2>
+<p>Not every model on Hugging Face supports tool calling. For autonomous MCP workflows, choose models whose chat templates support function/tool calling. Ollama can pull GGUF repositories directly from Hugging Face using <code>hf.co/{username}/{repository}:{quantization}</code>.</p>
+<h3 id="recommended-coding-models-default-officially-aligned">Recommended Coding Models (Default: Officially Aligned)</h3>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token comment"># 1. Qwen2.5-Coder 32B Instruct — high-accuracy tool calling (24GB+ VRAM)</span>
+ollama pull qwen2.5-coder:32b
+
+<span class="token comment"># 2. Qwen2.5-Coder 7B Instruct — lightweight option for 8GB VRAM</span>
+ollama pull qwen2.5-coder:7b
+
+<span class="token comment"># 3. Qwen3-Coder 30B-A3B Instruct (official Unsloth GGUF, tool-calling fixes)</span>
+ollama pull hf.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:Q4_K_M
+</code></pre>
+<blockquote>
+<p><strong>Tool-calling note for Qwen3-Coder GGUF pulls:</strong> Ollama’s <code>hf.co/...</code> pull path may <strong>not automatically apply the built-in <code>RENDERER</code> and <code>PARSER</code></strong> for recognized architectures such as <code>qwen3moe</code>. This causes unreliable tool calling. If you pull the Unsloth GGUF directly, you may need to rebuild a <code>Modelfile</code> with <code>RENDERER qwen3-coder</code> and <code>PARSER qwen3-coder</code> to restore reliable tool-call JSON. The <code>qwen2.5-coder</code> library tags do not suffer from this issue.</p>
+</blockquote>
+<h3 id="optional-abliterated--uncensored-variants-sandbox-only">Optional: Abliterated / Uncensored Variants (Sandbox Only)</h3>
+<p>Abliterated models (e.g., <code>huihui-ai/Qwen3-Coder-14B-Instruct-abliterated-GGUF</code>) remove refusal behavior. They may perform coding tasks adequately, but <strong>they are not the default recommendation for fully autonomous loops with auto-approve enabled</strong>. Use them only inside a strict sandbox or VM where file writes and command execution are contained. See Appendix A for a curated catalogue.</p>
+<p><em>(GGUF files contain model weights and tokenizer metadata. They do not contain executable Python code, but they <strong>can</strong> contain Jinja2 chat templates that execute at inference time—see Section 8.)</em></p>
+<hr>
+<h2 id="step-2-configure-ollamas-context-window">4. Step 2: Configure Ollama’s Context Window</h2>
+<p><strong>Critical Step:</strong> MCP servers inject thousands of tokens of JSON tool definitions and file contents into every prompt. Ollama’s default context length may truncate tool schemas, causing the agent to ignore tools, hallucinate arguments, or forget earlier steps.</p>
+<h3 id="current-ollama-context-defaults-vram-tiered-v0.15.5">Current Ollama Context Defaults (VRAM-Tiered, v0.15.5+)</h3>
+<p>Ollama now defaults context by available VRAM:</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">VRAM</th>
+<th align="left">Default context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>&lt; 24 GiB</strong></td>
+<td align="left"><strong>4,096 tokens</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>24–48 GiB</strong></td>
+<td align="left"><strong>32,768 tokens</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>≥ 48 GiB</strong></td>
+<td align="left"><strong>262,144 tokens</strong></td>
+</tr>
+</tbody>
+</table><p>Source: Ollama documentation; release notes.</p>
+<p>Ollama’s own documentation recommends <strong>at least 64,000 tokens</strong> for agents, coding tools, and web-search workloads. If you are on the 4k tier, you <strong>must</strong> override the context length.</p>
+<h3 id="option-a-environment-variable-recommended-for-manual-runs">Option A: Environment Variable (Recommended for Manual Runs)</h3>
+<h4 id="linux--macos">Linux / macOS</h4>
+<pre class=" language-bash"><code class="prism  language-bash"><span class="token function">export</span> OLLAMA_CONTEXT_LENGTH<span class="token operator">=</span>32768
+ollama serve
+</code></pre>
+<h4 id="windows-powershell">Windows (PowerShell)</h4>
+<pre class=" language-powershell"><code class="prism  language-powershell"><span class="token variable">$env</span>:OLLAMA_CONTEXT_LENGTH=<span class="token string">"32768"</span>
+ollama serve
+</code></pre>
+<p>Set <code>65536</code> or higher if you have 24 GB+ VRAM and large MCP schemas.</p>
+<h3 id="option-b-bake-context-length-into-a-custom-modelfile">Option B: Bake Context Length into a Custom <code>Modelfile</code></h3>
+<p>If Ollama runs as a background service, create a custom model variant:</p>
+<pre class=" language-dockerfile"><code class="prism  language-dockerfile"><span class="token keyword">FROM</span> qwen2.5<span class="token punctuation">-</span>coder<span class="token punctuation">:</span>32b
+PARAMETER num_ctx 65536
+PARAMETER temperature 0.2
+SYSTEM <span class="token string">"You are an autonomous software engineering assistant. Always verify your code by compiling or running tests using your available tools, and fix any errors before finishing."</span>
+</code></pre>
+<pre class=" language-bash"><code class="prism  language-bash">ollama create local-coder-agent -f Modelfile
+</code></pre>
+<h3 id="verify-context-allocation">Verify Context Allocation</h3>
+<pre class=" language-bash"><code class="prism  language-bash">ollama <span class="token function">ps</span>
+</code></pre>
+<p>Confirm the <code>CONTEXT</code> column shows your intended value and <code>PROCESSOR</code> shows <code>100% GPU</code> (partial CPU offloading slows multi-step loops).</p>
+<h3 id="tool-call-smoke-test-new">Tool-Call Smoke Test (New)</h3>
+<p>After setting context, run a <strong>tool-call integrity smoke test</strong> before starting a real autonomous loop:</p>
+<ol>
+<li>Attach the filesystem MCP server.</li>
+<li>Prompt: <em>“List the files in the current directory using the filesystem tool.”</em></li>
+<li>Confirm the model returns a structured <code>tool_call</code> with a valid path argument—<strong>not</strong> a plain-text code block that claims to list files.</li>
+</ol>
+<p>This validates the entire bridge path (schema injection → model parsing → MCP execution), not just the environment variable.</p>
+<hr>
+<h2 id="step-3-set-up-your-vs-code-agent-client--mcp-servers">5. Step 3: Set Up Your VS Code Agent Client &amp; MCP Servers</h2>
+<p>Choose <strong>Continue</strong> (YAML-based configuration + inline autocomplete), <strong>Cline</strong> (built-in file editing, terminal execution, granular auto-approve), or <strong>Roo Code</strong> (native Ollama + MCP integration, active local multi-agent ecosystem).</p>
+<hr>
+<h3 id="path-a-continue-continue.continue">Path A: Continue (<code>Continue.continue</code>)</h3>
+<ol>
+<li>Install <strong>Continue</strong> from the VS Code Extensions marketplace.</li>
+<li>Create <code>.continue/models/local-models.yaml</code>:</li>
+</ol>
+<pre class=" language-yaml"><code class="prism  language-yaml"><span class="token key atrule">name</span><span class="token punctuation">:</span> Local Coding Agent
+<span class="token key atrule">version</span><span class="token punctuation">:</span> 0.0.1
+<span class="token key atrule">schema</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">models</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> Local Coder Agent
+    <span class="token key atrule">provider</span><span class="token punctuation">:</span> ollama
+    <span class="token key atrule">model</span><span class="token punctuation">:</span> local<span class="token punctuation">-</span>coder<span class="token punctuation">-</span>agent
+    <span class="token key atrule">roles</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> chat
+      <span class="token punctuation">-</span> edit
+      <span class="token punctuation">-</span> apply
+    <span class="token key atrule">capabilities</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> tool_use
+    <span class="token key atrule">defaultCompletionOptions</span><span class="token punctuation">:</span>
+      <span class="token key atrule">contextLength</span><span class="token punctuation">:</span> <span class="token number">65536</span>
+      <span class="token key atrule">temperature</span><span class="token punctuation">:</span> <span class="token number">0.2</span>
+</code></pre>
+<p><em>(Note: Explicitly setting <code>contextLength: 65536</code> in <code>local-models.yaml</code> is mandatory because Continue defaults Ollama models to an <code>8192</code>-token context window, silently overriding Ollama’s <code>OLLAMA_CONTEXT_LENGTH</code> environment variable.)</em></p>
+<ol start="3">
+<li>Create <code>.continue/mcpServers/coding-tools.yaml</code>.</li>
+</ol>
+<h4 id="linux--macos-corrected-pinned-semantic-version--explicit-directories">Linux / macOS (Corrected: Pinned Semantic Version + Explicit Directories)</h4>
+<pre class=" language-yaml"><code class="prism  language-yaml"><span class="token key atrule">name</span><span class="token punctuation">:</span> Coding Automation MCP
+<span class="token key atrule">version</span><span class="token punctuation">:</span> 0.0.1
+<span class="token key atrule">schema</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">mcpServers</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> Filesystem
+    <span class="token key atrule">command</span><span class="token punctuation">:</span> npx
+    <span class="token key atrule">args</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token punctuation">-</span>y
+      <span class="token punctuation">-</span> <span class="token string">"@modelcontextprotocol/server-filesystem@2.1.0"</span>
+      <span class="token punctuation">-</span> <span class="token string">"."</span>
+  <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> Git
+    <span class="token key atrule">command</span><span class="token punctuation">:</span> uvx
+    <span class="token key atrule">args</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> mcp<span class="token punctuation">-</span>server<span class="token punctuation">-</span>git
+</code></pre>
+<p><strong>Why the pin matters:</strong> Date-based versions (<code>2026.1.14</code>, <code>2026.8.31</code>) are <strong>deprecated</strong>. The package resumed semantic versioning at <strong>1.0.0</strong>; <strong>2.x</strong> (<code>2.1.0</code> is the latest release) supports protocol <code>2026-07-28</code>. Pinning <code>@2.1.0</code> avoids accidentally running a deprecated date-stamped release. The <code>2.x</code> releases also support a native <code>--read-only</code> flag (and <code>--read-only-dir</code> for per-folder granularity), which strips all write/edit/move tools at the server level as a lightweight alternative to container bind mounts when testing untrusted loops.</p>
+<h4 id="windows">Windows</h4>
+<pre class=" language-yaml"><code class="prism  language-yaml"><span class="token key atrule">name</span><span class="token punctuation">:</span> Coding Automation MCP
+<span class="token key atrule">version</span><span class="token punctuation">:</span> 0.0.1
+<span class="token key atrule">schema</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">mcpServers</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> Filesystem
+    <span class="token key atrule">command</span><span class="token punctuation">:</span> cmd
+    <span class="token key atrule">args</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> /c
+      <span class="token punctuation">-</span> npx
+      <span class="token punctuation">-</span> <span class="token punctuation">-</span>y
+      <span class="token punctuation">-</span> <span class="token string">"@modelcontextprotocol/server-filesystem@2.1.0"</span>
+      <span class="token punctuation">-</span> <span class="token string">"."</span>
+</code></pre>
+<ol start="4">
+<li>Reload the Continue sidebar, switch from <strong>Chat</strong> to <strong>Agent</strong>, and verify MCP tools appear under the tools icon.</li>
+</ol>
+<hr>
+<h3 id="path-b-cline-saoudrizwan.claude-dev">Path B: Cline (<code>saoudrizwan.claude-dev</code>)</h3>
+<ol>
+<li>Install <strong>Cline</strong> from the VS Code Extensions marketplace.</li>
+<li>Open the Cline sidebar → <strong>Settings (gear)</strong>:
+<ul>
+<li><strong>API Provider:</strong> <code>Ollama</code></li>
+<li><strong>Base URL:</strong> <code>http://localhost:11434</code></li>
+<li><strong>Model ID:</strong> <code>local-coder-agent</code> (or your pulled model tag).</li>
+</ul>
+</li>
+<li><strong>MCP Servers</strong> → <strong>Configure</strong> → <strong>Configure MCP Servers</strong> → edit <code>cline_mcp_settings.json</code>.</li>
+</ol>
+<h4 id="corrected-filesystem-configuration-pinned--explicit-path">Corrected Filesystem Configuration (Pinned + Explicit Path)</h4>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"mcpServers"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"filesystem"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"command"</span><span class="token punctuation">:</span> <span class="token string">"npx"</span><span class="token punctuation">,</span>
+      <span class="token string">"args"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+        <span class="token string">"-y"</span><span class="token punctuation">,</span>
+        <span class="token string">"@modelcontextprotocol/server-filesystem@2.1.0"</span><span class="token punctuation">,</span>
+        <span class="token string">"/absolute/path/to/your/project"</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>On Windows, use <code>"command": "cmd"</code> and prepend <code>"/c", "npx"</code> to <code>args</code>.</p>
+<blockquote>
+<p><strong>Roots deprecation note:</strong> If the client connects with protocol <code>2026-07-28</code> or later, <strong>Roots is not available</strong>. The command-line directories you pass are the <strong>entire allow-list</strong> for the server. A <code>2026-07-28</code> server started with <strong>no directories</strong> answers every tool call with an error. Do not rely on runtime Roots updates on new connections.</p>
+</blockquote>
+<ol start="4">
+<li><strong>Auto-Approve:</strong> Cline’s <code>autoApprove</code> array defaults to approving tools not explicitly listed. Set it <strong>explicitly</strong> and keep it minimal:</li>
+</ol>
+<pre class=" language-json"><code class="prism  language-json"><span class="token string">"autoApprove"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+</code></pre>
+<p>Or, at most, list only read-oriented tools. <strong>Never</strong> auto-approve file writes, command execution, and MCP tools simultaneously unless the agent runs inside a container or VM.</p>
+<hr>
+<h3 id="path-c-roo-code-new-option">Path C: Roo Code (New Option)</h3>
+<p>Roo Code supports <strong>Ollama + MCP</strong> with native file editing and terminal execution, and has an active ecosystem of local multi-agent workflows built around it. Community bridges such as <code>ollama-mcp-all</code> explicitly list Roo Code as a supported MCP client, and swarm-style local agent frameworks use Roo Code + Ollama + MCP as their orchestration layer.</p>
+<p>Configuration pattern:</p>
+<ol>
+<li>Install <strong>Roo Code</strong> from the marketplace.</li>
+<li>Set provider to <strong>Ollama</strong> with base URL <code>http://localhost:11434</code>.</li>
+<li>Add MCP servers via Roo Code’s MCP settings UI, using the same pinned <code>server-filesystem@2.1.0</code> pattern and explicit directory arguments.</li>
+<li>Configure auto-approve per-tool, keeping command execution off by default.</li>
+</ol>
+<p>Roo Code is a good choice if you want a <strong>permissive, configurable auto-approve surface</strong> and a community already building local Ollama multi-agent patterns.</p>
+<hr>
+<h2 id="step-4-running-an-autonomous-write-compile-fix-loop">6. Step 4: Running an Autonomous Write-Compile-Fix Loop</h2>
+<h3 id="security-preconditions-mandatory-not-optional">Security Preconditions (Mandatory, Not Optional)</h3>
+<p>Before starting an unsupervised loop:</p>
+<ol>
+<li><strong>Open a dedicated project folder</strong> in VS Code. Never run an autonomous agent in your home or root directory.</li>
+<li><strong>Initialize Git</strong> (<code>git init &amp;&amp; git add . &amp;&amp; git commit -m "init"</code>) so diffs and reverts are instant.</li>
+<li><strong>Confine auto-approved writes to the workspace.</strong> Configure the filesystem server’s allowed directory to the project root only.</li>
+<li><strong>Do not auto-approve terminal commands on bare metal.</strong> Either disable command auto-approve, or run the agent inside a <strong>container or VM</strong> with no host credentials.</li>
+<li><strong>Remove secrets from the workspace.</strong> No SSH keys, cloud credentials, <code>.env</code> production files, or browser profiles in the agent’s allowed directory.</li>
+</ol>
+<p>MCP security guidance consistently recommends <strong>sandboxing local servers with minimal filesystem, network, and credential access</strong>, and treating each server as its own security domain.</p>
+<h3 id="closed-loop-prompt-agent-mode">Closed-Loop Prompt (Agent Mode)</h3>
+<blockquote>
+<p><em>“Create a C++ project in <code>src/main.cpp</code> with a <code>CMakeLists.txt</code> (or Makefile) that implements a command-line process memory scanner. Compile the project using the terminal, read any compiler warnings or errors, and keep fixing the code until it builds cleanly with zero errors.”</em></p>
+</blockquote>
+<h3 id="what-happens-automatically">What Happens Automatically</h3>
+<ol>
+<li>The agent calls the <strong>Filesystem</strong> tool to write <code>src/main.cpp</code> and <code>CMakeLists.txt</code>.</li>
+<li>It calls the <strong>Terminal</strong> tool to run <code>cmake</code> / <code>g++</code> / <code>cl.exe</code>.</li>
+<li>If compilation fails, the terminal error output is fed back into Ollama.</li>
+<li>The agent analyzes line numbers, patches <code>src/main.cpp</code>, and re-runs the compiler until exit code <code>0</code>.</li>
+</ol>
+<hr>
+<h2 id="troubleshooting-updated">7. Troubleshooting (Updated)</h2>
+
+<table>
+<thead>
+<tr>
+<th align="left">Symptom</th>
+<th align="left">Cause</th>
+<th align="left">Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>Model outputs code in chat instead of editing files</strong></td>
+<td align="left">Model lacks native tool-calling, or <code>tool_use</code> is missing.</td>
+<td align="left">Switch to Qwen2.5-Coder / Qwen3-Coder / Llama-3.1+ and verify <code>capabilities: [tool_use]</code>.</td>
+</tr>
+<tr>
+<td align="left"><strong>Agent forgets earlier steps or ignores MCP tools</strong></td>
+<td align="left">Context window too small (4k default on &lt;24 GiB VRAM, or Continue’s 8k default).</td>
+<td align="left">Set <code>OLLAMA_CONTEXT_LENGTH=65536</code>, <code>PARAMETER num_ctx 65536</code>, and <code>contextLength: 65536</code> in Continue. Verify with <code>ollama ps</code>.</td>
+</tr>
+<tr>
+<td align="left"><strong>Filesystem MCP server exits with status 1</strong></td>
+<td align="left">No allowed directory passed, and no valid Roots on a 2026-07-28 connection.</td>
+<td align="left">Pass <code>"."</code> or an absolute path as the final argument. On 2026-07-28, command-line directories are the whole allow-list.</td>
+</tr>
+<tr>
+<td align="left"><strong>MCP server fails to start on Windows</strong></td>
+<td align="left"><code>npx.cmd</code> cannot be spawned directly.</td>
+<td align="left">Use <code>"command": "cmd"</code> and prepend <code>"/c", "npx"</code> to <code>args</code>.</td>
+</tr>
+<tr>
+<td align="left"><strong>Deprecated-package warning from npm</strong></td>
+<td align="left">Date-based <code>server-filesystem</code> versions are deprecated.</td>
+<td align="left">Pin <code>@modelcontextprotocol/server-filesystem@2.1.0</code> (Node.js 24+ required).</td>
+</tr>
+<tr>
+<td align="left"><strong>Tool calling unreliable with <code>hf.co/unsloth/Qwen3-Coder-...</code> pull</strong></td>
+<td align="left">Ollama may not apply built-in <code>RENDERER</code>/<code>PARSER</code> for <code>qwen3moe</code> on direct GGUF pulls.</td>
+<td align="left">Rebuild a <code>Modelfile</code> with <code>RENDERER qwen3-coder</code> and <code>PARSER qwen3-coder</code>, or use the <code>qwen2.5-coder</code> library tags.</td>
+</tr>
+<tr>
+<td align="left"><strong>Slow loops (30+ s per step)</strong></td>
+<td align="left">Model spills to CPU because VRAM is insufficient.</td>
+<td align="left">Run <code>ollama ps</code>; if <code>PROCESSOR</code> shows a CPU/GPU split, use a smaller quant or lower context.</td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="security-considerations-expanded">8. Security Considerations (Expanded)</h2>
+<h3 id="gguf-chat-templates-are-executable">8.1 GGUF chat templates are executable</h3>
+<p>A GGUF file can carry a <strong>modified <code>tokenizer.chat_template</code></strong>—a Jinja2 program that executes at inference initialization—<strong>without changing the model weights</strong>. An attacker can embed conditional logic that detects trigger phrases and injects hidden system instructions or reshapes tool-call formatting.</p>
+<p>CVE-2026-5760 demonstrated this in SGLang: a malicious GGUF with a crafted <code>tokenizer.chat_template</code> achieved <strong>remote code execution</strong> (CVSS 9.8) on SGLang’s <code>/v1/rerank</code> endpoint because SGLang rendered the template with an <strong>unsandboxed Python <code>jinja2.Environment()</code></strong> rather than <code>ImmutableSandboxedEnvironment</code>. By contrast, Ollama renders templates using Go’s <code>text/template</code> engine (with a C++ <code>minja</code> fallback for certain architectures), so it is not vulnerable to Python RCE via that specific vector—however, Ollama’s template rendering path must still be treated as a <strong>trust boundary</strong> because malicious templates can inject hidden prompt instructions or alter tool-call output. Download GGUFs only from reputable quantizers whose repos you have inspected, and prefer formats/repos that ship templates under version control.</p>
+<h3 id="tool-calling-is-an-attack-surface">8.2 Tool-calling is an attack surface</h3>
+<p>Even with safe weights and templates, once the model can write files and execute commands, a <strong>prompt injection</strong> (e.g., a malicious comment in a dependency file) can redirect tool arguments. The defense is <strong>least privilege at the MCP layer</strong>:</p>
+<ul>
+<li>Filesystem server allowed directories = project root only (or pass <code>--read-only</code> / <code>--read-only-dir</code> during inspection phases).</li>
+<li>No network-capable MCP servers attached during untrusted-code processing.</li>
+<li>Command execution either <strong>off</strong> or <strong>sandboxed</strong> (Docker, Firecracker, WASM, Microsandbox).</li>
+<li>Audit-log every tool call where possible.</li>
+</ul>
+<h3 id="auto-approve-defaults">8.3 Auto-approve defaults</h3>
+<p>Cline’s documentation is explicit: <strong>tool names not listed in <code>toolPolicies</code> default to enabled and auto-approved</strong>, and auto-approving all tools means the agent can run any shell command, modify any file, and make network requests without review—<strong>only acceptable in sandboxed or fully trusted environments</strong>. If you enable autonomous loops, start with <code>autoApprove: []</code> and add tools one at a time as you verify behavior.</p>
+<hr>
+<h2 id="headless-and-cli-options-extension">9. Headless and CLI Options (Extension)</h2>
+<p>If you want to run the agent <strong>outside a GUI</strong> or build your own harness, two lightweight bridges are worth knowing:</p>
+<h3 id="mcphost-go-cli">MCPHost (Go CLI)</h3>
+<p>MCPHost is a <strong>CLI host application</strong> that enables LLMs to interact with external tools through MCP. It currently supports <strong>Ollama</strong> alongside Claude, OpenAI, and Gemini, and can be configured with <code>OLLAMA_HOST</code> for the Ollama base URL. Typical usage:</p>
+<pre class=" language-bash"><code class="prism  language-bash">mcphost ollama --model qwen2.5-coder:32b
+</code></pre>
+<p>It reads MCP server configuration from <code>~/.mcphost.yaml</code> (macOS/Linux) and can run on Windows, macOS, and Linux.</p>
+<h3 id="ollama-mcp-bridge">ollama-mcp-bridge</h3>
+<p><code>ollama-mcp-bridge</code> provides an <strong>API layer in front of the Ollama API</strong>, seamlessly adding tools from multiple MCP servers so every Ollama request can access all connected tools transparently. It is available via PyPI and GitHub (<code>jonigl/ollama-mcp-bridge</code>) and is designed for developers building local LLM applications, agents, and custom chatbots. This is useful if you want an <strong>OpenAI-compatible endpoint that already speaks MCP</strong> without running a full IDE extension.</p>
+<p>Both are reasonable choices for CI pipelines, batch coding tasks, or custom multi-agent orchestration.</p>
+<hr>
+<h2 id="references-and-bibliography">10. References and Bibliography</h2>
+<h3 id="mcp-specification-and-deprecations">MCP specification and deprecations</h3>
+<ol>
+<li>Model Context Protocol. <em>Deprecated Features</em> (specification <code>2026-07-28</code>). Roots, Sampling, and Logging deprecated under SEP-2577, with migration guidance and earliest-removal dates. <a href="https://modelcontextprotocol.io/specification/2026-07-28/deprecated">https://modelcontextprotocol.io/specification/2026-07-28/deprecated</a></li>
+<li>Model Context Protocol. <em>SEP-2577: Deprecate Roots, Sampling, and Logging</em>. <a href="https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2577">https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2577</a></li>
+<li>Model Context Protocol. <em>Example Servers</em> (Filesystem, Git, Memory, Sequential Thinking, Fetch). <a href="https://modelcontextprotocol.io/examples">https://modelcontextprotocol.io/examples</a></li>
+</ol>
+<h3 id="filesystem-mcp-server">Filesystem MCP server</h3>
+<ol start="4">
+<li><code>@modelcontextprotocol/server-filesystem</code> npm page (v2.1.0). Directory access control via command-line arguments, <code>--read-only</code> / <code>--read-only-dir</code> flags; Roots deprecated; <code>2026-07-28</code> connections use command-line directories as the whole allow-list. <a href="https://www.npmjs.com/package/@modelcontextprotocol/server-filesystem">https://www.npmjs.com/package/@modelcontextprotocol/server-filesystem</a></li>
+<li><code>server-filesystem</code> CHANGELOG. Version 2.0.0+ moves to TypeScript SDK v2, requires <strong>Node.js 24+</strong>, serves <code>2026-07-28</code> alongside 2025-era protocol on stdio. <a href="https://github.com/modelcontextprotocol/servers/blob/main/src/filesystem/CHANGELOG.md">https://github.com/modelcontextprotocol/servers/blob/main/src/filesystem/CHANGELOG.md</a></li>
+<li>npm deprecation notices for <code>server-filesystem</code> date-based versions (<code>2026.1.14</code>, <code>2026.8.31</code>). “Date-based versions are no longer published. This package has resumed semantic versioning at 1.0.0.”</li>
+</ol>
+<h3 id="ollama-context-and-tool-calling">Ollama context and tool calling</h3>
+<ol start="7">
+<li>Ollama. <em>Context Length</em>. VRAM-tiered defaults: <code>&lt;24 GiB → 4k</code>, <code>24–48 GiB → 32k</code>, <code>≥48 GiB → 256k</code>; agents/coding should use ≥64,000 tokens. <a href="https://docs.ollama.com/context-length">https://docs.ollama.com/context-length</a></li>
+<li>Ollama v0.15.5 release notes. VRAM-tiered context defaults introduced. <a href="https://github.com/ollama/ollama/releases/tag/v0.15.5">https://github.com/ollama/ollama/releases/tag/v0.15.5</a></li>
+<li>Unsloth. <em>Qwen3-Coder: How to Run Locally</em> (tool-calling fixes). <a href="https://unsloth.ai/docs/models/tutorials/qwen3-coder-how-to-run-locally">https://unsloth.ai/docs/models/tutorials/qwen3-coder-how-to-run-locally</a></li>
+<li>Ollama GitHub issue #17636. <code>ollama pull hf.co/...</code> may not apply built-in <code>RENDERER</code>/<code>PARSER</code> for recognized architectures, causing unreliable tool calling. <a href="https://github.com/ollama/ollama/issues/17636">https://github.com/ollama/ollama/issues/17636</a></li>
+</ol>
+<h3 id="security">Security</h3>
+<ol start="11">
+<li>CERT/CC Vulnerability Note VU#915947. SGLang RCE via malicious GGUF <code>tokenizer.chat_template</code> (Jinja2 SSTI on <code>/v1/rerank</code>, CVE-2026-5760, CVSS 9.8). <a href="https://kb.cert.org/vuls/id/915947">https://kb.cert.org/vuls/id/915947</a></li>
+<li>Promptfoo LLM Security Database. “Chat Template Hidden Instructions” — GGUF chat templates are executable Jinja2 programs stored as metadata. <a href="https://www.promptfoo.dev/lm-security-db">https://www.promptfoo.dev/lm-security-db</a></li>
+<li>NeuralTrust. <em>MCP Security Best Practices Checklist</em>. Sandboxing, minimal file/network/credential access, per-server isolation. <a href="https://neuraltrust.ai/blog/mcp-security-best-practices">https://neuraltrust.ai/blog/mcp-security-best-practices</a></li>
+<li>Cline. <em>Auto Approve &amp; YOLO Mode</em>. “Leave edits, commands, browser, and MCP off until you have a specific reason.” <a href="https://docs.cline.bot/features/auto-approve">https://docs.cline.bot/features/auto-approve</a></li>
+<li>Cline. <em>Permission Handling</em>. Tools not listed in <code>toolPolicies</code> default to enabled and auto-approved. <a href="https://docs.cline.bot/features/permission-handling">https://docs.cline.bot/features/permission-handling</a></li>
+</ol>
+<h3 id="orchestrators-and-bridges">Orchestrators and bridges</h3>
+<ol start="16">
+<li>MCPHost (Go CLI). Supports Ollama, Claude, OpenAI, Gemini; MCP stdio servers; <code>~/.mcphost.yaml</code>. <a href="https://pkg.go.dev/github.com/mark3labs/mcphost">https://pkg.go.dev/github.com/mark3labs/mcphost</a></li>
+<li>ollama-mcp-bridge. API layer in front of Ollama that transparently adds tools from multiple MCP servers. <a href="https://github.com/jonigl/ollama-mcp-bridge">https://github.com/jonigl/ollama-mcp-bridge</a></li>
+<li>Roo Code + Ollama + MCP community patterns and <code>ollama-mcp-all</code> (lists Roo Code as a supported client). <a href="https://www.npmjs.com/package/ollama-mcp-all">https://www.npmjs.com/package/ollama-mcp-all</a></li>
+</ol>
+<h3 id="abliteration-methodology">Abliteration methodology</h3>
+<ol start="19">
+<li>Maxime Labonne. <em>Abliteration</em> blog post and Hugging Face collection. <a href="https://huggingface.co/blog/mlabonne/abliteration">https://huggingface.co/blog/mlabonne/abliteration</a></li>
+<li>Abliterated Models catalogue. <a href="https://www.abliteratedmodels.org">https://www.abliteratedmodels.org</a></li>
+</ol>
+<hr>
+<h2 id="appendix-a-abliterated-and-uncensored-coding-models-curated-links">Appendix A: Abliterated and Uncensored Coding Models (Curated Links)</h2>
+<blockquote>
+<p><strong>Use at your own risk.</strong> Abliterated models have weakened refusal boundaries. When given file-write and terminal-execution permissions in an autonomous loop, their behavior is harder to constrain. Run them only in sandboxed project directories or VMs, with auto-approve limited to read-only tools. These links are provided for <strong>security research, red-team learning, and unrestricted local experimentation</strong>, not as defaults for production coding agents.</p>
+</blockquote>
+<h3 id="a.1-general-abliterated-collections-and-catalogues">A.1 General Abliterated Collections and Catalogues</h3>
+
+<table>
+<thead>
+<tr>
+<th align="left">Resource</th>
+<th align="left">Link</th>
+<th align="left">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>mlabonne Abliteration collection</strong></td>
+<td align="left"><a href="https://huggingface.co/collections/mlabonne/abliteration">https://huggingface.co/collections/mlabonne/abliteration</a></td>
+<td align="left">Originator of the abliteration method; includes Qwen3-14B-abliterated, Llama-3.1-8B-Instruct-abliterated, Gemma-3-27B-abliterated</td>
+</tr>
+<tr>
+<td align="left"><strong>Abliterated Models catalogue</strong></td>
+<td align="left"><a href="https://www.abliteratedmodels.org">https://www.abliteratedmodels.org</a></td>
+<td align="left">Index of open-weight abliterated models with download counts; includes coder variants</td>
+</tr>
+<tr>
+<td align="left"><strong>RouterHub uncensored-models</strong></td>
+<td align="left"><a href="https://github.com/routerhubSI/uncensored-models">https://github.com/routerhubSI/uncensored-models</a></td>
+<td align="left">“The uncensored model library” — index of uncensored/abliterated models on Hugging Face and hosted APIs</td>
+</tr>
+<tr>
+<td align="left"><strong>0xmoonboi <code>abl</code> collection</strong></td>
+<td align="left"><a href="https://huggingface.co/collections/0xmoonboi/abl">https://huggingface.co/collections/0xmoonboi/abl</a></td>
+<td align="left">Aggregates Huihui, mradermacher, and DavidAU abliterated coder GGUFs</td>
+</tr>
+<tr>
+<td align="left"><strong>mehradradmehr <code>uncencored</code> collection</strong></td>
+<td align="left"><a href="https://huggingface.co/collections/mehradradmehr/uncencored">https://huggingface.co/collections/mehradradmehr/uncencored</a></td>
+<td align="left">Includes Llama-3.1-8B-abliterated GGUF and DavidAU coder variants</td>
+</tr>
+</tbody>
+</table><h3 id="a.2-qwen-coder-abliterated-most-relevant-to-mcp-coding-agents">A.2 Qwen Coder Abliterated (Most Relevant to MCP Coding Agents)</h3>
+
+<table>
+<thead>
+<tr>
+<th align="left">Model</th>
+<th align="left">Link</th>
+<th align="left">Quantizer / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated</strong></td>
+<td align="left"><a href="https://huggingface.co/huihui-ai/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated">https://huggingface.co/huihui-ai/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated</a></td>
+<td align="left">Base abliterated weights; Apache-2.0</td>
+</tr>
+<tr>
+<td align="left"><strong>Thaurock GGUF quantizations</strong></td>
+<td align="left"><a href="https://huggingface.co/Thaurock/Qwen3-Coder-30B-A3B-Instruct-abliterated-GGUF">https://huggingface.co/Thaurock/Qwen3-Coder-30B-A3B-Instruct-abliterated-GGUF</a></td>
+<td align="left">Full GGUF range, Q2_K through higher quants; Q2_K may degrade complex code</td>
+</tr>
+<tr>
+<td align="left"><strong>mradermacher Huihui Qwen3-Coder-30B-A3B i1-GGUF</strong></td>
+<td align="left"><a href="https://huggingface.co/mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF">https://huggingface.co/mradermacher/Huihui-Qwen3-Coder-30B-A3B-Instruct-abliterated-i1-GGUF</a></td>
+<td align="left">imatrix GGUF; alternative quantizer</td>
+</tr>
+<tr>
+<td align="left"><strong>mradermacher Qwen3-Coder-30B-A3B-IT-Heretic-i1-GGUF</strong></td>
+<td align="left"><a href="https://huggingface.co/mradermacher/Qwen3-Coder-30B-A3B-IT-Heretic-i1-GGUF">https://huggingface.co/mradermacher/Qwen3-Coder-30B-A3B-IT-Heretic-i1-GGUF</a></td>
+<td align="left">“Heretic” decensored coder variant</td>
+</tr>
+<tr>
+<td align="left"><strong>bartowski Qwen3-Coder-Next-abliterated</strong></td>
+<td align="left"><a href="https://huggingface.co/bartowski/Qwen3-Coder-Next-abliterated-GGUF">https://huggingface.co/bartowski/Qwen3-Coder-Next-abliterated-GGUF</a></td>
+<td align="left">Apache-2.0; Next-generation coder base</td>
+</tr>
+<tr>
+<td align="left"><strong>Huihui Qwen3-Coder-480B-A35B abliterated GGUF</strong></td>
+<td align="left"><a href="https://huggingface.co/huihui-ai/Huihui-Qwen3-Coder-480B-A35B-Instruct-abliterated-GGUF">https://huggingface.co/huihui-ai/Huihui-Qwen3-Coder-480B-A35B-Instruct-abliterated-GGUF</a></td>
+<td align="left">Large MoE; requires substantial VRAM</td>
+</tr>
+<tr>
+<td align="left"><strong>Huihui Qwen2.5-Coder abliterated series</strong></td>
+<td align="left"><a href="https://huggingface.co/huihui-ai">https://huggingface.co/huihui-ai</a></td>
+<td align="left">1.5B / 7B / 14B / 32B variants; widely re-quantized by mradermacher</td>
+</tr>
+</tbody>
+</table><h3 id="a.3-davidau-uncensored--heretic-coder-models">A.3 DavidAU Uncensored / Heretic Coder Models</h3>
+<p>DavidAU publishes heavily customized, high-download coder models with “Heretic,” “Uncensored,” and “NEO-CODE” variants, often with MTP (multi-token prediction) and imatrix GGUFs.</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">Model family</th>
+<th align="left">Example link</th>
+<th align="left">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>Qwen3.6-40B-Claude-4.6-Opus-Deckard-Heretic-Uncensored-Thinking-NEO-CODE-Di-IMatrix-MAX-GGUF</strong></td>
+<td align="left"><a href="https://huggingface.co/DavidAU/Qwen3.6-40B-Claude-4.6-Opus-Deckard-Heretic-Uncensored-Thinking-NEO-CODE-Di-IMatrix-MAX-GGUF">https://huggingface.co/DavidAU/Qwen3.6-40B-Claude-4.6-Opus-Deckard-Heretic-Uncensored-Thinking-NEO-CODE-Di-IMatrix-MAX-GGUF</a></td>
+<td align="left">~795 likes; designed for code-generation loops</td>
+</tr>
+<tr>
+<td align="left"><strong>Qwen3.6-27B-Fable-Fusion-711-Uncensored-Heretic-NM-DAU-NEO-MAX-MTP-GGUF</strong></td>
+<td align="left"><a href="https://huggingface.co/DavidAU/Qwen3.6-27B-Fable-Fusion-711-Uncensored-Heretic-NM-DAU-NEO-MAX-MTP-GGUF">https://huggingface.co/DavidAU/Qwen3.6-27B-Fable-Fusion-711-Uncensored-Heretic-NM-DAU-NEO-MAX-MTP-GGUF</a></td>
+<td align="left">MTP + regular GGUFs</td>
+</tr>
+<tr>
+<td align="left"><strong>Qwen3-Esper3-Reasoning-CODER-Instruct-12B-Brainstorm20x (heretic decensor)</strong></td>
+<td align="left"><a href="https://huggingface.co/avi686/Qwen3-Esper3-Reasoning-CODER-Instruct-12B-Brainstorm20x-heretic">https://huggingface.co/avi686/Qwen3-Esper3-Reasoning-CODER-Instruct-12B-Brainstorm20x-heretic</a></td>
+<td align="left">Heretic-decensored version of DavidAU’s 12B coder</td>
+</tr>
+<tr>
+<td align="left"><strong>Coders and Programmers collection</strong></td>
+<td align="left"><a href="https://huggingface.co/collections/DavidAU/coders-and-programmers">https://huggingface.co/collections/DavidAU/coders-and-programmers</a></td>
+<td align="left">4B–128B coder models, including MoE and A3B variants</td>
+</tr>
+<tr>
+<td align="left"><strong>Qwen 3.6 uncensored 9B–40B collection</strong></td>
+<td align="left"><a href="https://huggingface.co/collections/DavidAU/qwen-36">https://huggingface.co/collections/DavidAU/qwen-36</a></td>
+<td align="left">Regular and uncensored Qwen 3.6 variants</td>
+</tr>
+</tbody>
+</table><h3 id="a.4-llama-and-other-abliterated-general-models">A.4 Llama and Other Abliterated General Models</h3>
+
+<table>
+<thead>
+<tr>
+<th align="left">Model</th>
+<th align="left">Link</th>
+<th align="left">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>Meta-Llama-3.1-8B-Instruct-abliterated</strong></td>
+<td align="left"><a href="https://huggingface.co/mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated">https://huggingface.co/mlabonne/Meta-Llama-3.1-8B-Instruct-abliterated</a></td>
+<td align="left">Widely used abliterated Llama 3.1 base; GGUF available from mlabonne</td>
+</tr>
+<tr>
+<td align="left"><strong>Llama-3.2-8X3B-MOE-Dark-Champion-Instruct-uncensored-abliterated-18.4B-GGUF</strong></td>
+<td align="left"><a href="https://huggingface.co/DavidAU/Llama-3.2-8X3B-MOE-Dark-Champion-Instruct-uncensored-abliterated-18.4B-GGUF">https://huggingface.co/DavidAU/Llama-3.2-8X3B-MOE-Dark-Champion-Instruct-uncensored-abliterated-18.4B-GGUF</a></td>
+<td align="left">MoE uncensored Llama variant</td>
+</tr>
+<tr>
+<td align="left"><strong>Dolphin3-abliterated</strong></td>
+<td align="left"><a href="https://huggingface.co/huihui-ai/dolphin3-abliterated">https://huggingface.co/huihui-ai/dolphin3-abliterated</a></td>
+<td align="left">Abliterated Dolphin 3; general-purpose uncensored</td>
+</tr>
+<tr>
+<td align="left"><strong>WizardLM-1.0-Uncensored-CodeLlama-34B GGUF</strong></td>
+<td align="left"><a href="https://huggingface.co/TheBloke/WizardLM-1.0-Uncensored-CodeLlama-34B-GGUF">https://huggingface.co/TheBloke/WizardLM-1.0-Uncensored-CodeLlama-34B-GGUF</a></td>
+<td align="left">TheBloke GGUF of an uncensored CodeLlama variant</td>
+</tr>
+</tbody>
+</table><h3 id="a.5-reading-the-licences">A.5 Reading the Licences</h3>
+<p>Before deploying any of these models in a local agent:</p>
+<ul>
+<li><strong>Apache-2.0</strong> models (most Qwen derivatives) permit commercial use with attribution.</li>
+<li><strong>Llama community licences</strong> have acceptable-use and redistribution terms; abliteration may conflict with the base licence’s usage restrictions.</li>
+<li><strong>DavidAU “Heretic” / “Uncensored”</strong> models are typically derivative works; verify the base model’s licence and any additional terms in the model card.</li>
+</ul>
+<hr>
+<h2 id="appendix-b-mcp-resources-and-servers-worth-knowing">Appendix B: MCP Resources and Servers Worth Knowing</h2>
+
+<table>
+<thead>
+<tr>
+<th align="left">Server / Resource</th>
+<th align="left">Package / Link</th>
+<th align="left">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>Filesystem</strong></td>
+<td align="left"><code>@modelcontextprotocol/server-filesystem@2.1.0</code></td>
+<td align="left">Secure file operations with command-line directory allow-list and <code>--read-only</code> / <code>--read-only-dir</code> flags</td>
+</tr>
+<tr>
+<td align="left"><strong>Git</strong></td>
+<td align="left"><code>uvx mcp-server-git</code></td>
+<td align="left">Read, search, and manipulate Git repositories</td>
+</tr>
+<tr>
+<td align="left"><strong>Memory</strong></td>
+<td align="left"><code>@modelcontextprotocol/server-memory</code></td>
+<td align="left">Knowledge-graph persistent memory stored in local JSONL</td>
+</tr>
+<tr>
+<td align="left"><strong>Sequential Thinking</strong></td>
+<td align="left">Reference server</td>
+<td align="left">Structured multi-step reasoning through thought sequences</td>
+</tr>
+<tr>
+<td align="left"><strong>Fetch</strong></td>
+<td align="left">Reference server</td>
+<td align="left">Web content fetching and conversion for efficient LLM usage</td>
+</tr>
+<tr>
+<td align="left"><strong>Everything</strong></td>
+<td align="left">Reference / test server</td>
+<td align="left">Test prompts, resources, and tools</td>
+</tr>
+<tr>
+<td align="left"><strong>Awesome MCP Servers</strong></td>
+<td align="left"><a href="https://github.com/modelcontextprotocol/servers">https://github.com/modelcontextprotocol/servers</a></td>
+<td align="left">Curated list of community MCP servers</td>
+</tr>
+</tbody>
+</table><hr>
+<h2 id="appendix-c-uncensored-coding-stacks-beyond-abliteration">Appendix C: Uncensored Coding Stacks Beyond Abliteration</h2>
+<p>If the goal is <strong>uncensored coding without relying solely on abliterated weights</strong>, consider:</p>
+<ol>
+<li><strong>Local-only orchestration with permissive base models + strict sandboxing.</strong> The “censorship” in a coding agent usually comes from refusal behavior in the base model, but a <strong>well-scoped system prompt + sandboxed tool access</strong> can reduce spurious refusals without weight modification.</li>
+<li><strong>Official “code-only” models.</strong> Several vendors ship code-specialized models with narrower refusal surfaces for legitimate systems programming (e.g., memory scanning, reverse-engineering tooling). Qwen2.5-Coder and Qwen3-Coder are examples, though their guardrails still apply to clearly malicious requests.</li>
+<li><strong>Layer a local “router” model.</strong> Use a small uncensored model only as a <strong>prompt rewriter</strong> that translates a sensitive but legitimate engineering request into a neutral phrasing before passing it to a more capable aligned model. This keeps the coding model aligned while avoiding unnecessary refusals.</li>
+<li><strong>Containerized build environments.</strong> The most robust “uncensored” experience comes from <strong>removing the agent’s ability to cause real harm</strong>, not from removing model refusals. Run the agent in a disposable container with no network egress and a read-only base filesystem, and mount only the project directory read-write. Then refusals become the only remaining constraint—and if they block legitimate work, you can justify a targeted abliterated variant inside that container.</li>
+</ol>
+<hr>
+<p><em>This guide is a living document. MCP specification revisions, Ollama context defaults, and package deprecations change frequently. Re-verify the filesystem server version, the Roots status, and your Ollama context tier before each deployment.</em></p>
+</div>
+</body>
+
+</html>
