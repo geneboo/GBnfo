@@ -43,7 +43,21 @@
 		.loader-2{width:120px;height:120px;top:15px;left:15px;border-color:var(--secondary-color);animation-delay:.5s;animation-duration:2.5s}
 		.loader-3{width:90px;height:90px;top:30px;left:30px;border-color:var(--accent-color);animation-delay:1s;animation-duration:3s}
 		@keyframes pulse{0%{transform:rotate(0) scale(1);opacity:1}50%{transform:rotate(180deg) scale(.8);opacity:.7}100%{transform:rotate(360deg) scale(1);opacity:1}}
-		header{position:sticky;top:20px;z-index:1000;background:var(--header-background);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);padding:0 5%;height:70px;display:flex;align-items:center;justify-content:space-between;transition:background .3s,box-shadow .3s;min-height:70px}
+		header {
+			position: sticky;
+			top: 0;
+			z-index: 1000;
+			background: var(--header-background);
+			backdrop-filter: blur(12px);
+			border-bottom: 1px solid rgba(255,255,255,.08);
+			padding: 12px 5%; /* Replaced 0 with vertical padding */
+			height: auto;     /* Let content dictate height safely */
+			min-height: 70px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			transition: background .3s, box-shadow .3s;
+		}
 		header.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.6)}
 		.branding{display:flex;align-items:center;gap:12px}
 		.brand-logo{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--primary-color),var(--secondary-color));padding:3px;flex-shrink:0;transition:transform .4s ease;cursor:pointer}
