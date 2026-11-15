@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Generate GBNfo.xlsx</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:900px;margin:3rem auto;padding:0 1.5rem;line-height:1.6;color:#1e293b}
+  h1{margin-bottom:.5rem}
+  button{padding:1rem 2rem;font-size:1.1rem;font-weight:600;background:#FF006E;color:#fff;border:none;border-radius:8px;cursor:pointer}
+  button:hover{background:#d1005b}
+  pre{background:#f1f5f9;padding:1rem;border-radius:8px;font-size:.8rem;overflow:auto;max-height:400px}
+  .note{background:#fff7ed;border-left:4px solid #f59e0b;padding:.75rem 1rem;border-radius:4px;margin:1rem 0}
+</style>
+</head>
+<body>
+<h1>Generate GBNfo.xlsx</h1>
+<p>Click the button to download a fully populated <code>GBNfo.xlsx</code> — every sheet the loader expects, pre-filled with the cards, links, résumé docs, themes and social links that currently live in <code>index.html</code>.</p>
+
+<div class="note">
+  <strong>After download:</strong> put <code>GBNfo.xlsx</code> next to <code>index.html</code>. Edit it in Excel from then on — add rows, change Order numbers, edit URLs, hide cards with <code>Visible = FALSE</code>. Both <code>index.html</code> and <code>index3d.html</code> will pick up the changes on reload.
+</div>
+
+<button id="go">⬇ Download GBNfo.xlsx</button>
+<pre id="log"></pre>
+
+<script>
+/* ============================================================
+   GBNfo.xlsx generator — full seed data
+   Every array below = one sheet (first row = headers).
+   ============================================================ */
+const SHEETS = {
+
+  Site: [
+    ['Key','Value'],
+    ['SiteTitle','Gene Boo · Math · Engineering · Sonic Art'],
+    ['SiteDescription','Math · Code · Sound'],
+    ['DefaultTheme','default'],
+    ['LogoURL','assets/Gene-removebg-preview.png']
+  ],
+
+  Themes: [
+    ['Key','Label','Primary','Secondary','Accent','Pattern','Overlay','Order','Visible'],
+    ['default','Default','#FF006E','#3A86FF','#FFBE0B','https://www.transparenttextures.com/patterns/cartographer.png','linear-gradient(135deg, rgba(255,0,110,.05), rgba(58,134,255,.05))',1,true],
+    ['ocean','Ocean','#2193b0','#6dd5ed','#00d2ff','https://www.transparenttextures.com/patterns/green-forest.png','',2,true],
+    ['sunset','Sunset','#ff7e5f','#feb47b','#ff9a9e','https://www.transparenttextures.com/patterns/bright-squares.png','',3,true],
+    ['forest','Forest','#11998e','#38ef7d','#5ee7df','https://www.transparenttextures.com/patterns/beige-paper.png','',4,true],
+    ['royal','Royal','#4776E6','#8E54E9','#FFC75F','https://www.transparenttextures.com/patterns/45-degree-fabric-light.png','',5,true],
+    ['retro','Retro','#E56B00','#F9A825','#00BCD4','https://www.transparenttextures.com/patterns/retina-wood.png','',6,true],
+    ['jazz','Jazz','#2C3E50','#F1C40F','#8E44AD','https://www.transparenttextures.com/patterns/dark-matter.png','',7,true],
+    ['hiphop','Hip-hop','#9B59B6','#2ECC71','#F39C12','https://www.transparenttextures.com/patterns/black-linen.png','',8,true],
+    ['industrial','Industrial','#E67E22','#7F8C8D','#F1C40F','https://www.transparenttextures.com/patterns/concrete-wall.png','',9,true],
+    ['dnb','DnB','#00E5FF','#FF4081','#7C4DFF','https://www.transparenttextures.com/patterns/stardust.png','',10,true],
+    ['skate','Skate & B-boy','#FF5722','#FFEB3B','#2196F3','https://www.transparenttextures.com/patterns/graffiti.png','',11,true]
+  ],
+
+  Navigation: [
+    ['MenuItem','Link','IconClass','Target','Style','Order','Visible'],
+    ['About','#about','fas fa-user','_self','nav',1,true],
+    ['Engineering','#engineering','fas fa-cog','_self','nav',2,true],
+    ['Coding Projects','#projects','fas fa-code','_self','nav',3,true],
+    ['Written Works','#written','fas fa-file-alt','_self','nav',4,true],
+    ['Sonic Art','#sonic','fas fa-music','_self','nav',5,true],
+    ['Résumé','#resume','fas fa-id-card','_self','nav',6,true],
+    ['Contact','#contact','fas fa-envelope','_self','nav',7,true],
+    ['SciLexicon','assets/SciLexicon.html','fas fa-book','_blank','switcher',8,true],
+    ['3D Office','index3d.html','fas fa-cube','_blank','switcher',9,true]
+  ],
+
+  Sections: [
+    ['SectionId','Title','Subtitle','Layout','Order','Visible'],
+    ['about','About','Where mathematics meets technology & creativity','cards',1,true],
+    ['engineering','High-Performance Engineering','C++ · Rust · DSP · Real-time Audio & Visuals','cards',2,true],
+    ['projects','Coding Projects','Live demos, local tools, quant utilities, and experiments in progress','projects',3,true],
+    ['written','Written Works','Featured technical notes, math explainers, finance essays, and high-performance computing write-ups','written',4,true],
+    ['sonic','Sonic Art & Visual Engineering','Music, audio synthesis, generative visuals, and reactive systems','cards',5,true],
+    ['resume','Résumé','Professional experience & qualifications','resume',6,true],
+    ['contact','Contact',"Let's connect and explore opportunities",'contact',7,true]
+  ],
+
+  Groups: [
+    ['GroupId','SectionId','Kicker','Title','Badge','Order','Visible'],
+    ['live','projects','Live / available now','Live Sites & Local Tools','Top',1,true],
+    ['incubating','projects','Coming soon','Incubating Ideas','',2,true]
+  ],
+
+  Cards: [
+    ['CardId','SectionId','GroupId','Order','Layout','Icon','IconType','Title','Body','Badge','Visible'],
+    // ── About ────────────────────────────────────────────────
+    ['about-alchemist','about','',1,'card','💡','emoji','Code Alchemist','Turning ideas into elegant code — from web apps to real-time DSP. Passionate about solving complex problems with creative, high-performance solutions.','',true],
+    ['about-quant','about','',2,'card','📊','emoji','Quant & Modeler','Two decades in mathematical modeling, risk analytics, and algorithmic trading. Expertise in Python, C++, Rust, and numerical methods for finance and engineering.','',true],
+    ['about-community','about','',3,'card','👥','emoji','Community Builder','Creating educational tools and interactive experiences to make STEM accessible and inspiring for the next generation of innovators.','',true],
+    ['about-audio','about','',4,'card','🎛️','emoji','Audio/Visual Engineer','Building VST3 synths, mastering plugins, and Python-driven generative art — where signal processing meets creative expression.','',true],
+    ['about-innovation','about','',5,'card','⚡','emoji','Innovation Under Constraints','We talk a lot about "innovation under constraints," but let\'s talk about the practical side of it.\n\nI run a 15-year-old computer and drive a 17-year-old car. My hobby budget is exactly $0. But instead of letting that limit me, it forced me to learn.\n\nBy leveraging free LLMs and open-source GitHub repositories, I\'ve been diving deep into Python, Rust, C++, and JUCE. When a tool I need requires a commercial license, I treat it as a coding challenge and build my own custom solution.\n\nYou don\'t need top-tier hardware or expensive software to build powerful things. You just need curiosity (and maybe a little bit of stubbornness).','',true],
+    // ── Engineering ──────────────────────────────────────────
+    ['eng-vst3','engineering','',1,'card','⚙️','emoji','VST3 & Mastering','Developing native VST3 synthesizers and mastering plugins in C++ and Rust. Low-latency, zero-copy audio processing with modern DSP techniques.','',true],
+    ['eng-python','engineering','',2,'card','🐍','emoji','Python Audio/Visual','Automated generative visuals and sound design using Python — real-time spectrograms, MIDI-driven animations, and interactive installations.','',true],
+    ['eng-perf','engineering','',3,'card','🚀','emoji','Performance Optimization','SIMD, multi-threading, and GPU acceleration for numerical simulations and audio processing. Pushing hardware to its limits with Rust and CUDA.','',true],
+    // ── Projects — Live ──────────────────────────────────────
+    ['proj-funkygraffy','projects','live',1,'project','🎨','emoji','Funkygraffy!','Interactive math visualization toy with color, animations, and Easter eggs — exploring functions in a playful way.','',true],
+    ['proj-cmh','projects','live',2,'project','🕶️','emoji','Cermin Mata Ho','No-code business site editable via Excel — perfect for small shops that need quick updates.','',true],
+    ['proj-fitit','projects','live',3,'project','📊','emoji','Fit_it!','Upload data and get the best-fit continuous distributions ranked — stats nerd paradise.','',true],
+    ['proj-fourier','projects','live',4,'project','🎵','emoji','FourierDoodler','Draw anything and watch it transform into a musical Fourier animation with multi-colored epicycles, generative EDM, and real-time equations.','',true],
+    ['proj-webgl','projects','live',5,'project','📡','emoji','WebGL Audio Visualizer','Real-time WebGL audio visualizer built with Three.js and the Web Audio API — immersive, reactive, and GPU-accelerated.','',true],
+    ['proj-parquet','projects','live',6,'project','🗃️','emoji',"Gene's Parquet Viewer",'Lightweight Rust & Polars powered Windows application that allows users to peek into large parquet datasets in the TB range, and run simple SQL / PRQL queries.','',true],
+    ['proj-excelbridge','projects','live',7,'project','🧰','emoji','ExcelBridge','Lightweight REST host that turns Excel into a front-end for Python numerical computing. Loads plugins at runtime, returns spill-ready results.','',true],
+    ['proj-scilexicon','projects','live',8,'project','🔬','emoji','SciLexicon','Live science lookup engine aggregating formulas, literature, and definitions from public APIs.','',true],
+    // ── Projects — Incubating ────────────────────────────────
+    ['proj-convolve','projects','incubating',1,'project','🔁','emoji','Convolve!','Empirical convolution of any shapes, PDFs, or functions — useful for joint distributions and signal processing.','',true],
+    ['proj-saas','projects','incubating',2,'project','🧩','emoji',"Gene's SaaS Universe",'Mini REST API endpoints for option pricing, risk analytics, and quantitative models — coming soon.','',true],
+    // ── Written ──────────────────────────────────────────────
+    ['written-fourier','written','',1,'written','','','Understanding Fourier Transform','FFT convolution for option pricing — with Python implementations and Black-Scholes extensions.','',true],
+    ['written-fft-pearson','written','',2,'written','','','FFT Cross-Correlation vs Pearson','Using FFT for cross-correlation and comparing with Pearson correlation.','',true],
+    ['written-agent','written','',3,'written','','','Autonomous Local Coding Agent Guide','Setting up a 100% local coding workflow in VS Code using Ollama, Hugging Face models, and MCP. With some secrets for abliterated models within. Useful for hackers.','',true],
+    ['written-skewt','written','',4,'written','','','Finite-Scenario Skew-t Regime Models for Trading, Risk-Neutralization, and Derivative Pricing','This study develops a unified architecture in which physical returns are modelled by a Markov-switching mixture of standardized skewed Student-t distributions, while derivative pricing is performed using finite empirical scenario laws and their exact empirical moment-generating functions. The skew parameter nests the symmetric Student-t model, and large degrees of freedom approach the Gaussian limit, hence can be a versatile approach to option pricing in leptokurtic markets.','',true],
+    ['written-mgf','written','',5,'written','','','Risk-Neutral Pricing via MGF','Moment generating functions for drift correction in risk-neutral valuation.','',true],
+    ['written-cuda','written','',6,'written','','','NVIDIA CUDA Tiling Explained','Understanding CUDA tiling through matrix multiplication — a practical intro.','',true],
+    ['written-arb','written','',7,'written','','','Art of Buy-Side Arbitrage','Strategic overview of arbitrage techniques in modern buy-side institutions.','',true],
+    ['written-gap','written','',8,'written','','','Mind the Gap (Under the Curve)','Numerical integration and quadrature methods with financial engineering applications.','',true],
+    ['written-beyond','written','',9,'written','','','Beyond the Formulas: Empirical MLE, FFT, Laplace Transforms, Copula Dependence, Quadrature, Autodiff and Tail-Risk Workflows','More numerical integration and quadrature methods with financial engineering applications.','',true],
+    ['written-gb','written','',10,'written','','',"Hobbyist's Informal Notes on Gradient Boosting",'Layman-friendly technical notes on gradient boosting, XGBoost, LightGBM, CatBoost, regularization, formulae, and practical model selection.','',true],
+    // ── Sonic ────────────────────────────────────────────────
+    ['sonic-albums','sonic','',1,'card','📀','emoji','Official Albums','Stream my full-length releases on Spotify, Apple Music, and Amazon. A blend of electronic, ambient, and experimental sound.','',true],
+    ['sonic-gbdizzy','sonic','',2,'card','🎧','emoji','GBdiZZy · Personal Sonic Art','Python-driven audio/visual engineering — generative beats, live coding, and experimental sound design.','',true],
+    ['sonic-soundcloud','sonic','',3,'card','☁️','emoji','GB Diz-zy · SoundCloud','Original lofi mixes, exclusive tracks, and sonic sketches — a playground for my musical ideas.','',true],
+    ['sonic-visual','sonic','',4,'card','🌈','emoji','Visual Engineering','Reactive visual experiments that connect audio features, realtime rendering, shaders, Fourier ideas, and WebGL performances.','',true],
+    // ── Contact ──────────────────────────────────────────────
+    ['contact-email','contact','',1,'contact','fas fa-envelope','fa','Email','gene.boo@aol.com\ngene.boo@gmail.com','',true],
+    ['contact-phone','contact','',2,'contact','fas fa-phone-alt','fa','Phone','Available upon request','',true],
+    ['contact-location','contact','',3,'contact','fas fa-map-marker-alt','fa','Location','Remote worldwide','',true]
+  ],
+
+  Links: [
+    ['CardId','LinkId','Label','URL','Icon','Target','Order','Visible'],
+    // About (SoundCloud CTA on Innovation card)
+    ['about-innovation','','Sonic Art on SoundCloud','https://soundcloud.com/gb-diz-zy-unofficial','fas fa-music','_blank',1,true],
+    // Engineering
+    ['eng-vst3','','Explore plugins (coming soon)','#','fas fa-arrow-right','_self',1,true],
+    ['eng-python','','See projects below','#projects','fas fa-arrow-right','_self',1,true],
+    ['eng-perf','','Read about CUDA tiling','#written','fas fa-arrow-right','_self',1,true],
+    // Projects — Live
+    ['proj-funkygraffy','','Render Cloud','https://funkygraffy.onrender.com/','fas fa-external-link-alt','_blank',1,true],
+    ['proj-funkygraffy','','Google Cloud','https://my-cloud-run-service-324349391188.asia-southeast1.run.app/','fas fa-external-link-alt','_blank',2,true],
+    ['proj-cmh','','View Site','https://geneboo.github.io/GBnfo/OptiStyle.html','fas fa-external-link-alt','_blank',1,true],
+    ['proj-fitit','','Live Demo','https://fit-it-app-29330439259.asia-southeast1.run.app/#top','fas fa-external-link-alt','_blank',1,true],
+    ['proj-fourier','','Live Demo','https://fourier-doodler-3805819345.asia-southeast1.run.app','fas fa-external-link-alt','_blank',1,true],
+    ['proj-webgl','','Live Demo','https://webgl-audio-visualizer-3805819345.asia-southeast1.run.app/','fas fa-external-link-alt','_blank',1,true],
+    ['proj-parquet','','v0.7.1','https://github.com/geneboo/gene_products/releases/tag/Genes-Parquet-Viewer-0.7.1','fas fa-external-link-alt','_blank',1,true],
+    ['proj-parquet','','GUI User Guide','GPV_v0_7_1_UI_User_Guide.html','fas fa-external-link-alt','_blank',2,true],
+    ['proj-parquet','','CLI User Guide','PV_v0_7_1_User_Guide.html','fas fa-external-link-alt','_blank',3,true],
+    ['proj-parquet','','v1.2.0','https://github.com/geneboo/gene_products/releases/tag/Genes-Parquet-Viewer-1.2.0','fas fa-external-link-alt','_blank',4,true],
+    ['proj-excelbridge','excelbridge-learn-more','Learn more','#','fas fa-info-circle','_self',1,true],
+    ['proj-excelbridge','','v2.2.8','https://github.com/geneboo/gene_products/releases/tag/v2.2.8','fas fa-external-link-alt','_blank',2,true],
+    ['proj-excelbridge','','v3.1.5','https://github.com/geneboo/gene_products/releases/tag/v3.1.5','fas fa-external-link-alt','_blank',3,true],
+    ['proj-excelbridge','','Plugin Dev Guide','ExcelBridge_plugin_developer_guide.html','fas fa-external-link-alt','_blank',4,true],
+    ['proj-excelbridge','','Google Sheets + npm','ExcelBridge_plugin_for_Google_Sheets_using_npm.html','fas fa-external-link-alt','_blank',5,true],
+    ['proj-excelbridge','','LibreOffice Calc','ExcelBridge_plugin_for_LibreOffice.html','fas fa-external-link-alt','_blank',6,true],
+    ['proj-scilexicon','','SciLexicon Live','assets/SciLexicon.html','fas fa-external-link-alt','_blank',1,true],
+    // Projects — Incubating
+    ['proj-convolve','','Coming Soon','#','fas fa-clock','_self',1,true],
+    ['proj-saas','','Coming Soon','#','fas fa-clock','_self',1,true],
+    // Written
+    ['written-fourier','','PDF','assets/Gene%20Boo%20-%20FFT%20Convolution%20PDF%20BlackScholes%20Python3%20v5_.pdf','fas fa-file-pdf','_blank',1,true],
+    ['written-fft-pearson','','HTML','assets/GB_FFT_Pearson_NP_Correl.html','fas fa-file-alt','_blank',1,true],
+    ['written-fft-pearson','','PDF','assets/GB_FFT_Pearson_NP_Correl.pdf','fas fa-file-pdf','_blank',2,true],
+    ['written-fft-pearson','','IPYNB','assets/GB_FFT_Pearson_NP_Correl.ipynb','fas fa-flask','_blank',3,true],
+    ['written-agent','','HTML','assets/local-coding-mcp-ollama-vscode-guide-v2_0.html','fas fa-file-alt','_blank',1,true],
+    ['written-agent','','PDF','assets/local-coding-mcp-ollama-vscode-guide-v2_0.pdf','fas fa-file-pdf','_blank',2,true],
+    ['written-skewt','','HTML','assets/finite_scenario_skew_t_regime_study_v2.html','fas fa-file-alt','_blank',1,true],
+    ['written-skewt','','PDF','assets/finite_scenario_skew_t_regime_study_v2.pdf','fas fa-file-pdf','_blank',2,true],
+    ['written-mgf','','HTML','assets/GB_Risk-Neutral_Pricing_via_MGF_v3.html','fas fa-file-alt','_blank',1,true],
+    ['written-mgf','','PDF','assets/GB_Risk-Neutral_Pricing_via_MGF_v3.pdf','fas fa-file-pdf','_blank',2,true],
+    ['written-cuda','','HTML','assets/NVIDIA_CUDA_Tile.html','fas fa-file-alt','_blank',1,true],
+    ['written-cuda','','PDF','assets/NVIDIA_CUDA_Tile.pdf','fas fa-file-pdf','_blank',2,true],
+    ['written-arb','','HTML','assets/GB_Buy-side_Arbitrage.html','fas fa-file-alt','_blank',1,true],
+    ['written-arb','','PDF','assets/GB_Buy-side_Arbitrage.pdf','fas fa-file-pdf','_blank',2,true],
+    ['written-gap','','HTML','assets/GB_Mind_the_Gap_Under_the_Curve_with_sidebar.html','fas fa-file-alt','_blank',1,true],
+    ['written-gap','','PDF','assets/GB_Mind_the_Gap_Under_the_Curve_orig5_rainbow.pdf','fas fa-file-pdf','_blank',2,true],
+    ['written-beyond','','HTML','assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_NUMBERED_TOC.html','fas fa-file-alt','_blank',1,true],
+    ['written-beyond','','PDF','assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_NUMBERED_TOC.pdf','fas fa-file-pdf','_blank',2,true],
+    ['written-beyond','','IPYNB','assets/Empirical_MLE_FFT_Laplace_Copula_Quadrature_Autodiff_VaR_ES_FULL.ipynb','fas fa-flask','_blank',3,true],
+    ['written-gb','','HTML','assets/Hobbyists_Informal_Notes_on_Gradient_Boosting.html','fas fa-file-alt','_blank',1,true],
+    ['written-gb','','PDF','assets/Hobbyists_Informal_Notes_on_Gradient_Boosting.pdf','fas fa-file-pdf','_blank',2,true],
+    // Sonic
+    ['sonic-albums','','YouTube Channel','https://www.youtube.com/channel/UCPb1z1H5SI0uevqh42Ip3OQ','fab fa-youtube','_blank',1,true],
+    ['sonic-gbdizzy','','YouTube @GBdiZZy','https://www.youtube.com/@GBdiZZy','fab fa-youtube','_blank',1,true],
+    ['sonic-soundcloud','','SoundCloud','https://soundcloud.com/gb-diz-zy','fab fa-soundcloud','_blank',1,true],
+    ['sonic-visual','','See WebGL Audio Visualizer','#projects','fas fa-arrow-right','_self',1,true]
+  ],
+
+  Resume: [
+    ['DocId','Label','Title','Description','URL','DownloadName','Order','Visible'],
+    ['cover','Cover Letter','Cover Letter','A letter of introduction highlighting my professional journey, skills, and aspirations','assets/Cover Letter - Gene Boo.pdf','Cover Letter - Gene Boo.pdf',1,true],
+    ['cv2027','CV 2027','CV 2027','Most recent CV','assets/CV 2027 - Gene Boo.pdf','CV 2027 - Gene Boo.pdf',2,true],
+    ['cv2026','CV 2026','CV 2026','CV 2026','assets/CV 2026 - Gene Boo.pdf','CV 2026 - Gene Boo.pdf',3,true],
+    ['cv2025','CV 2025','CV 2025','CV 2025','assets/CV 2025 - Gene Boo.pdf','CV 2025 - Gene Boo.pdf',4,true],
+    ['cv2024','CV 2024','CV 2024','CV 2024','assets/CV 2024 - Gene Boo.pdf','CV 2024 - Gene Boo.pdf',5,true]
+  ],
+
+  Social: [
+    ['Label','URL','Icon','Order','Visible'],
+    ['LinkedIn','https://www.linkedin.com/in/gene-boo-007/','fab fa-linkedin-in',1,true],
+    ['GitHub','#','fab fa-github',2,true],
+    ['Website','#','fas fa-globe',3,true]
+  ],
+
+  Announcements: [
+    ['Text','Icon','Order','Visible']
+    // add announcement rows here later; leave empty for now
+  ]
+};
+
+/* ── column widths per sheet (visual only, safe to tweak) ── */
+const WIDTHS = {
+  Site:         [18, 60],
+  Themes:       [12, 14, 10, 10, 10, 60, 60, 6, 8],
+  Navigation:   [16, 30, 16, 8, 10, 6, 8],
+  Sections:     [14, 34, 70, 10, 6, 8],
+  Groups:       [12, 14, 20, 30, 8, 6, 8],
+  Cards:        [22, 14, 12, 6, 10, 22, 8, 36, 80, 8, 8],
+  Links:        [22, 24, 26, 60, 24, 8, 6, 8],
+  Resume:       [10, 14, 14, 60, 45, 40, 6, 8],
+  Social:       [12, 45, 22, 6, 8],
+  Announcements:[70, 20, 6, 8]
+};
+
+/* ── build & download ────────────────────────────────────── */
+document.getElementById('go').addEventListener('click', () => {
+  const log = document.getElementById('log');
+  log.textContent = '';
+  const wb = XLSX.utils.book_new();
+
+  for (const [name, aoa] of Object.entries(SHEETS)) {
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    // auto-wrap for long cells (Excel respects when user enables wrap)
+    ws['!cols'] = (WIDTHS[name] || aoa[0].map(() => 18)).map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, ws, name);
+    log.textContent += `✓ ${name}: ${aoa.length - 1} data row(s)\n`;
+  }
+
+  XLSX.writeFile(wb, 'GBNfo.xlsx', { compression: true });
+  log.textContent += '\n✅ GBNfo.xlsx downloaded.\n';
+});
+</script>
+</body>
+</html>
