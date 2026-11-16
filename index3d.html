@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5.0">
 	<title>Gene Boo · Premium Lab</title>
 	<meta name="description" content="Gene Boo's futuristic 3D interactive lab — math, code, sound.">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&family=Roboto+Mono:wght@300;400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 	<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 	<style>
@@ -372,7 +373,14 @@
 			#panel { padding: 18px 14px }
 			#hint { font-size: .62rem; width: 92%; white-space: normal }
 		}
-	</style>
+	
+#announcement-hud{position:fixed;left:50%;bottom:62px;transform:translateX(-50%);z-index:18;width:min(780px,90vw);padding:10px 16px;border:1px solid rgba(99,242,255,.45);border-radius:999px;background:rgba(5,8,22,.78);backdrop-filter:blur(16px);box-shadow:0 0 34px rgba(99,242,255,.18);font-family:Orbitron;font-size:.72rem;letter-spacing:.5px;text-align:center;color:#fff;cursor:pointer}#announcement-hud i{color:var(--accent);margin-right:8px}#announcement-hud:hover{border-color:var(--accent);box-shadow:0 0 40px rgba(255,190,11,.28)}
+
+.__unused_arcade_btn{position:fixed;right:22px;bottom:22px;z-index:2147483647;pointer-events:auto!important;touch-action:manipulation;width:58px;height:58px;border-radius:18px;border:1px solid rgba(255,255,255,.34);background:linear-gradient(135deg,var(--primary-color),var(--secondary-color));color:#fff;font-size:25px;cursor:pointer;box-shadow:0 12px 35px rgba(0,0,0,.5),0 0 24px color-mix(in srgb,var(--primary-color) 55%,transparent);animation:arcadeFloat 3s ease-in-out infinite}.__unused_arcade_btn:hover{transform:translateY(-5px) rotate(-4deg) scale(1.08)}.__unused_arcade_btn::after{content:'Definitely not work-related…';position:absolute;right:68px;top:50%;transform:translateY(-50%) scale(.9);opacity:0;pointer-events:none;width:max-content;padding:8px 12px;border-radius:999px;background:rgba(5,8,22,.94);border:1px solid var(--accent-color);font:700 .72rem 'Lato',sans-serif;color:#fff;transition:.22s}.__unused_arcade_btn:hover::after,.__unused_arcade_btn:focus-visible::after{opacity:1;transform:translateY(-50%) scale(1)}@keyframes arcadeFloat{50%{transform:translateY(-7px) rotate(3deg)}}
+#arcade-shell{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.78);backdrop-filter:blur(12px)}#arcade-shell.active{display:flex}#arcade-panel{position:relative;width:min(1120px,96vw);max-height:91vh;overflow:auto;padding:24px;border-radius:22px;background:rgba(6,9,22,.97);border:1px solid rgba(255,255,255,.18);box-shadow:0 35px 90px rgba(0,0,0,.75),0 0 45px color-mix(in srgb,var(--secondary-color) 30%,transparent)}#arcade-close{position:sticky;float:right;top:0;z-index:4;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:26px;cursor:pointer}.arcade-lobby-title{font:900 clamp(1.8rem,5vw,3.2rem) 'Bebas Neue',sans-serif;letter-spacing:2px;background:linear-gradient(90deg,var(--primary-color),var(--accent-color),var(--secondary-color));-webkit-background-clip:text;color:transparent}.arcade-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 20px}.arcade-toolbar button,.game-launch{border:1px solid rgba(255,255,255,.2);border-radius:999px;background:linear-gradient(135deg,rgba(255,0,110,.2),rgba(58,134,255,.22));color:#fff;padding:9px 15px;font:800 .75rem 'Lato',sans-serif;cursor:pointer}.arcade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px}.arcade-card{padding:16px;border-radius:15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12)}.arcade-card h3{font:700 1.05rem 'Playfair Display',serif;margin:8px 0}.arcade-card p{font:.78rem 'Lato',sans-serif;color:rgba(255,255,255,.7);min-height:35px}.arcade-best{color:var(--accent-color);font-size:.72rem;margin:8px 0}.lbtable{width:100%;border-collapse:collapse;margin:8px 0 18px}.lbtable th,.lbtable td{padding:8px;border-bottom:1px solid rgba(255,255,255,.12);text-align:left;font-size:.78rem}.arcade,.arcade canvas{max-width:100%}.gamecanvas{display:block;margin:auto;background:#05050a;border:1px solid rgba(255,255,255,.2)}.hudrow,.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:12px 0}.arcbtn,.drumpad{padding:9px 13px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:8px;cursor:pointer}.padgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.piano{position:relative;display:flex;justify-content:center;min-height:190px}.whitekey{width:42px;height:180px;background:#fff;color:#111;border:1px solid #333}.blackkey{position:absolute;width:28px;height:112px;background:#111;color:#fff;z-index:2}.lbtable{color:#fff}@media(max-width:600px){.__unused_arcade_btn{right:12px;bottom:12px}.arcade-grid{grid-template-columns:1fr 1fr}.padgrid{grid-template-columns:repeat(2,1fr)}}
+
+#arcade-fallback{display:flex;align-items:center;justify-content:center;text-decoration:none;position:fixed;right:20px;bottom:20px;z-index:2147483647;pointer-events:auto!important;touch-action:manipulation;width:58px;height:58px;border-radius:18px;border:1px solid rgba(99,242,255,.7);background:linear-gradient(135deg,#ff006e,#3a86ff);color:#fff;font-size:23px;cursor:pointer;box-shadow:0 0 30px rgba(99,242,255,.38);animation:arcadeBob 2.6s ease-in-out infinite}#arcade-fallback:hover{transform:scale(1.1) rotate(-5deg)}@keyframes arcadeBob{50%{transform:translateY(-7px)}}
+</style>
 	<base target="_blank">
 </head>
 <body>
@@ -397,13 +405,15 @@
 				<option value="rooftop">Rooftop Bar</option>
 				<option value="sunset">Sunset</option>
 			</select>
-			<a class="switcher" href="arcade.html">Arcade</a>
+			<a class="switcher" id="arcade-nav-btn" href="./arcade.html" target="_self">Arcade</a>
 			<a class="switcher" href="assets/SciLexicon.html">SciLexicon</a>
 			<a class="switcher" href="index.html">Classic View</a>
 		</nav>
 	</header>
 
-	<div id="hint">WASD/Arrows to move · Drag to orbit · Click floor for ripples · Double‑click for burst · Click stations to inspect</div>
+	<button id="announcement-hud" type="button" hidden><i class="fas fa-bullhorn"></i><span></span></button>
+	<a id="arcade-fallback" href="./arcade.html" target="_self" aria-label="Open arcade"><i class="fas fa-gamepad"></i></a>
+	<div id="hint">WASD/Arrows to move · Drag to orbit · Click floor for ripples · Double‑click for burst · Click stations to inspect · The sofa looks suspicious</div>
 
 	<div id="overlay">
 		<div id="panel">
@@ -432,6 +442,12 @@
 		   ========================================================= */
 		const XLSX_URL = 'assets/GBNfo.xlsx';
 		let GBNfoData = {};
+		
+		function safeText(v){ return String(v == null ? '' : v); }
+		function safeUrl(v){ const s=safeText(v).trim(); return /^(https?:|mailto:|tel:|#|assets\/|[A-Za-z0-9_.-]+\.html)/i.test(s)?s:'#'; }
+		function parseDateSafe(v){ if(!v) return null; if(v instanceof Date) return v; const d=new Date(v); return Number.isNaN(d.valueOf())?null:d; }
+		function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.StartDate), end=parseDateSafe(a.EndDate); return isVisible(a.Visible) && (!start||now>=start) && (!end||now<=end); }
+		
 		let stationData = {};
 
 		function isVisible(val) {
@@ -450,6 +466,10 @@
 					return ws ? XLSX.utils.sheet_to_json(ws, { defval: '' }) : [];
 				};
 
+				GBNfoData.themes = getSheet('Themes').filter(t=>isVisible(t.Visible)).sort((a,b)=>(Number(a.Order)||99)-(Number(b.Order)||99));
+				GBNfoData.announcements = getSheet('Announcements').filter(activeAnnouncement).sort((a,b)=>(Number(a.Order)||99)-(Number(b.Order)||99));
+				GBNfoData.settings = getSheet('Settings').reduce((o,r)=>(r.Key&&(o[String(r.Key).trim()]=r.Value),o),{});
+				GBNfoData.environments = getSheet('Environments3D').filter(e=>isVisible(e.Visible)).sort((a,b)=>(Number(a.Order)||99)-(Number(b.Order)||99));
 				GBNfoData.site = getSheet('Site').reduce((acc, row) => {
 					if (row.Key) acc[String(row.Key).trim()] = row.Value;
 					return acc;
@@ -464,6 +484,9 @@
 
 				buildStationData();
 				populateNavFromExcel();
+				populateEnvironmentSwitcher();
+				applyWorkbookTheme3D();
+				window.app?.announcementSystem?.setRows(GBNfoData.announcements, GBNfoData.settings);
 			} catch (err) {
 				console.error('Excel load error:', err);
 			}
@@ -474,12 +497,14 @@
 				icon: c.Icon || '✨',
 				title: c.Title || '',
 				desc: c.Body || '',
+				badge: c.Badge || '', layout: c.Layout || 'card', iconType: c.IconType || 'emoji',
 				links: GBNfoData.links
 					.filter(l => String(l.CardId).trim() === String(c.CardId).trim())
 					.map(l => ({
 						text: l.Label || 'Open',
 						url: l.URL || '#',
-						download: String(l.Label || '').toLowerCase().includes('download')
+						download: String(l.Target||'').toLowerCase()==='download'||String(l.Label||'').toLowerCase().includes('download'),
+						target: l.Target || '_blank', icon: l.Icon || ''
 					}))
 			};
 		}
@@ -601,10 +626,13 @@
 			});
 		}
 
+
+		function populateEnvironmentSwitcher(){ const sel=document.getElementById('env-switcher'); if(!GBNfoData.environments?.length)return; sel.replaceChildren(...GBNfoData.environments.map(e=>{const o=document.createElement('option');o.value=e.Key;o.textContent=e.Label||e.Key;return o;})); sel.value=GBNfoData.settings.DefaultEnvironment||GBNfoData.environments[0].Key; window.app?.envManager?.switchTo(sel.value); }
+		function applyWorkbookTheme3D(){ const key=GBNfoData.site.DefaultTheme, t=GBNfoData.themes?.find(x=>String(x.Key)===String(key))||GBNfoData.themes?.[0]; if(!t)return; const r=document.documentElement.style;r.setProperty('--primary',t.Primary);r.setProperty('--secondary',t.Secondary);r.setProperty('--accent',t.Accent); }
 		function renderLinks(links) {
 			if (!links || !links.length) return '';
 			return `<div class="links">${links.map(l =>
-				`<a href="${l.url}" ${l.download ? 'download' : 'target="_blank" rel="noopener"'}>${l.text}</a>`
+				`<a href="${safeUrl(l.url)}" ${l.download ? 'download' : `target="${l.target||'_blank'}" rel="noopener"`}>${l.icon ? `<i class="${l.icon}"></i> ` : ''}${l.text}</a>`
 			).join('')}</div>`;
 		}
 
@@ -615,7 +643,7 @@
 				h += `
 					<div class="card">
 						<div class="ico">${c.icon || '✨'}</div>
-						<h3>${c.title || ''}</h3>
+						<h3>${c.title || ''} ${c.badge ? `<span class="badge">${c.badge}</span>` : ''}</h3>
 						<div>${typeof c.desc === 'string' && !c.desc.trim().startsWith('<') ? `<p>${c.desc}</p>` : (c.desc || '')}</div>
 						${renderLinks(c.links)}
 					</div>`;
@@ -1208,6 +1236,15 @@
 		/* =========================================================
 		   6. MAIN 3D PORTFOLIO APPLICATION
 		   ========================================================= */
+
+		class AnnouncementSystem3D {
+			constructor(app){this.app=app;this.rows=[];this.index=0;this.timer=null;this.hud=document.getElementById('announcement-hud');this.label=null;this.group=new THREE.Group();app.scene.add(this.group);this.buildBeacon();this.hud.onclick=()=>this.openCurrent();}
+			buildBeacon(){const ring=new THREE.Mesh(new THREE.TorusGeometry(1.1,.055,12,72),new THREE.MeshBasicMaterial({color:0x63f2ff,transparent:true,opacity:.85,blending:THREE.AdditiveBlending}));ring.rotation.x=Math.PI/2;this.group.add(ring);const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.62,1),new THREE.MeshStandardMaterial({color:0x101020,emissive:0xffbe0b,emissiveIntensity:.8,metalness:.7,roughness:.18}));this.group.add(core);this.group.userData.ring=ring;this.group.userData.core=core;const hit=new THREE.Mesh(new THREE.SphereGeometry(1.5,12,12),new THREE.MeshBasicMaterial({visible:false}));this.group.add(hit);this.app.interactionManager.registerInteractable(hit,()=>this.openCurrent());}
+			setRows(rows,settings={}){this.rows=rows||[];this.settings=settings;this.group.visible=this.rows.length>0&&isVisible(settings.Enable3DAnnouncements);this.hud.hidden=!this.rows.length;if(!this.rows.length)return;this.group.position.set(Number(settings.AnnouncementStationX)||0,Number(settings.AnnouncementStationY)||3.2,Number(settings.AnnouncementStationZ)||6.5);this.show(0);clearInterval(this.timer);this.timer=setInterval(()=>this.show((this.index+1)%this.rows.length),Math.max(2500,Number(settings.AnnouncementIntervalMs)||6500));}
+			show(i){this.index=i;const a=this.rows[i];this.hud.querySelector('i').className='fas '+(a.Icon||'fa-bullhorn');this.hud.querySelector('span').textContent=a.Text||'';if(this.label)this.group.remove(this.label);this.label=createLabelSprite((a.Text||'ANNOUNCEMENT').slice(0,34).toUpperCase(),'#FFBE0B',900,128);this.label.position.y=1.65;this.label.scale.set(6.4,.9,1);this.group.add(this.label);}
+			openCurrent(){const a=this.rows[this.index];if(!a)return;this.app.uiManager.openHTML(`<div class="modal-title">📣 Announcement</div><div class="modal-subtitle">${a.Priority||'Update'}</div><div class="modal-body"><p>${safeText(a.Text)}</p>${a.URL?`<div class="links"><a href="${safeUrl(a.URL)}" target="_blank" rel="noopener">${safeText(a.Label)||'Open'}</a></div>`:''}</div>`);}
+			update(t){if(!this.group.visible)return;this.group.rotation.y=t*.32;this.group.position.y=(Number(this.settings?.AnnouncementStationY)||3.2)+Math.sin(t*1.5)*.18;this.group.userData.core.rotation.x=t*.7;}
+		}
 		class PortfolioApp {
 			constructor() {
 				this.container = document.getElementById('canvas-container');
@@ -1263,7 +1300,6 @@
 				this.ceilingSystem = new CeilingSystem(this.scene);
 				this.interactionManager = new InteractionManager(this.camera, this.renderer, this.controls, this.floorSystem, this.scene);
 				this.uiManager = new UIManager();
-
 				this.initStations();
 				this.initDecor();
 			}
@@ -1345,6 +1381,11 @@
 				couch.position.set(-9, 0, 6.7); couch.rotation.y = Math.PI;
 				this.scene.add(couch);
 				loadSampleModel('GlamVelvetSofa', couch, { scale: 1.55, pos: [0, 0, 0], color: '#FFBE0B' });
+				const couchGlow = new THREE.Mesh(new THREE.RingGeometry(1.6,3.2,64),new THREE.MeshBasicMaterial({color:0xffbe0b,transparent:true,opacity:.12,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));
+				couchGlow.rotation.x=-Math.PI/2;couchGlow.position.y=.04;couch.add(couchGlow);
+				const couchHit=new THREE.Mesh(new THREE.BoxGeometry(6.5,2.7,3.4),new THREE.MeshBasicMaterial({visible:false}));couchHit.position.y=1.25;couch.add(couchHit);couch.userData.arcadeClicks=0;
+				this.interactionManager.registerInteractable(couchHit,()=>{couch.userData.arcadeClicks++;couchGlow.material.opacity=.75;const y0=couch.position.y;let start=performance.now();const bounce=()=>{const q=Math.min(1,(performance.now()-start)/650);couch.position.y=y0+Math.sin(q*Math.PI)*.8;couch.rotation.z=Math.sin(q*Math.PI*2)*.045;if(q<1)requestAnimationFrame(bounce);else{couch.position.y=y0;couch.rotation.z=0;couchGlow.material.opacity=.12;}};bounce();this.floorSystem.addBurst(couch.position.x,couch.position.z);if(couch.userData.arcadeClicks>=5)couch.userData.arcadeClicks=0;setTimeout(()=>{window.location.assign('./arcade.html');},420);});
+				couch.userData.glow=couchGlow;couch.userData.hit=couchHit;
 
 				// 3. About Crystal -> opens 'about' from Excel
 				const about = new THREE.Group();
@@ -1513,7 +1554,7 @@
 						}
 					};
 				});
-				document.getElementById('env-switcher').addEventListener('change', e => {
+								document.getElementById('env-switcher').addEventListener('change', e => {
 					this.envManager.switchTo(e.target.value);
 				});
 			}
@@ -1580,6 +1621,7 @@
 				this.floorSystem.update(t, dt);
 				this.ceilingSystem.update(t, dt);
 				this.updateFormulaBoard(t);
+				this.announcementSystem?.update(t);
 				this.scenicBackdrop?.update(t);
 
 				this.movers?.forEach(m => {
@@ -1618,6 +1660,7 @@
 		document.addEventListener('DOMContentLoaded', async () => {
 			window.app = new PortfolioApp();
 			await loadExcelData();
+			const m=Number(GBNfoData.settings?.DataRefreshMinutes)||0;if(m>0)setInterval(loadExcelData,m*60000);
 		});
 	</script>
 </body>
