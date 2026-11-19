@@ -450,6 +450,40 @@
 		
 		let stationData = {};
 
+		/* ---- Resume helpers: column-tolerant URL_HTML support ------
+		   Resume sheet now:  ... | URL_HTML (G) | Order (H) | Visible (I).
+		   Fields are resolved by header name so the column shift cannot
+		   break Order / Visible sorting or visibility filtering.           */
+		const normKey = k => String(k ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+		function pick(row, ...keys){
+			if(!row) return '';
+			const map = {};
+			Object.keys(row).forEach(k => { map[normKey(k)] = row[k]; });
+			for(const k of keys){ const v = map[normKey(k)]; if(v !== undefined && v !== null && v !== '') return v; }
+			for(const k of keys){ const v = map[normKey(k)]; if(v !== undefined && v !== null) return v; }
+			return '';
+		}
+		function normalizeResumeRow(r){
+			return {
+				DocId:        safeText(pick(r,'DocId','Id','Key')),
+				Label:        safeText(pick(r,'Label','Tab','Name')),
+				Title:        safeText(pick(r,'Title')),
+				Description:  safeText(pick(r,'Description','Desc','Body')),
+				URL:          safeText(pick(r,'URL','FileURL','PdfURL')),
+				URL_HTML:     safeText(pick(r,'URL_HTML','URLHTML','HTMLURL')),
+				DownloadName: safeText(pick(r,'DownloadName','FileName')),
+				Icon:         safeText(pick(r,'Icon')),
+				Order:        pick(r,'Order'),
+				Visible:      pick(r,'Visible')
+			};
+		}
+		function htmlUrl(doc){
+			const raw = safeText(doc && doc.URL_HTML).trim();
+			if(!raw) return '';
+			const u = safeUrl(raw);
+			return u === '#' ? '' : u;
+		}
+
 		function isVisible(val) {
 			return String(val ?? 'TRUE').trim().toUpperCase() !== 'FALSE';
 		}
@@ -479,7 +513,7 @@
 				GBNfoData.groups = getSheet('Groups').filter(g => isVisible(g.Visible)).sort((a, b) => (Number(a.Order) || 99) - (Number(b.Order) || 99));
 				GBNfoData.cards = getSheet('Cards').filter(c => isVisible(c.Visible)).sort((a, b) => (Number(a.Order) || 99) - (Number(b.Order) || 99));
 				GBNfoData.links = getSheet('Links').filter(l => isVisible(l.Visible)).sort((a, b) => (Number(a.Order) || 99) - (Number(b.Order) || 99));
-				GBNfoData.resume = getSheet('Resume').filter(r => isVisible(r.Visible)).sort((a, b) => (Number(a.Order) || 99) - (Number(b.Order) || 99));
+				GBNfoData.resume = getSheet('Resume').map(normalizeResumeRow).filter(r => isVisible(r.Visible)).sort((a, b) => (Number(a.Order) || 99) - (Number(b.Order) || 99));
 				GBNfoData.social = getSheet('Social').filter(s => isVisible(s.Visible)).sort((a, b) => (Number(a.Order) || 99) - (Number(b.Order) || 99));
 
 				buildStationData();
@@ -539,10 +573,10 @@
 						icon: r.Icon || '📄',
 						title: r.Label || '',
 						desc: r.Description || '',
-						links: r.URL ? [
-							{ text: 'View File', url: r.URL },
-							{ text: 'Download', url: r.URL, download: true }
-						] : []
+						links: [
+							...(r.URL ? [{ text: 'View File', url: r.URL }, { text: 'Download', url: r.URL, download: true }] : []),
+							...(htmlUrl(r) ? [{ text: 'Open HTML', url: htmlUrl(r), target: '_blank', icon: 'fas fa-code' }] : [])
+						]
 					}));
 					stationData[secId] = station;
 					return;
@@ -597,7 +631,7 @@
 							icon: '📄',
 							title: 'CVs & Documents',
 							desc: 'Direct links from the Resume sheet.',
-							links: GBNfoData.resume.map(r => ({ text: r.Label, url: r.URL }))
+							links: GBNfoData.resume.flatMap(r => { const out = []; if (r.URL) out.push({ text: r.Label, url: r.URL, target: '_blank' }); const hUrl = htmlUrl(r); if (hUrl) out.push({ text: r.Label + ' (HTML)', url: hUrl, target: '_blank', icon: 'fas fa-code' }); return out; })
 						},
 						{
 							icon: '🔗',

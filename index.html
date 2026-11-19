@@ -250,6 +250,40 @@ function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.Star
 		const esc = s => String(s == null ? '' : s);
 		const nl2br = s => esc(s).replace(/\r?\n/g, '<br>');
 
+		/* ---- Column-tolerant helpers ------------------------------------
+		   Resume sheet now has:  ... | URL_HTML (G) | Order (H) | Visible (I)
+		   Resolve fields by header name so the column shift cannot break
+		   Order / Visible sorting or visibility filtering.                */
+		const normKey = k => String(k ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+		function pick(row, ...keys){
+			if(!row) return '';
+			const map = {};
+			Object.keys(row).forEach(k => { map[normKey(k)] = row[k]; });
+			for(const k of keys){ const v = map[normKey(k)]; if(v !== undefined && v !== null && v !== '') return v; }
+			for(const k of keys){ const v = map[normKey(k)]; if(v !== undefined && v !== null) return v; }
+			return '';
+		}
+		function normalizeResumeRow(r){
+			return {
+				DocId:        safeText(pick(r,'DocId','Id','Key')),
+				Label:        safeText(pick(r,'Label','Tab','Name')),
+				Title:        safeText(pick(r,'Title')),
+				Description:  safeText(pick(r,'Description','Desc','Body')),
+				URL:          safeText(pick(r,'URL','FileURL','PdfURL')),
+				URL_HTML:     safeText(pick(r,'URL_HTML','URLHTML','HTMLURL')),
+				DownloadName: safeText(pick(r,'DownloadName','FileName')),
+				Icon:         safeText(pick(r,'Icon')),
+				Order:        pick(r,'Order'),
+				Visible:      pick(r,'Visible')
+			};
+		}
+		function htmlUrl(doc){
+			const raw = safeText(doc && doc.URL_HTML).trim();
+			if(!raw) return '';
+			const u = safeUrl(raw);
+			return u === '#' ? '' : u;
+		}
+
 		async function loadData() {
 			try {
 				const response = await fetch(XLSX_URL);
@@ -270,7 +304,7 @@ function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.Star
 				GBNfoData.groups = getSheet('Groups').filter(g => isVisible(g.Visible)).sort((a,b) => (a.Order||99)-(b.Order||99));
 				GBNfoData.cards = getSheet('Cards').filter(c => isVisible(c.Visible)).sort((a,b) => (a.Order||99)-(b.Order||99));
 				GBNfoData.links = getSheet('Links').filter(l => isVisible(l.Visible)).sort((a,b) => (a.Order||99)-(b.Order||99));
-				GBNfoData.resume = getSheet('Resume').filter(r => isVisible(r.Visible)).sort((a,b) => (a.Order||99)-(b.Order||99));
+				GBNfoData.resume = getSheet('Resume').map(normalizeResumeRow).filter(r => isVisible(r.Visible)).sort((a,b) => (Number(a.Order)||99)-(Number(b.Order)||99));
 				GBNfoData.announcements = getSheet('Announcements').filter(activeAnnouncement).sort((a,b)=>(Number(a.Order)||99)-(Number(b.Order)||99));
 				GBNfoData.settings = getSheet('Settings').reduce((o,r)=>(r.Key&&(o[String(r.Key).trim()]=r.Value),o),{});
 				GBNfoData.social = getSheet('Social').filter(s => isVisible(s.Visible)).sort((a,b) => (a.Order||99)-(b.Order||99));
@@ -454,6 +488,7 @@ function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.Star
 						<button onclick="viewInNewTab()" class="pdf-action-btn">
 							<i class="fas fa-external-link-alt"></i> View in New Tab
 						</button>
+						${htmlUrl(first) ? `<a href="${esc(htmlUrl(first))}" target="_blank" rel="noopener" id="html-open-link" class="pdf-action-btn"><i class="fas fa-code"></i> Open HTML</a>` : `<a href="#" target="_blank" rel="noopener" id="html-open-link" class="pdf-action-btn" style="display:none;"><i class="fas fa-code"></i> Open HTML</a>`}
 					</div>
 				</div>
 				<div class="pdf-viewer-container" id="pdf-container">
@@ -476,6 +511,7 @@ function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.Star
 									<div style="font-size:0.9rem;">Save to your device</div>
 								</div>
 							</a>
+							${htmlUrl(first) ? `<a href="${esc(htmlUrl(first))}" target="_blank" rel="noopener" class="pdf-link"><i class="fas fa-code pdf-link-icon"></i><div><div style="font-weight:700; font-size:1.1rem;">Open HTML Version</div><div style="font-size:0.9rem;">Interactive HTML in new tab</div></div></a>` : ''}
 						</div>
 					</div>
 				</div>
@@ -509,6 +545,18 @@ function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.Star
 					dl.href = doc.URL;
 					dl.setAttribute('download', doc.DownloadName || 'download.pdf');
 
+					// Refresh HTML action button (only visible when URL_HTML is set)
+					const hUrl = htmlUrl(doc);
+					const htmlBtn = document.getElementById('html-open-link');
+					if (htmlBtn) {
+						if (hUrl) {
+							htmlBtn.href = hUrl;
+							htmlBtn.style.display = '';
+						} else {
+							htmlBtn.style.display = 'none';
+						}
+					}
+
 					const container = document.getElementById('pdf-container');
 					container.innerHTML = `
 					<div class="pdf-placeholder">
@@ -530,6 +578,7 @@ function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.Star
 									<div style="font-size:0.9rem;">Save to your device</div>
 								</div>
 							</a>
+							${hUrl ? `<a href="${esc(hUrl)}" target="_blank" rel="noopener" class="pdf-link"><i class="fas fa-code pdf-link-icon"></i><div><div style="font-weight:700; font-size:1.1rem;">Open HTML Version</div><div style="font-size:0.9rem;">Interactive HTML in new tab</div></div></a>` : ''}
 						</div>
 					</div>`;
 				});
