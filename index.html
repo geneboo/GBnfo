@@ -243,7 +243,7 @@ header.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.6)}
 }
 
 	
-/* === All-in-One Card Row Layout & Icon Fallback (Patch All) === */
+/* === All-in-One Card Row Layout & Icon Fallback (Direct) === */
 .card-grid.cols-equal-3,
 .project-grid.cols-equal-3,
 .written-grid.cols-equal-3,
@@ -303,6 +303,44 @@ header.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.6)}
 	.written-grid.cols-equal-3,
 	.contact-grid.cols-equal-3 {
 		grid-template-columns: 1fr !important;
+	}
+}
+
+/* === Trailing 2-Card Equal Centered Row Fix === */
+.card-grid.trailing-pair-centered,
+.project-grid.trailing-pair-centered,
+.written-grid.trailing-pair-centered,
+.contact-grid.trailing-pair-centered {
+	grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+.card-grid.trailing-pair-centered > :not(.trailing-pair-card),
+.project-grid.trailing-pair-centered > :not(.trailing-pair-card),
+.written-grid.trailing-pair-centered > :not(.trailing-pair-card),
+.contact-grid.trailing-pair-centered > :not(.trailing-pair-card) {
+	grid-column: span 2 !important;
+}
+
+.card-grid.trailing-pair-centered > .trailing-pair-card:nth-last-child(2) {
+	grid-column: 2 / span 2 !important;
+}
+
+.card-grid.trailing-pair-centered > .trailing-pair-card:last-child {
+	grid-column: 4 / span 2 !important;
+}
+
+@media (max-width: 900px), (orientation: portrait) and (max-width: 768px) {
+	.card-grid.trailing-pair-centered,
+	.project-grid.trailing-pair-centered,
+	.written-grid.trailing-pair-centered,
+	.contact-grid.trailing-pair-centered {
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)) !important;
+	}
+
+	.card-grid.trailing-pair-centered > *,
+	.card-grid.trailing-pair-centered > .trailing-pair-card:nth-last-child(2),
+	.card-grid.trailing-pair-centered > .trailing-pair-card:last-child {
+		grid-column: auto !important;
 	}
 }
 </style>
@@ -979,16 +1017,20 @@ function bindAdaptiveGridResize() {
 		// Boot
 		document.addEventListener('DOMContentLoaded', async()=>{await loadData(); const m=Number(GBNfoData.settings?.DataRefreshMinutes)||0; if(m>0)setInterval(loadData,m*60000);});
 	
-/* === Patch All Override: 2-Card Centering, 3-Card Equal Row & Icon Safety === */
+/* === Direct Patch Override: 2-Card Centering, 3-Card Equal Row & Icon Safety === */
 (function () {
 	const origAdapt = window.adaptClassicGrids;
+	const FALLBACK_ICONS = ['fa-microchip', 'fa-terminal', 'fa-wave-square', 'fa-cubes', 'fa-bolt'];
 
 	function sanitizeIcons() {
+		let idx = 0;
 		document.querySelectorAll('.card-icon').forEach(ico => {
 			if (ico.querySelector('i')) return;
-			const txt = (ico.textContent || '').trim();
-			if (!txt || txt === '\uFFFD' || txt === '?') {
-				ico.innerHTML = '<i class="fas fa-microchip"></i>';
+			const raw = (ico.textContent || '').replace(/[\uFE00-\uFE0F\u200D]/g, '').trim();
+			const hasBadChar = !raw || raw === '\uFFFD' || raw === '?' || /[\uE000-\uF8FF\uFFFD]/.test(raw);
+			if (hasBadChar) {
+				const fa = FALLBACK_ICONS[idx++ % FALLBACK_ICONS.length];
+				ico.innerHTML = `<i class="fas ${fa}"></i>`;
 			}
 		});
 	}
@@ -1030,6 +1072,67 @@ function bindAdaptiveGridResize() {
 
 		sanitizeIcons();
 	};
+})();
+
+/* === Trailing 2-Card Equal Row & Icon Sanitizer Fix === */
+(function () {
+	const prevAdapt = window.adaptClassicGrids;
+	const FALLBACK_ICONS = ['fa-sliders-h', 'fa-microchip', 'fa-wave-square', 'fa-bolt', 'fa-cubes'];
+
+	function cleanCardIcons() {
+		let i = 0;
+		document.querySelectorAll('.card-icon, #panel .cards .ico').forEach(el => {
+			if (el.querySelector('i')) return;
+			const stripped = (el.textContent || '').replace(/[\uFE00-\uFE0F\u200D]/g, '').trim();
+			if (!stripped || stripped === '?' || stripped === '\uFFFD' || /[\uE000-\uF8FF\uFFFD]/.test(stripped)) {
+				const iconClass = FALLBACK_ICONS[i++ % FALLBACK_ICONS.length];
+				el.innerHTML = `<i class="fas ${iconClass}"></i>`;
+			}
+		});
+	}
+
+	function balanceTrailingPair() {
+		const isPortraitPhone =
+			window.matchMedia && window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
+		const allowPairCenter = window.innerWidth > 900 && !isPortraitPhone;
+
+		document.querySelectorAll('.card-grid, .project-grid, .written-grid, .contact-grid').forEach(grid => {
+			grid.classList.remove('trailing-pair-centered');
+			Array.from(grid.children).forEach(child => {
+				if (child.nodeType === 1) child.classList.remove('trailing-pair-card');
+			});
+
+			if (!allowPairCenter) return;
+			if (grid.classList.contains('cols-equal-3') || grid.classList.contains('cards-centered-2')) return;
+
+			const items = Array.from(grid.children).filter(el => el.nodeType === 1);
+			if (items.length >= 5 && items.length % 3 === 2) {
+				grid.classList.add('trailing-pair-centered');
+				items.forEach(el => {
+					el.classList.remove('card-span-2', 'card-span-3', 'card-span-full');
+					el.style.gridColumn = '';
+				});
+				items[items.length - 2].classList.add('trailing-pair-card');
+				items[items.length - 1].classList.add('trailing-pair-card');
+			}
+		});
+
+		cleanCardIcons();
+	}
+
+	window.adaptClassicGrids = function (mode) {
+		if (typeof prevAdapt === 'function') {
+			prevAdapt(mode);
+		}
+		balanceTrailingPair();
+	};
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', balanceTrailingPair);
+	} else {
+		balanceTrailingPair();
+	}
+	window.addEventListener('resize', balanceTrailingPair);
 })();
 </script>
 <a id="arcade-egg-btn" class="arcade-egg-btn" href="./arcade.html" aria-label="Open secret arcade"><i class="fas fa-gamepad"></i></a>
