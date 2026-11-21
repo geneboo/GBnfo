@@ -529,7 +529,142 @@ document.addEventListener("DOMContentLoaded", function() {
 .method-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.82rem;font-weight:700}
 .badge-good{background:#d8f3dc;color:#1b5e20}.badge-trade{background:#fff3cd;color:#7a5a00}.badge-special{background:#dbeafe;color:#1e40af}.badge-stop{background:#fde2e2;color:#8b1e1e}
 .small-note{font-size:.9rem;color:#555}.wide-table{font-size:.88rem}.wide-table th,.wide-table td{padding:8px 9px}
-</style></head>
+</style>
+    <style id="pdf-a4-wrap-patch">
+      /* --- Global Box Sizing & No Horizontal Scrollbars --- */
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+      }
+
+      main, article, section, .container, .content, .main-content {
+        max-width: 100% !important;
+      }
+
+      /* Word-wrap all code & pseudocode blocks cleanly */
+      pre, code, pre code {
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        overflow-x: visible !important;
+        max-width: 100% !important;
+      }
+
+      /* Prevent wide display equations from creating scrollbars */
+      .katex-display {
+        max-width: 100% !important;
+        overflow-x: visible !important;
+        overflow-y: visible !important;
+        white-space: normal !important;
+      }
+
+      /* CRITICAL: Keep KaTeX internal stretchy brackets/matrices clipped so vertical bars don't slice pages */
+      .katex .stretchy,
+      .katex .vlist-t,
+      .katex .vlist-r,
+      .katex .delim-size1,
+      .katex .delim-size2,
+      .katex .delim-size3,
+      .katex .delim-size4,
+      .katex svg {
+        overflow: hidden !important;
+      }
+
+      /* Responsive tables & media on screen */
+      table {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-collapse: collapse;
+      }
+      th, td {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      img, svg:not(.katex svg), canvas {
+        max-width: 100% !important;
+        height: auto !important;
+      }
+
+      /* --- A4 Print-to-PDF Optimization --- */
+      @page {
+        size: A4 portrait;
+        margin: 14mm 12mm;
+      }
+
+      @media print {
+        html, body {
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          font-size: 10pt !important;
+          line-height: 1.45 !important;
+          overflow: visible !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        /* Hide navigation drawers / hamburger buttons in PDF */
+        nav, aside, .sidebar, .toc-sidebar, .nav-toggle, .hamburger, button {
+          display: none !important;
+        }
+
+        main, article, .content, .main-content, .container {
+          width: 100% !important;
+          max-width: 100% !important;
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+          overflow: visible !important;
+        }
+
+        /* Prevent orphaned headings */
+        h1, h2, h3, h4, h5 {
+          break-after: avoid !important;
+          page-break-after: avoid !important;
+        }
+
+        /* Keep equations, figures, callouts, and short blocks intact across page breaks */
+        .katex-display, figure, blockquote, .callout, .note, .analogy {
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
+        }
+
+        /* Slightly scale display math so wide Heston/VG/Spline formulas fit A4 width cleanly */
+        .katex-display {
+          font-size: 88% !important;
+        }
+
+        /* Code blocks: wrap neatly and allow long blocks to flow across pages without clipping */
+        pre, code {
+          font-size: 8pt !important;
+          line-height: 1.35 !important;
+          white-space: pre-wrap !important;
+          overflow-wrap: anywhere !important;
+        }
+
+        /* Tables: fit A4 width and keep rows from splitting mid-line */
+        table {
+          width: 100% !important;
+          table-layout: auto !important;
+          font-size: 8.5pt !important;
+        }
+        tr {
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
+        }
+        table .katex {
+          font-size: 0.82em !important;
+        }
+      }
+    </style>
+    
+</head>
 <body>
 <div id="sidebar">
 <div id="sidebar-indicator">☰</div>
@@ -787,7 +922,7 @@ function trapezoid(f, a, b, n):
       For interior nodes \(k=1,\dots,n-1\),
       \[
         m_k=\begin{cases}
-          0, &amp; \text{if } d_{k-1}\,d_k\le 0,\[6pt]
+          0, &amp; \text{if } d_{k-1}\,d_k\le 0,\\[6pt]
           \displaystyle\frac{w_1+w_2}{\frac{w_1}{d_{k-1}}+\frac{w_2}{d_k}}, &amp; \text{otherwise,}
         \end{cases}
       \]
@@ -802,16 +937,7 @@ function trapezoid(f, a, b, n):
       \]
       where \(N_{j,p}\) are B‑spline basis functions of degree \(p\) defined by the Cox–de Boor recursion with knot vector \(\{t_k\}\):
       \[
-        N_{j,0}(x)=\begin{cases}1,&amp;t_j\le x<t_{j+1}\\0,&\text{otherwise}\end{cases},\qquad (or="" <="" \[="" \]="" \int_a^b="" \int_{-\infty}^{\infty}="" basis="" be="" c_j\int_a^b="" can="" computed="" definite="" exactly="" hence,="" high‑order="" if="" integral="" integrals;="" its="" knot="" li="" n_{j,p}(x)="\frac{x-t_j}{t_{j+p}-t_j}N_{j,p-1}(x)\;+\;\frac{t_{j+p+1}-x}{t_{j+p+1}-t_{j+1}}N_{j+1,p-1}(x)." n_{j,p}(x)\,dx="\frac{t_{j+p+1}-t_j}{p+1}." n_{j,p}(x)\,dx,="" on="" or="" per="" preferred).="" quadrature="" s(x)\,dx\;\approx\;\sum_j="" span="" span‑by‑span="" support,="" the="" via="" with="">
-<li>
-<strong>Mixed Splines</strong> — adaptively choose the spline per region:<br/>
-      Partition \([a,b]\) into subregions \(\{R_s\}\). In smooth regions use a cubic spline for \(C^2\) accuracy; near kinks, steps, or strongly monotone stretches use PCHIP to prevent overshoot:
-      \[
-        \int_a^b f(x)\,dx\;\approx\;\sum_s \int_{R_s} S^{(s)}(x)\,dx,\qquad
-        S^{(s)}(x)\in\{\text{cubic},\text{PCHIP},\text{linear}\},
-      \]
-      enforcing at least \(C^0\) continuity (and optionally \(C^1\)) at region boundaries.
-    </li>
+        N_{j,0}(x)=\begin{cases}1,&t_j\le x \lt t_{j+1},\\ 0,&\text{otherwise,}\end{cases} \]<p>and for \(p \ge 1\),</p>\[ N_{j,p}(x)=\frac{x-t_j}{t_{j+p}-t_j}N_{j,p-1}(x)\;+\;\frac{t_{j+p+1}-x}{t_{j+p+1}-t_{j+1}}N_{j+1,p-1}(x). \]<p>Hence, \(S(x)\) can be computed span-by-span on its knot support, and definite integrals follow directly from \(\int_{t_j}^{t_{j+p+1}} N_{j,p}(x)\,dx = \frac{t_{j+p+1}-t_j}{p+1}\) (or via high-order quadrature per span if preferred).</p></li>
 </t_{j+1}\\0,&\text{otherwise}\end{cases},\qquad></li></ul>
 <p>The composite spline integral is the sum of segment integrals:</p>
   \[
@@ -1412,7 +1538,6 @@ def _gk15_eval(f: Callable[[float], float], a: float, b: float) -&gt; Tuple[floa
 	# Actually for Gauss-7, the center x=0 is a node with weight 0.417959..., covered by _wg[-1].
 
 	IK = h * fk_sum
-	IG = h * (_wg[-1]*fc + fg_sum - _wg[-1]*fc)  # fg_sum already accounts; keep clarity
 	IG = h * (fg_sum + _wg[-1] * fc)
 
 	# Error indicator and a mild norm-based safeguard
@@ -1787,14 +1912,13 @@ function levin_integrate(f, g, a, b, omega):
 <h3 id="section-4-1">Generalized Gaussian Quadrature (Golub–Welsch)</h3>
 <div class="formal">
 		  Gaussian quadrature rules can be generated generically from the three-term recurrence of orthogonal polynomials with respect to a weight \(w(x)\) on a support \([a,b]\) (possibly infinite). The <em>Golub–Welsch</em> method constructs the symmetric tridiagonal <strong>Jacobi matrix</strong> from recurrence coefficients and obtains nodes as its eigenvalues and weights from the first components of its normalized eigenvectors:
-		  <div class="equation">
-			J = 
+		  <div class="equation"> \[ J = 
 			\begin{bmatrix}
 			  a_0 &amp; \sqrt{\beta_1} \\
 			  \sqrt{\beta_1} &amp; a_1 &amp; \sqrt{\beta_2} \\
 			  &amp; \ddots &amp; \ddots &amp; \ddots \\
 			  &amp; &amp; \sqrt{\beta_{n-1}} &amp; a_{n-1}
-			\end{bmatrix}, 
+			\end{bmatrix}, \] 
 			
 			  \( \quad x_i = \lambda_i(J), \quad w_i = \mu_0\, (v_{1i})^2 \)
 			
@@ -3483,9 +3607,9 @@ return price
 				   + \frac{v_{0}}{\sigma^{2}}\,
 					 (\kappa - i\rho\sigma\,u - d)\,
 					 \frac{1 - e^{-dT}}{1 - g\,e^{-dT}}
-				  \Bigr\}, \[0.6em]
+				  \Bigr\}, \\[0.6em]
 				\text{where}\quad
-				d &amp;= \sqrt{(\kappa - i\rho\sigma\,u)^{2} + \sigma^{2}\,(u^{2} + i\,u)}\,, \[0.4em]
+				d &amp;= \sqrt{(\kappa - i\rho\sigma\,u)^{2} + \sigma^{2}\,(u^{2} + i\,u)}\,, \\[0.4em]
 				g &amp;= \frac{\kappa - i\rho\sigma\,u - d}
 							 {\kappa - i\rho\sigma\,u + d}\,.
 			  \end{aligned}
@@ -3503,7 +3627,7 @@ return price
 					 \ln\!\bigl(
 					   1 - i\,\theta\,\nu\,u + \tfrac{1}{2}\,\sigma^{2}\,\nu\,u^{2}
 					 \bigr)
-				  \Bigr)\,, \[0.6em]
+				  \Bigr)\,, \\[0.6em]
 				\omega
 				&amp;= \frac{1}{\nu}\,
 				   \ln\!\bigl(1 - \theta\,\nu - \tfrac{1}{2}\,\sigma^{2}\,\nu\bigr)\,.
