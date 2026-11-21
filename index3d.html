@@ -380,6 +380,89 @@
 #arcade-shell{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.78);backdrop-filter:blur(12px)}#arcade-shell.active{display:flex}#arcade-panel{position:relative;width:min(1120px,96vw);max-height:91vh;overflow:auto;padding:24px;border-radius:22px;background:rgba(6,9,22,.97);border:1px solid rgba(255,255,255,.18);box-shadow:0 35px 90px rgba(0,0,0,.75),0 0 45px color-mix(in srgb,var(--secondary-color) 30%,transparent)}#arcade-close{position:sticky;float:right;top:0;z-index:4;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:26px;cursor:pointer}.arcade-lobby-title{font:900 clamp(1.8rem,5vw,3.2rem) 'Bebas Neue',sans-serif;letter-spacing:2px;background:linear-gradient(90deg,var(--primary-color),var(--accent-color),var(--secondary-color));-webkit-background-clip:text;color:transparent}.arcade-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 20px}.arcade-toolbar button,.game-launch{border:1px solid rgba(255,255,255,.2);border-radius:999px;background:linear-gradient(135deg,rgba(255,0,110,.2),rgba(58,134,255,.22));color:#fff;padding:9px 15px;font:800 .75rem 'Lato',sans-serif;cursor:pointer}.arcade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px}.arcade-card{padding:16px;border-radius:15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12)}.arcade-card h3{font:700 1.05rem 'Playfair Display',serif;margin:8px 0}.arcade-card p{font:.78rem 'Lato',sans-serif;color:rgba(255,255,255,.7);min-height:35px}.arcade-best{color:var(--accent-color);font-size:.72rem;margin:8px 0}.lbtable{width:100%;border-collapse:collapse;margin:8px 0 18px}.lbtable th,.lbtable td{padding:8px;border-bottom:1px solid rgba(255,255,255,.12);text-align:left;font-size:.78rem}.arcade,.arcade canvas{max-width:100%}.gamecanvas{display:block;margin:auto;background:#05050a;border:1px solid rgba(255,255,255,.2)}.hudrow,.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:12px 0}.arcbtn,.drumpad{padding:9px 13px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:8px;cursor:pointer}.padgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.piano{position:relative;display:flex;justify-content:center;min-height:190px}.whitekey{width:42px;height:180px;background:#fff;color:#111;border:1px solid #333}.blackkey{position:absolute;width:28px;height:112px;background:#111;color:#fff;z-index:2}.lbtable{color:#fff}@media(max-width:600px){.__unused_arcade_btn{right:12px;bottom:12px}.arcade-grid{grid-template-columns:1fr 1fr}.padgrid{grid-template-columns:repeat(2,1fr)}}
 
 #arcade-fallback{display:flex;align-items:center;justify-content:center;text-decoration:none;position:fixed;right:20px;bottom:20px;z-index:2147483647;pointer-events:auto!important;touch-action:manipulation;width:58px;height:58px;border-radius:18px;border:1px solid rgba(99,242,255,.7);background:linear-gradient(135deg,#ff006e,#3a86ff);color:#fff;font-size:23px;cursor:pointer;box-shadow:0 0 30px rgba(99,242,255,.38);animation:arcadeBob 2.6s ease-in-out infinite}#arcade-fallback:hover{transform:scale(1.1) rotate(-5deg)}@keyframes arcadeBob{50%{transform:translateY(-7px)}}
+
+/* === Adaptive Modal Card Grids (Patch) === */
+/* === Adaptive Modal Card Grids (Patch 2) === */
+#panel .cards {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+}
+#panel .cards > * {
+	min-width: 0;
+}
+#panel .cards > .card-span-2 { grid-column: span 2; }
+#panel .cards > .card-span-3 { grid-column: span 3; }
+#panel .cards > .card-span-full { grid-column: 1 / -1; }
+#panel .cards.grid-center-last {
+	display: flex !important;
+	flex-wrap: wrap !important;
+	justify-content: center !important;
+	align-items: stretch !important;
+}
+#panel .cards.grid-center-last > * {
+	flex: 1 1 min(100%, 250px);
+	max-width: min(100%, 440px);
+	min-width: 0;
+}
+@media (max-width: 640px), (orientation: portrait) and (max-width: 768px) {
+	#panel .cards > [class*="card-span-"] {
+		grid-column: 1 / -1 !important;
+	}
+}
+/* === Friendly Rounded Corners & Balanced Spacing (Patch 3) === */
+#panel .cards {
+	gap: clamp(14px, 1.8vw, 24px);
+}
+
+#panel .card {
+	border-radius: 18px !important;
+}
+
+#panel .links a {
+	border-radius: 10px;
+}
+
+@media (max-width: 640px) {
+	#panel .card {
+		border-radius: 15px !important;
+	}
+}
+
+	
+/* === All-in-One Modal Card Row Layout (Patch All) === */
+#panel .cards.cols-equal-3 {
+	grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+#panel .cards.cards-centered-2 {
+	display: flex !important;
+	flex-wrap: wrap !important;
+	justify-content: center !important;
+	align-items: stretch !important;
+}
+
+#panel .cards.cards-centered-2 > * {
+	flex: 0 1 min(400px, calc(50% - 16px));
+	min-width: min(100%, 250px);
+	max-width: min(100%, 420px);
+}
+
+@media (max-width: 900px), (orientation: portrait) and (max-width: 768px) {
+	#panel .cards.cols-equal-3 {
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)) !important;
+	}
+}
+
+@media (max-width: 720px), (orientation: portrait) and (max-width: 768px) {
+	#panel .cards.cards-centered-2 {
+		display: grid !important;
+		grid-template-columns: 1fr !important;
+	}
+
+	#panel .cards.cards-centered-2 > * {
+		flex: none !important;
+		max-width: none !important;
+	}
+}
 </style>
 	<base target="_blank">
 </head>
@@ -1240,6 +1323,69 @@
 			}
 		}
 
+		
+function adaptModalGrids(mode) {
+	const effectiveMode = mode || (window.GBNfoData && GBNfoData.settings && GBNfoData.settings.CardLayoutMode) || 'balanced';
+	const isNarrowOrPortrait = window.innerWidth <= 640 || (window.matchMedia && window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches);
+	const grids = document.querySelectorAll('#panel .cards');
+	grids.forEach(grid => {
+		const items = Array.from(grid.children).filter(el => el.nodeType === 1);
+		grid.classList.remove('grid-center-last');
+		items.forEach(el => {
+			el.classList.remove('card-span-2', 'card-span-3', 'card-span-full');
+			el.style.gridColumn = '';
+		});
+		if (!items.length || isNarrowOrPortrait) return;
+		if (effectiveMode === 'center') {
+			grid.classList.add('grid-center-last');
+			return;
+		}
+		const style = getComputedStyle(grid);
+		if (style.display !== 'grid') return;
+		const tracks = style.gridTemplateColumns.trim().split(/\s+(?![^()]*\))/).filter(t => t && t !== 'none');
+		const cols = tracks.length || Math.max(1, Math.floor((grid.getBoundingClientRect().width + 16) / 266));
+		if (cols <= 1) return;
+
+		const targets = items.length < cols ? items : (items.length % cols ? items.slice(-(items.length % cols)) : []);
+		if (!targets.length) return;
+		if (effectiveMode === 'lone-full' && targets.length !== 1) return;
+
+		if (cols % targets.length === 0) {
+			const evenSpan = Math.min(cols / targets.length, cols);
+			if (evenSpan > 1) {
+				targets.forEach(el => {
+					if (evenSpan >= cols) el.classList.add('card-span-full');
+					else if (evenSpan === 3) el.classList.add('card-span-3');
+					else if (evenSpan === 2) el.classList.add('card-span-2');
+				});
+			}
+			return;
+		}
+
+		const base = Math.floor(cols / targets.length);
+		let rem = cols % targets.length;
+		targets.forEach(el => {
+			const span = Math.min(base + (rem > 0 ? 1 : 0), cols);
+			if (rem > 0) rem--;
+			if (span >= cols) el.classList.add('card-span-full');
+			else if (span === 3) el.classList.add('card-span-3');
+			else if (span === 2) el.classList.add('card-span-2');
+		});
+	});
+}
+
+if (!window.__gb3dModalResizeBound) {
+	window.__gb3dModalResizeBound = true;
+	let t3d = null;
+	const onResize3d = () => {
+		clearTimeout(t3d);
+		t3d = setTimeout(() => {
+			if (document.getElementById('overlay')?.classList.contains('active')) adaptModalGrids();
+		}, 90);
+	};
+	window.addEventListener('resize', onResize3d, { passive: true });
+	window.addEventListener('orientationchange', () => setTimeout(onResize3d, 180), { passive: true });
+}
 		class UIManager {
 			constructor() {
 				this.overlay = document.getElementById('overlay');
@@ -1252,6 +1398,7 @@
 			openHTML(html) {
 				this.inner.innerHTML = html;
 				this.overlay.classList.add('active');
+				adaptModalGrids();
 				this.hint.style.opacity = '0';
 			}
 			close() {
@@ -1696,6 +1843,55 @@
 			await loadExcelData();
 			const m=Number(GBNfoData.settings?.DataRefreshMinutes)||0;if(m>0)setInterval(loadExcelData,m*60000);
 		});
-	</script>
+	
+/* === Patch All Override: 3D Modal 2-Card Centering, 3-Card Equal Row & Icon Safety === */
+(function () {
+	const origModalAdapt = window.adaptModalGrids;
+
+	function sanitizeModalIcons() {
+		document.querySelectorAll('#panel .cards .ico').forEach(ico => {
+			if (ico.querySelector('i')) return;
+			const txt = (ico.textContent || '').trim();
+			if (!txt || txt === '\uFFFD' || txt === '?') {
+				ico.innerHTML = '<i class="fas fa-microchip"></i>';
+			}
+		});
+	}
+
+	window.adaptModalGrids = function (mode) {
+		const isPortraitPhone =
+			window.matchMedia && window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
+		const isDesktopEqual3 = window.innerWidth > 900 && !isPortraitPhone;
+		const isDesktopCentered2 = window.innerWidth > 720 && !isPortraitPhone;
+
+		document.querySelectorAll('#panel .cards').forEach(grid => {
+			grid.classList.remove('cols-equal-3', 'cards-centered-2');
+			const items = Array.from(grid.children).filter(el => el.nodeType === 1);
+			if (items.length === 3 && isDesktopEqual3) {
+				grid.classList.add('cols-equal-3');
+			} else if (items.length === 2 && isDesktopCentered2) {
+				grid.classList.add('cards-centered-2');
+			}
+		});
+
+		if (typeof origModalAdapt === 'function') {
+			origModalAdapt(mode);
+		}
+
+		document.querySelectorAll('#panel .cards').forEach(grid => {
+			const items = Array.from(grid.children).filter(el => el.nodeType === 1);
+			if (grid.classList.contains('cols-equal-3') || grid.classList.contains('cards-centered-2')) {
+				grid.classList.remove('grid-center-last');
+				items.forEach(el => {
+					el.classList.remove('card-span-2', 'card-span-3', 'card-span-full');
+					el.style.gridColumn = '';
+				});
+			}
+		});
+
+		sanitizeModalIcons();
+	};
+})();
+</script>
 </body>
 </html>

@@ -158,6 +158,153 @@ header.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.6)}
 
 .arcade-egg-btn{display:flex;align-items:center;justify-content:center;text-decoration:none;position:fixed;right:22px;bottom:22px;z-index:2147483647;pointer-events:auto!important;touch-action:manipulation;width:58px;height:58px;border-radius:18px;border:1px solid rgba(255,255,255,.34);background:linear-gradient(135deg,var(--primary-color),var(--secondary-color));color:#fff;font-size:25px;cursor:pointer;box-shadow:0 12px 35px rgba(0,0,0,.5),0 0 24px color-mix(in srgb,var(--primary-color) 55%,transparent);animation:arcadeFloat 3s ease-in-out infinite}.arcade-egg-btn:hover{transform:translateY(-5px) rotate(-4deg) scale(1.08)}.arcade-egg-btn::after{content:'Definitely not work-related…';position:absolute;right:68px;top:50%;transform:translateY(-50%) scale(.9);opacity:0;pointer-events:none;width:max-content;padding:8px 12px;border-radius:999px;background:rgba(5,8,22,.94);border:1px solid var(--accent-color);font:700 .72rem 'Lato',sans-serif;color:#fff;transition:.22s}.arcade-egg-btn:hover::after,.arcade-egg-btn:focus-visible::after{opacity:1;transform:translateY(-50%) scale(1)}@keyframes arcadeFloat{50%{transform:translateY(-7px) rotate(3deg)}}
 #arcade-shell{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.78);backdrop-filter:blur(12px)}#arcade-shell.active{display:flex}#arcade-panel{position:relative;width:min(1120px,96vw);max-height:91vh;overflow:auto;padding:24px;border-radius:22px;background:rgba(6,9,22,.97);border:1px solid rgba(255,255,255,.18);box-shadow:0 35px 90px rgba(0,0,0,.75),0 0 45px color-mix(in srgb,var(--secondary-color) 30%,transparent)}#arcade-close{position:sticky;float:right;top:0;z-index:4;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:26px;cursor:pointer}.arcade-lobby-title{font:900 clamp(1.8rem,5vw,3.2rem) 'Bebas Neue',sans-serif;letter-spacing:2px;background:linear-gradient(90deg,var(--primary-color),var(--accent-color),var(--secondary-color));-webkit-background-clip:text;color:transparent}.arcade-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 20px}.arcade-toolbar button,.game-launch{border:1px solid rgba(255,255,255,.2);border-radius:999px;background:linear-gradient(135deg,rgba(255,0,110,.2),rgba(58,134,255,.22));color:#fff;padding:9px 15px;font:800 .75rem 'Lato',sans-serif;cursor:pointer}.arcade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px}.arcade-card{padding:16px;border-radius:15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12)}.arcade-card h3{font:700 1.05rem 'Playfair Display',serif;margin:8px 0}.arcade-card p{font:.78rem 'Lato',sans-serif;color:rgba(255,255,255,.7);min-height:35px}.arcade-best{color:var(--accent-color);font-size:.72rem;margin:8px 0}.lbtable{width:100%;border-collapse:collapse;margin:8px 0 18px}.lbtable th,.lbtable td{padding:8px;border-bottom:1px solid rgba(255,255,255,.12);text-align:left;font-size:.78rem}.arcade,.arcade canvas{max-width:100%}.gamecanvas{display:block;margin:auto;background:#05050a;border:1px solid rgba(255,255,255,.2)}.hudrow,.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:12px 0}.arcbtn,.drumpad{padding:9px 13px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:8px;cursor:pointer}.padgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.piano{position:relative;display:flex;justify-content:center;min-height:190px}.whitekey{width:42px;height:180px;background:#fff;color:#111;border:1px solid #333}.blackkey{position:absolute;width:28px;height:112px;background:#111;color:#fff;z-index:2}.lbtable{color:#fff}@media(max-width:600px){.arcade-egg-btn{right:12px;bottom:12px}.arcade-grid{grid-template-columns:1fr 1fr}.padgrid{grid-template-columns:repeat(2,1fr)}}
+
+/* === Adaptive Grid Layout (Patch) === */
+/* === Adaptive Grid Layout (Patch 2: Even Spacing & Viewport/Orientation Aware) === */
+.card-grid,
+.project-grid,
+.written-grid,
+.contact-grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+
+.card-grid > *,
+.project-grid > *,
+.written-grid > *,
+.contact-grid > * {
+	min-width: 0;
+}
+
+.card-grid > .card-span-2,
+.project-grid > .card-span-2,
+.written-grid > .card-span-2,
+.contact-grid > .card-span-2 { grid-column: span 2; }
+
+.card-grid > .card-span-3,
+.project-grid > .card-span-3,
+.written-grid > .card-span-3,
+.contact-grid > .card-span-3 { grid-column: span 3; }
+
+.card-grid > .card-span-full,
+.project-grid > .card-span-full,
+.written-grid > .card-span-full,
+.contact-grid > .card-span-full { grid-column: 1 / -1; }
+
+.card-span-2 p, .card-span-3 p, .card-span-full p { max-width: 72ch; }
+
+.grid-center-last {
+	display: flex !important;
+	flex-wrap: wrap !important;
+	justify-content: center !important;
+	align-items: stretch !important;
+}
+.grid-center-last > * {
+	flex: 1 1 min(100%, 280px);
+	max-width: min(100%, 460px);
+	min-width: 0;
+}
+
+@media (max-width: 640px), (orientation: portrait) and (max-width: 768px) {
+	.card-grid > [class*="card-span-"],
+	.project-grid > [class*="card-span-"],
+	.written-grid > [class*="card-span-"],
+	.contact-grid > [class*="card-span-"] {
+		grid-column: 1 / -1 !important;
+	}
+}
+/* === Friendly Rounded Corners & Balanced Spacing (Patch 3) === */
+.card-grid,
+.project-grid,
+.written-grid,
+.contact-grid {
+	gap: clamp(18px, 2.2vw, 34px);
+}
+
+.card,
+.project-card,
+.written-item,
+.contact-card {
+	border-radius: 20px !important;
+}
+
+.written-links a,
+.card .links a,
+.project-links a {
+	border-radius: 10px;
+}
+
+@media (max-width: 640px) {
+	.card,
+	.project-card,
+	.written-item,
+	.contact-card {
+		border-radius: 16px !important;
+	}
+}
+
+	
+/* === All-in-One Card Row Layout & Icon Fallback (Patch All) === */
+.card-grid.cols-equal-3,
+.project-grid.cols-equal-3,
+.written-grid.cols-equal-3,
+.contact-grid.cols-equal-3 {
+	grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.card-grid.cards-centered-2,
+.project-grid.cards-centered-2,
+.written-grid.cards-centered-2,
+.contact-grid.cards-centered-2 {
+	display: flex !important;
+	flex-wrap: wrap !important;
+	justify-content: center !important;
+	align-items: stretch !important;
+}
+
+.card-grid.cards-centered-2 > *,
+.project-grid.cards-centered-2 > *,
+.written-grid.cards-centered-2 > *,
+.contact-grid.cards-centered-2 > * {
+	flex: 0 1 min(420px, calc(50% - 20px));
+	min-width: min(100%, 280px);
+	max-width: min(100%, 460px);
+}
+
+@media (max-width: 900px), (orientation: portrait) and (max-width: 768px) {
+	.card-grid.cols-equal-3,
+	.project-grid.cols-equal-3,
+	.written-grid.cols-equal-3,
+	.contact-grid.cols-equal-3 {
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)) !important;
+	}
+}
+
+@media (max-width: 720px), (orientation: portrait) and (max-width: 768px) {
+	.card-grid.cards-centered-2,
+	.project-grid.cards-centered-2,
+	.written-grid.cards-centered-2,
+	.contact-grid.cards-centered-2 {
+		display: grid !important;
+		grid-template-columns: 1fr !important;
+	}
+
+	.card-grid.cards-centered-2 > *,
+	.project-grid.cards-centered-2 > *,
+	.written-grid.cards-centered-2 > *,
+	.contact-grid.cards-centered-2 > * {
+		flex: none !important;
+		max-width: none !important;
+	}
+}
+
+@media (max-width: 640px) {
+	.card-grid.cols-equal-3,
+	.project-grid.cols-equal-3,
+	.written-grid.cols-equal-3,
+	.contact-grid.cols-equal-3 {
+		grid-template-columns: 1fr !important;
+	}
+}
 </style>
 </head>
 <body class="theme-default">
@@ -316,6 +463,118 @@ function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.Star
 			}
 		}
 
+		
+/* === Adaptive Grid Layout Helper (Patch) === */
+/* === Adaptive Grid Layout Helper (Patch 2) === */
+function getGridColumnCount(grid) {
+	const style = getComputedStyle(grid);
+	if (style.display !== 'grid') return 1;
+	const tracks = style.gridTemplateColumns
+		.trim()
+		.split(/\s+(?![^()]*\))/)
+		.filter(t => t && t !== 'none');
+	if (tracks.length > 0) return tracks.length;
+	const width = grid.getBoundingClientRect().width;
+	return Math.max(1, Math.floor((width + 20) / 300));
+}
+
+function applyBalancedSpans(targets, totalCols, maxSpan, allowUnevenSplit = true) {
+	const count = targets.length;
+	if (!count || totalCols <= 1) return;
+
+	// If count divides totalCols cleanly (e.g., 2 cards in 4 cols -> 2 each; 3 cards in 3 cols -> 1 each),
+	// every card gets the exact same span so they space out evenly across the row.
+	if (totalCols % count === 0) {
+		const evenSpan = Math.min(totalCols / count, maxSpan, totalCols);
+		if (evenSpan > 1) {
+			targets.forEach(el => {
+				if (evenSpan >= totalCols) el.classList.add('card-span-full');
+				else if (evenSpan === 3) el.classList.add('card-span-3');
+				else if (evenSpan === 2) el.classList.add('card-span-2');
+				else el.style.gridColumn = `span ${evenSpan}`;
+			});
+		}
+		return;
+	}
+
+	if (!allowUnevenSplit) return;
+
+	const base = Math.floor(totalCols / count);
+	let rem = totalCols % count;
+	targets.forEach(el => {
+		const rawSpan = base + (rem > 0 ? 1 : 0);
+		if (rem > 0) rem--;
+		const span = Math.min(rawSpan, maxSpan, totalCols);
+		if (span >= totalCols) el.classList.add('card-span-full');
+		else if (span === 3) el.classList.add('card-span-3');
+		else if (span === 2) el.classList.add('card-span-2');
+		else if (span > 1) el.style.gridColumn = `span ${span}`;
+	});
+}
+
+function adaptClassicGrids(mode) {
+	const effectiveMode = mode || (window.GBNfoData && GBNfoData.settings && GBNfoData.settings.CardLayoutMode) || 'balanced';
+	const maxSpan = Math.max(1, Number((window.GBNfoData && GBNfoData.settings && GBNfoData.settings.CardMaxSpan) || 4));
+	const isNarrowOrPortrait = window.innerWidth <= 640 || (window.matchMedia && window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches);
+	const grids = document.querySelectorAll('.card-grid, .project-grid, .written-grid, .contact-grid');
+
+	grids.forEach(grid => {
+		const items = Array.from(grid.children).filter(el => el.nodeType === 1);
+		grid.classList.remove('grid-center-last');
+		items.forEach(el => {
+			el.classList.remove('card-span-2', 'card-span-3', 'card-span-full');
+			el.style.gridColumn = '';
+		});
+		if (!items.length || isNarrowOrPortrait) return;
+
+		if (effectiveMode === 'center') {
+			grid.classList.add('grid-center-last');
+			return;
+		}
+
+		const cols = getGridColumnCount(grid);
+		if (cols <= 1) return;
+
+		if (items.length < cols) {
+			applyBalancedSpans(items, cols, maxSpan, effectiveMode !== 'strict-even');
+			return;
+		}
+
+		const remainder = items.length % cols;
+		if (remainder === 0) return;
+		if (effectiveMode === 'lone-full' && remainder !== 1) return;
+
+		applyBalancedSpans(items.slice(-remainder), cols, maxSpan, true);
+	});
+}
+
+function bindAdaptiveGridResize() {
+	const runAdapt = () => adaptClassicGrids();
+	if (!window.__gbAdaptiveResizeBound) {
+		window.__gbAdaptiveResizeBound = true;
+		let timer = null;
+		const schedule = () => {
+			clearTimeout(timer);
+			timer = setTimeout(runAdapt, 90);
+		};
+		window.addEventListener('resize', schedule, { passive: true });
+		window.addEventListener('orientationchange', () => setTimeout(runAdapt, 180), { passive: true });
+		if (window.visualViewport) {
+			window.visualViewport.addEventListener('resize', schedule, { passive: true });
+		}
+	}
+	if (typeof ResizeObserver !== 'undefined') {
+		if (!window.__gbGridResizeObserver) {
+			window.__gbGridResizeObserver = new ResizeObserver(() => {
+				requestAnimationFrame(runAdapt);
+			});
+		}
+		document.querySelectorAll('.card-grid, .project-grid, .written-grid, .contact-grid').forEach(g => {
+			window.__gbGridResizeObserver.observe(g);
+		});
+	}
+	requestAnimationFrame(runAdapt);
+}
 		function initApp() {
 			// Apply Site Settings
 			document.title = GBNfoData.site.SiteTitle || document.title;
@@ -415,6 +674,8 @@ function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.Star
 			// Re-bind events
 			bindEvents();
 			initResumeTabs();
+			adaptClassicGrids();
+			bindAdaptiveGridResize();
 		}
 
 
@@ -717,7 +978,60 @@ function activeAnnouncement(a){ const now=new Date(), start=parseDateSafe(a.Star
 
 		// Boot
 		document.addEventListener('DOMContentLoaded', async()=>{await loadData(); const m=Number(GBNfoData.settings?.DataRefreshMinutes)||0; if(m>0)setInterval(loadData,m*60000);});
-	</script>
+	
+/* === Patch All Override: 2-Card Centering, 3-Card Equal Row & Icon Safety === */
+(function () {
+	const origAdapt = window.adaptClassicGrids;
+
+	function sanitizeIcons() {
+		document.querySelectorAll('.card-icon').forEach(ico => {
+			if (ico.querySelector('i')) return;
+			const txt = (ico.textContent || '').trim();
+			if (!txt || txt === '\uFFFD' || txt === '?') {
+				ico.innerHTML = '<i class="fas fa-microchip"></i>';
+			}
+		});
+	}
+
+	window.adaptClassicGrids = function (mode) {
+		const isPortraitPhone =
+			window.matchMedia && window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches;
+		const isDesktopEqual3 = window.innerWidth > 900 && !isPortraitPhone;
+		const isDesktopCentered2 = window.innerWidth > 720 && !isPortraitPhone;
+
+		const grids = document.querySelectorAll('.card-grid, .project-grid, .written-grid, .contact-grid');
+		grids.forEach(grid => {
+			grid.classList.remove('cols-equal-3', 'cards-centered-2', 'cols-equal-2');
+			const items = Array.from(grid.children).filter(el => el.nodeType === 1);
+			if (items.length === 3 && isDesktopEqual3) {
+				grid.classList.add('cols-equal-3');
+			} else if (items.length === 2 && isDesktopCentered2) {
+				grid.classList.add('cards-centered-2', 'cols-equal-2');
+			}
+		});
+
+		if (typeof origAdapt === 'function') {
+			origAdapt(mode);
+		}
+
+		grids.forEach(grid => {
+			const items = Array.from(grid.children).filter(el => el.nodeType === 1);
+			if (grid.classList.contains('cols-equal-3') || grid.classList.contains('cards-centered-2')) {
+				grid.classList.remove('grid-center-last');
+				items.forEach(el => {
+					el.classList.remove('card-span-2', 'card-span-3', 'card-span-full');
+					el.style.gridColumn = '';
+				});
+			}
+			if (grid.classList.contains('cards-centered-2') && (window.innerWidth <= 720 || isPortraitPhone)) {
+				grid.classList.remove('cards-centered-2', 'cols-equal-2');
+			}
+		});
+
+		sanitizeIcons();
+	};
+})();
+</script>
 <a id="arcade-egg-btn" class="arcade-egg-btn" href="./arcade.html" aria-label="Open secret arcade"><i class="fas fa-gamepad"></i></a>
 </div>
 </body>
