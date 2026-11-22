@@ -13,6 +13,11 @@ uob
 google	gene.boo	07111978G3n3!
 umobile	gene.boo@aol.com	071178G3n3!
 
+[22:07, 11/22/2026] gB: for the HK one - 
+
+SWIFT / BIC Code: SCBLHKHHXXX (Standard Chartered Hong Kong uses a single central SWIFT code for all retail branches
+[22:07, 11/22/2026] gB: 56286879621 is the account number
+[22:07, 11/22/2026] gB: 14017085761 gbsg
 
 Gene Boo
 gene.boo@aol.com
