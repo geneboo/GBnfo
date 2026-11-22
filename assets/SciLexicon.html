@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="SciLexicon Live: a premium scientific dictionary, thesaurus, explainer and formula explorer with live 3D knowledge network." />
-    <title>SciLexicon Live · Premium</title>
+    <title>SciLexicon v2.2 · Premium</title>
 
     <script>
         window.MathJax = {
@@ -217,6 +217,14 @@
             color: var(--muted);
             max-width: 680px;
             margin: 0 auto 18px;
+            /* New glassmorphism styles */
+            border: 1px solid var(--line);
+            background: var(--glass2);
+            border-radius: 14px;
+            padding: 12px 20px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            text-align: center;
         }
         .search {
             display: flex;
@@ -766,7 +774,60 @@
                 border-radius: 16px;
             }
         }
-    </style>
+    
+        .version-badge {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 2px 7px;
+            margin-left: 6px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--cyan), var(--violet));
+            color: #041018;
+            vertical-align: middle;
+        }
+        .view-disclaimer {
+            margin: 10px auto 6px;
+            max-width: 760px;
+            border: 1px solid var(--line);
+            background: var(--glass2);
+            border-radius: 14px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            text-align: left;
+        }
+        .view-disclaimer b { color: var(--text); }
+        .view-disclaimer .disclaimer-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+        .view-disclaimer button {
+            border: 1px solid var(--line);
+            background: var(--glass);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .view-disclaimer button:hover {
+            border-color: var(--cyan);
+            background: rgba(99,242,255,0.08);
+        }
+        </style>
 </head>
 <body>
     <div id="webgl" aria-hidden="true"></div>
@@ -775,9 +836,11 @@
     <nav class="shell">
         <div class="brand">
             <div class="logo">SL</div>
-            <div><b>SciLexicon by Gene</b><span>Dictionary · thesaurus · explainer · formulae · live sources</span></div>
+            <div><b>SciLexicon by Gene</b> <span class="version-badge">v2.2</span><span>Dictionary · thesaurus · explainer · formulae · live sources</span></div>
         </div>
         <div class="actions">
+            <button class="btn" id="exportJsonBtn" type="button">⬇ JSON</button>
+            <button class="btn" id="exportMdBtn" type="button">⬇ MD</button>
             <button class="btn" id="themeBtn" type="button">☀️ / 🌙</button>
             <a class="btn" href="https://geneboo.github.io/GBnfo/" target="_blank" rel="noreferrer">Gene's GitHub Page</a>
             <button class="btn" id="copyBtn" type="button">Copy citation</button>
@@ -787,13 +850,20 @@
     <main class="shell">
         <section class="hero">
             <div class="hero-content">
-                <div class="pill" style="margin-bottom:10px"><span class="dot" id="liveDot"></span> Live API mode · no persistent local database</div>
+                <div class="pill" style="margin-bottom:10px"><span class="dot" id="liveDot"></span> <b>v2.2</b> · view-only mode (no cookies, no storage) · live API</div>
                 <h1>One <span class="grad">science lookup</span>, assembled live from the web.</h1>
                 <p class="lead">Calls public APIs in the browser: Wikipedia, Wikidata, Wiktionary, Datamuse, Semantic Scholar, CrossRef, plus links to NIST DLMF, Scipy docs, OpenStax, PDFDrive, Internet Archive, Wolfram, CERN, MIT OCW, MATLAB, R, Julia, Python, and more.</p>
                 <form class="search" id="searchForm">
                     <input id="query" value="entropy" autocomplete="off" spellcheck="false" placeholder="Search entropy, photosynthesis, derivative..." />
                     <button class="btn primary" type="submit">Search live sources</button>
                 </form>
+                <div class="view-disclaimer" id="viewOnlyBar">
+                    <span id="viewOnlyStatus"><span class="dot"></span> <b>View-Only (No Cookies)</b> — client-side only. No cookies, no localStorage, no tracking unless you opt in.</span>
+                    <span class="disclaimer-actions">
+                        <button id="memoryToggleBtn" type="button" aria-pressed="false">🧠 Last-Used: Off</button>
+                        <button id="noCookiesBtn" type="button">🍪 No Cookies (View-Only)</button>
+                    </span>
+                </div>
                 <div class="chips"><button class="chip" data-term="entropy">entropy</button><button class="chip" data-term="photosynthesis">photosynthesis</button><button class="chip" data-term="derivative">derivative</button><button class="chip" data-term="quantum mechanics">quantum mechanics</button><button class="chip" data-term="mitochondrion">mitochondrion</button><button class="chip" data-term="gamma function">gamma function</button></div>
                 <div class="stats-row">
                     <div class="stat-badge"><span>⚡ Runtime</span> <b>Static HTML + JS</b></div>
@@ -830,6 +900,14 @@
 
         <div class="tab-panel" id="tab-math">
             <article class="card"><div class="head"><h3>Formulae and math markup</h3><span class="pill">Wikipedia math + DLMF</span></div><div class="body" id="formulaBox"><div class="empty">Waiting.</div></div></article>
+                    <article class="card" id="structTwinsCard">
+                <div class="head"><h3>Cross-Domain Structural Twins</h3><span class="pill">on-demand</span></div>
+                <div class="body">
+                    <p class="muted" style="font-size:13px;margin-bottom:8px">Analyzes the current formula set for mathematical structures, and queries Wikipedia across multiple disciplines. If no formulas are found, it searches for <b>conceptual parallels</b> of the term itself, ensuring you always get related cross-domain twins.</p>
+                    <button class="btn primary" id="findTwinsBtn" type="button">🧬 Find Structural Twins</button>
+                    <div id="structTwinsBox" style="margin-top:10px"></div>
+                </div>
+            </article>
         </div>
 
         <div class="tab-panel" id="tab-literature">
@@ -1236,24 +1314,32 @@
                 c.style.animation = `cardAppear 0.5s cubic-bezier(0.22,0.61,0.36,1) ${i*0.04}s both`; });
         }
 
-        function renderFormulae(x) {
-            const box = $('#formulaBox');
-            const dlmfSource = sourceRow({ label: 'Search NIST DLMF', url: ep.dlmf(x.query), license: lic.dlmf,
-                retrieved: new Date().toISOString() });
-            if (!x.formulas.length) {
-                box.innerHTML = '<div class="empty">No Wikipedia math markup found. Try searching a mathematical term.</div>' +
-                    dlmfSource;
-                return;
-            }
-            box.innerHTML = x.formulas.map((f, i) => {
+function renderFormulae(x) {
+        const box = $('#formulaBox');
+        const dlmfSource = sourceRow({ label: 'Search NIST DLMF', url: ep.dlmf(x.query), license: lic.dlmf, retrieved: new Date().toISOString() });
+        
+        let html = '';
+        if (!x.formulas || !x.formulas.length) {
+            html = '<div class="empty">No Wikipedia math markup found. Try searching a mathematical term.</div>';
+        } else {
+            html = x.formulas.map((f, i) => {
                 let contextHtml = '';
-                if (f.context && isCleanContext(f.context)) { contextHtml =
-                    `<span class="context">from "${esc(f.context)}"</span>`; }
+                if (f.context && isCleanContext(f.context)) {
+                    contextHtml = `<span class="context">from "${esc(f.context)}"</span>`;
+                }
                 const formulaTex = f.tex || f;
                 return `<div class="formula"><div class="formula-label"><b>📐 Formula ${i+1}</b>${contextHtml}</div><div class="formula-code">\\(${escapeLatex(formulaTex)}\\)</div></div>`;
-            }).join('') + dlmfSource;
-            if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise([box]).catch(() => {});
+            }).join('');
         }
+        
+        box.innerHTML = html + dlmfSource + '<div id="dlmfResultsBox" style="margin-top:10px"></div>';
+        if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise([box]).catch(() => {});
+        
+        // Trigger DLMF scraping
+        if (window.fetchDlmfEntries) {
+            window.fetchDlmfEntries(x.query);
+        }
+    }
 
         function isCleanContext(str) {
             if (!str || str.length < 3) return false;
@@ -1297,43 +1383,50 @@
                 `<a class="ext-link" href="${attr(l.url)}" target="_blank" rel="noreferrer">${l.label}</a>`).join('');
         }
 
-        function extractFormulae(p) {
-            const h = p?.parse?.text?.['*'];
-            if (!h) return [];
-            const d = new DOMParser().parseFromString(h, 'text/html');
-            const out = [];
-            d.querySelectorAll(
-                    'math annotation[encoding="application/x-tex"], math annotation[encoding="tex"]').forEach(el => {
-                const tex = el.textContent.trim();
-                if (tex && tex.length < 400 && /[=\+\-∑∫√\^_{}]/.test(tex) && hasBalancedBraces(tex)) {
-                    const context = findContext(el, d);
-                    out.push({ tex, context });
-                }
-            });
-            d.querySelectorAll(
-                    '.mwe-math-element img[alt], img.mwe-math-fallback-image-inline[alt], img.mwe-math-fallback-image-display[alt], .mwe-math-fallback-image-inline[alt], .mwe-math-fallback-image-display[alt]'
-                ).forEach(i => {
-                const a = i.getAttribute('alt');
-                if (a && a.length < 400 && /[=\+\-∑∫√\^_{}]/.test(a) && !a.startsWith('c = {\\displaystyle') &&
-                    hasBalancedBraces(a) && !out.find(o => o.tex === a.trim())) {
-                    const context = findContext(i, d);
-                    out.push({ tex: a.trim(), context });
-                }
-            });
-            if (out.length < 3) {
-                d.querySelectorAll('pre, code, .latex, .math').forEach(el => {
-                    const text = el.textContent.trim();
-                    if (text && text.length < 500 && /[=\+\-∑∫√\^_{}]/.test(text) && text.includes('\\') &&
-                        hasBalancedBraces(text) && !out.find(o => o.tex === text)) {
-                        const context = findContext(el, d);
-                        out.push({ tex: text, context });
-                    }
-                });
+function extractFormulae(p) {
+        const h = p?.parse?.text?.['*'];
+        if (!h) return [];
+        const d = new DOMParser().parseFromString(h, 'text/html');
+        const out = [];
+        
+        // 1. MathML annotations (most reliable)
+        d.querySelectorAll('math annotation[encoding="application/x-tex"], math annotation[encoding="tex"]').forEach(el => {
+            const tex = el.textContent.trim();
+            if (tex && tex.length < 400 && !out.find(o => o.tex === tex)) {
+                out.push({ tex: tex, context: findContext(el, d) });
             }
-            const seen = new Set();
-            return out.filter(item => { const key = item.tex.slice(0, 80); if (seen.has(key)) return false;
-                seen.add(key); return true; });
+        });
+        
+        // 2. Wikipedia image fallback
+        d.querySelectorAll('.mwe-math-element img[alt], img.mwe-math-fallback-image-inline[alt], img.mwe-math-fallback-image-display[alt]').forEach(i => {
+            const a = i.getAttribute('alt');
+            if (a && a.length < 400 && !a.startsWith('{\\displaystyle') && !out.find(o => o.tex === a.trim())) {
+                out.push({ tex: a.trim(), context: findContext(i, d) });
+            }
+        });
+        
+        // 3. Direct math tags
+        d.querySelectorAll('math').forEach(el => {
+            if (el.querySelector('annotation')) return;
+            const tex = el.textContent.trim();
+            if (tex && tex.length < 400 && tex.includes('=') && !out.find(o => o.tex === tex)) {
+                out.push({ tex: tex, context: findContext(el, d) });
+            }
+        });
+        
+        // 4. Generic latex blocks
+        if (out.length < 3) {
+            d.querySelectorAll('pre, code, .latex, .math, .texhtml').forEach(el => {
+                const text = el.textContent.trim();
+                if (text && text.length < 500 && (text.includes('\\') || text.includes('=')) && !out.find(o => o.tex === text)) {
+                    out.push({ tex: text, context: findContext(el, d) });
+                }
+            });
         }
+        
+        const seen = new Set();
+        return out.filter(item => { const key = item.tex.slice(0, 80); if (seen.has(key)) return false; seen.add(key); return true; });
+    }
 
         function hasBalancedBraces(str) { let balance = 0; for (const ch of str) { if (ch === '{') balance++; else if (
                 ch === '}') balance--; if (balance < 0) return false; } return balance === 0; }
@@ -2370,9 +2463,504 @@
             triggerNetworkPulse(new THREE.Vector3(rx, (Math.random() - 0.5) * 6, rz));
         }, 8000 + Math.random() * 6000);
 
+        window.__scilexiconV22 = {
+            getCurrent: () => current,
+            getLastSources: () => lastSources,
+            searchLive: (q) => searchLive(q)
+        };
+
         console.log('🔬 SciLexicon Premium · Scientific Visualization Platform Active');
         console.log('   Grid · Network · Packets · Particles · Symbols · Wheel · Bloom');
         console.log('   All APIs preserved · 60 FPS target');
+    </script>
+
+    
+    
+
+    <script id="scilexiconQueryResolver">
+    (function () {
+      'use strict';
+      var CANONICAL_MAP = {
+        'blackscholes': 'Black-Scholes model',
+        'blackscholesmodel': 'Black-Scholes model',
+        'blackscholesequation': 'Black-Scholes equation',
+        'navierstokes': 'Navier-Stokes equations',
+        'montecarlo': 'Monte Carlo method',
+        'fouriertransform': 'Fourier transform',
+        'laplacetransform': 'Laplace transform',
+        'taylorseries': 'Taylor series',
+        'bayestheorem': "Bayes' theorem",
+        'eigenvalue': 'Eigenvalues and eigenvectors',
+        'schrodingerequation': 'Schrödinger equation',
+        'maxwellsequations': "Maxwell's equations",
+        'heatequation': 'Heat equation',
+        'waveequation': 'Wave equation',
+        'laplaceequation': "Laplace's equation"
+      };
+
+      function normalize(q) {
+        var key = String(q).toLowerCase().replace(/[^a-z0-9]/g, '');
+        return CANONICAL_MAP[key] || q;
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var form = document.getElementById('searchForm');
+        if (form) {
+          form.addEventListener('submit', function() {
+            var input = document.getElementById('query');
+            if (input) {
+              var norm = normalize(input.value);
+              if (norm !== input.value) {
+                input.value = norm;
+              }
+            }
+          });
+        }
+      });
+    })();
+    </script>
+    
+<script id="scilexiconV22Enhancements">
+    /* SCLEX_VERSION:2.3.0 */
+    (function () {
+      'use strict';
+      var STORAGE_KEY = 'scilexicon.v2_2.state';
+      var COOKIE_KEY = 'scilexicon_v22';
+
+      function readState() {
+        try { var raw = localStorage.getItem(STORAGE_KEY); if (!raw) return null; return JSON.parse(raw); } catch (e) { return null; }
+      }
+      function writeState(obj) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); } catch (e) {}
+      }
+      function clearState() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        try { document.cookie = COOKIE_KEY + '=; Max-Age=0; path=/'; } catch (e) {}
+      }
+
+      var state = readState() || {};
+      var memoryEnabled = !!state.memoryEnabled;
+      var recentTerms = Array.isArray(state.recentTerms) ? state.recentTerms.slice() : [];
+      var lastQuery = typeof state.lastQuery === 'string' ? state.lastQuery : '';
+      var storedTheme = state.theme === 'light' ? 'light' : (state.theme === 'dark' ? 'dark' : '');
+
+      function persist() {
+        if (!memoryEnabled) return;
+        writeState({
+          memoryEnabled: true, lastQuery: lastQuery, recentTerms: recentTerms,
+          theme: document.body.classList.contains('light') ? 'light' : 'dark'
+        });
+      }
+
+      function recordTerm(term) {
+        if (!memoryEnabled || !term) return;
+        var t = String(term).trim();
+        if (!t) return;
+        lastQuery = t;
+        var filtered = [];
+        for (var i = 0; i < recentTerms.length; i++) {
+          if (recentTerms[i].toLowerCase() !== t.toLowerCase()) filtered.push(recentTerms[i]);
+        }
+        recentTerms = [t].concat(filtered).slice(0, 12);
+        persist();
+      }
+
+      function refreshDisclaimer() {
+        var statusEl = document.getElementById('viewOnlyStatus');
+        var toggle = document.getElementById('memoryToggleBtn');
+        if (toggle) {
+          toggle.textContent = memoryEnabled ? '🧠 Last-Used: On' : '🧠 Last-Used: Off';
+          toggle.setAttribute('aria-pressed', memoryEnabled ? 'true' : 'false');
+        }
+        if (statusEl) {
+          statusEl.innerHTML = memoryEnabled
+            ? '<span class="dot ok"></span> <b>Last-Used memory ON</b> — last query, recent terms and theme are saved locally in this browser only.'
+            : '<span class="dot"></span> <b>View-Only (No Cookies)</b> — client-side only. No cookies, no localStorage, no tracking unless you opt in.';
+        }
+      }
+
+      function wireDisclaimer() {
+        var toggle = document.getElementById('memoryToggleBtn');
+        var clearBtn = document.getElementById('noCookiesBtn');
+        if (toggle && !toggle.dataset.v22wired) {
+          toggle.dataset.v22wired = '1';
+          toggle.addEventListener('click', function () {
+            memoryEnabled = !memoryEnabled;
+            if (!memoryEnabled) { clearState(); }
+            else {
+              var el = document.getElementById('query');
+              var q = el ? el.value : '';
+              if (q) recordTerm(q);
+              persist();
+            }
+            refreshDisclaimer();
+          });
+        }
+        if (clearBtn && !clearBtn.dataset.v22wired) {
+          clearBtn.dataset.v22wired = '1';
+          clearBtn.addEventListener('click', function () {
+            memoryEnabled = false; clearState(); refreshDisclaimer();
+          });
+        }
+        refreshDisclaimer();
+      }
+
+      function wireTheme() {
+        var themeBtn = document.getElementById('themeBtn');
+        if (themeBtn && !themeBtn.dataset.v22wired) {
+          themeBtn.dataset.v22wired = '1';
+          themeBtn.addEventListener('click', function () { setTimeout(persist, 0); });
+        }
+      }
+
+      function wireSearch() {
+        var form = document.getElementById('searchForm');
+        if (form && !form.dataset.v22wired) {
+          form.dataset.v22wired = '1';
+          form.addEventListener('submit', function () {
+            var el = document.getElementById('query');
+            if (el && el.value) recordTerm(el.value);
+          });
+        }
+        var chips = document.querySelectorAll('.chip[data-term]');
+        for (var i = 0; i < chips.length; i++) {
+          var b = chips[i];
+          if (b.dataset.v22wired) continue;
+          b.dataset.v22wired = '1';
+          b.addEventListener('click', (function (btn) {
+            return function () {
+              var t = btn.getAttribute('data-term');
+              if (t) recordTerm(t);
+            };
+          })(b));
+        }
+      }
+
+      function download(filename, text, mime) {
+        var blob = new Blob([text], { type: mime });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+        setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 100);
+      }
+
+      function simpleText(c) {
+        var t = String((c && (c.wiki || c.desc || c.term)) || '');
+        return t.replace(/\([^)]*\)/g, '').split(/(?<=[.!?])\s+/).slice(0, 3).join(' ');
+      }
+
+      function snapshotJson(c) {
+        var sources = [];
+        (c.sources || []).forEach(function (s) { sources.push({ label: s.label, url: s.url, license: s.license, retrieved: s.retrieved }); });
+        return JSON.stringify({
+          version: '2.3', generatedAt: new Date().toISOString(),
+          term: c.term, qid: c.qid || '', query: c.query || '',
+          subtitle: c.desc || '', technicalDefinition: c.wiki || '',
+          laymanExplainer: simpleText(c), relatedTerms: c.tags || [],
+          formulae: c.formulas || [], papers: c.papers || [], sources: sources
+        }, null, 2);
+      }
+
+      function snapshotMd(c) {
+        var out = [];
+        out.push('# ' + c.term);
+        if (c.desc) out.push('', '*' + c.desc + '*');
+        if (c.qid) out.push('', '**Wikidata:** ' + c.qid);
+        out.push('', '## Technical Definition', '', c.wiki || '(none)');
+        out.push('', '## Layman Explainer', '', simpleText(c) || '(none)');
+        if ((c.tags || []).length) { out.push('', '## Related Terms', ''); c.tags.forEach(function (t) { out.push('- ' + t); }); }
+        if ((c.formulas || []).length) {
+          out.push('', '## Formulae', '');
+          c.formulas.forEach(function (f, i) {
+            var tex = (typeof f === 'string') ? f : (f.tex || '');
+            out.push('### Formula ' + (i + 1), '', '```latex', tex, '```', '');
+          });
+        }
+        if ((c.papers || []).length) {
+          out.push('## Academic Papers', '');
+          c.papers.forEach(function (p) {
+            out.push('- **' + (p.title || 'Untitled') + '**' + (p.year ? ' (' + p.year + ')' : ''));
+            if (p.authors) out.push('  - Authors: ' + p.authors);
+            if (p.url) out.push('  - URL: ' + p.url);
+            if (p.source) out.push('  - Source: ' + p.source);
+          });
+          out.push('');
+        }
+        if ((c.sources || []).length) {
+          out.push('## Sources', '');
+          c.sources.forEach(function (s) { out.push('- [' + s.label + '](' + s.url + ') — ' + s.license + ' · retrieved ' + s.retrieved); });
+        }
+        return out.join('\n');
+      }
+
+      function slug(c) {
+        var s = String((c && c.term) || 'scilexicon');
+        return s.replace(/[^a-z0-9_\-]+/gi, '_').slice(0, 60) || 'scilexicon';
+      }
+
+      function wireExports() {
+        var j = document.getElementById('exportJsonBtn');
+        var m = document.getElementById('exportMdBtn');
+        if (j && !j.dataset.v22wired) {
+          j.dataset.v22wired = '1';
+          j.addEventListener('click', function () {
+            var api = window.__scilexiconV22; var c = api && api.getCurrent(); if (!c) return;
+            download('scilexicon_' + slug(c) + '.json', snapshotJson(c), 'application/json');
+          });
+        }
+        if (m && !m.dataset.v22wired) {
+          m.dataset.v22wired = '1';
+          m.addEventListener('click', function () {
+            var api = window.__scilexiconV22; var c = api && api.getCurrent(); if (!c) return;
+            download('scilexicon_' + slug(c) + '.md', snapshotMd(c), 'text/markdown');
+          });
+        }
+      }
+
+      // ── NIST DLMF Live Fetcher ──────────────────────────────────────────────
+      window.fetchDlmfEntries = function(q) {
+        var dlmfBox = document.getElementById('dlmfResultsBox');
+        if (!dlmfBox) return;
+        dlmfBox.innerHTML = '<div class="muted" style="font-size:12px;margin-top:10px"><span class="dot"></span> Fetching NIST DLMF entries...</div>';
+        var proxy = 'https://api.allorigins.win/raw?url=';
+        var searchUrl = 'https://dlmf.nist.gov/search/search?q=' + encodeURIComponent(q);
+        
+        fetch(proxy + encodeURIComponent(searchUrl))
+          .then(function(r) { return r.text(); })
+          .then(function(html) {
+            var doc = new DOMParser().parseFromString(html, 'text/html');
+            var links = Array.prototype.slice.call(doc.querySelectorAll('a'));
+            var unique = [];
+            var seen = new Set();
+            
+            links.forEach(function(a) {
+               var url = a.href || '';
+               var title = (a.textContent || '').trim();
+               if (url.includes('/') && title.includes(':') && title.length > 3 && title.length < 80) {
+                   if (!url.startsWith('http')) url = 'https://dlmf.nist.gov' + (url.startsWith('/') ? url : '/' + url);
+                   if (!seen.has(url)) {
+                       seen.add(url);
+                       unique.push({ url: url, title: title });
+                   }
+               }
+            });
+            
+            if (!unique.length) {
+                dlmfBox.innerHTML = '<div class="muted" style="font-size:12px">No direct DLMF entries found for this term.</div>';
+            } else {
+                var htmlStr = '<h4 style="margin:10px 0 8px; color:var(--cyan); font-size:13px;">📖 NIST DLMF Entries</h4>';
+                htmlStr += unique.slice(0, 4).map(function(u) {
+                    return '<a class="source" href="' + u.url + '" target="_blank" rel="noreferrer"><div><b>' + u.title + '</b><span>NIST DLMF · Retrieved ' + new Date().toISOString().split('T')[0] + '</span></div><span>↗</span></a>';
+                }).join('');
+                dlmfBox.innerHTML = htmlStr;
+            }
+          })
+          .catch(function(e) {
+            dlmfBox.innerHTML = '<div class="muted" style="font-size:12px">Could not load DLMF entries (network/CORS issue).</div>';
+          });
+      };
+
+      // ── Cross-Domain Twins Logic ────────────────────────────────────────────
+      var OPERATORS = [
+        { key: 'diff', label: 'Differential / Laplacian', re: /\\partial|\\nabla|\\Delta|\\mathbf\{d\}/, q: 'differential operator' },
+        { key: 'exp',  label: 'Exponential',              re: /\\exp|e\^|\\mathrm\{e\}/,                q: 'exponential function' },
+        { key: 'sum',  label: 'Summation',                re: /\\sum|\\Sigma/,                          q: 'summation series' },
+        { key: 'log',  label: 'Logarithm',                re: /\\log|\\ln|\\log_/,                      q: 'logarithm' },
+        { key: 'int',  label: 'Integral',                 re: /\\int|\\iint|\\oint/,                    q: 'integral equation' },
+        { key: 'spl',  label: 'Special function',         re: /\\Gamma|\\zeta|\\operatorname\{[A-Z]\w*\}|Bessel|Legendre|Hermite/, q: 'special functions' },
+        { key: 'lin',  label: 'Linear-algebra',           re: /\\begin\{[pbvBV]matrix\}|\\operatorname\{tr\}|eigen/,             q: 'linear algebra operator' },
+        { key: 'trig', label: 'Trig / periodic',          re: /\\sin|\\cos|\\tan/,                      q: 'periodic function' }
+      ];
+
+      var DOMAINS = [
+        { label: 'Physics',           suffix: 'physics' },
+        { label: 'Computer Science',  suffix: 'computer science' },
+        { label: 'Biology',           suffix: 'biology' },
+        { label: 'Chemistry',         suffix: 'chemistry' },
+        { label: 'Mathematics',       suffix: 'mathematics' },
+        { label: 'Economics/Finance', suffix: 'economics finance' }
+      ];
+
+      function getAllTex() {
+        var api = window.__scilexiconV22;
+        var c = api && api.getCurrent();
+        if (!c || !c.formulas) return '';
+        return c.formulas.map(function(f) { return (typeof f === 'string') ? f : (f.tex || ''); }).join(' ');
+      }
+
+      function runTwins() {
+        var btn = document.getElementById('findTwinsBtn');
+        var box = document.getElementById('structTwinsBox');
+        if (!btn || !box) return;
+        
+        var api = window.__scilexiconV22;
+        var c = api && api.getCurrent();
+        var term = (c && c.term) || 'concept';
+
+        var original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Searching…';
+        
+        var tex = getAllTex();
+        var matches = OPERATORS.filter(function (op) { return op.re.test(tex); });
+        
+        var jobs = [];
+        var seen = {};
+        var isSemanticFallback = false;
+
+        if (matches.length > 0) {
+          box.innerHTML = '<div class="empty">Found ' + matches.length + ' operator(s). Searching for structural twins…</div>';
+          var maxOps = Math.min(matches.length, 2);
+          for (var mi = 0; mi < maxOps; mi++) {
+            var m = matches[mi];
+            for (var di = 0; di < DOMAINS.length; di++) {
+              var d = DOMAINS[di];
+              var q = m.q + ' ' + d.suffix;
+              if (seen[q]) continue;
+              seen[q] = true;
+              jobs.push({ query: q, label: m.label, domain: d.label });
+            }
+          }
+        } else {
+          isSemanticFallback = true;
+          box.innerHTML = '<div class="empty">No formula detected. Searching for semantic twins of "' + term + '" across domains…</div>';
+          for (var di = 0; di < DOMAINS.length; di++) {
+            var d = DOMAINS[di];
+            var q = term + ' ' + d.suffix;
+            if (seen[q]) continue;
+            seen[q] = true;
+            jobs.push({ query: q, label: 'Semantic Match', domain: d.label });
+          }
+        }
+
+        var promises = jobs.map(function(job) {
+          var url = 'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='
+            + encodeURIComponent(job.query) + '&srlimit=1&format=json&origin=*';
+          return fetch(url, { headers: { accept: 'application/json' } })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+              var title = data && data.query && data.query.search && data.query.search[0] && data.query.search[0].title;
+              if (!title || title.toLowerCase() === term.toLowerCase()) return null;
+              
+              return fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title),
+                { headers: { accept: 'application/json' } })
+                .then(function (s) { return s.ok ? s.json() : {}; })
+                .catch(function () { return {}; })
+                .then(function (j) {
+                  return {
+                    label: job.label, domain: job.domain, title: title,
+                    extract: j.extract || j.description || '',
+                    url: 'https://en.wikipedia.org/wiki/' + encodeURIComponent(title)
+                  };
+                });
+            })
+            .catch(function () { return null; });
+        });
+
+        Promise.all(promises).then(function (rows) {
+          var results = rows.filter(Boolean);
+          var uniqueResults = [];
+          var seenTitles = {};
+          results.forEach(function(r) {
+             if (!seenTitles[r.title]) { seenTitles[r.title] = true; uniqueResults.push(r); }
+          });
+
+          if (!uniqueResults.length) {
+            box.innerHTML = '<div class="empty">No cross-domain twins found for this term.</div>';
+          } else {
+            var html = uniqueResults.slice(0, 12).map(function (r) {
+              var safeTitle = String(r.title).replace(/"/g, '&quot;');
+              var extract = r.extract ? String(r.extract).slice(0, 220) + (r.extract.length > 220 ? '…' : '') : '';
+              return '<div class="paper-item">'
+                + '<div class="paper-title"><a href="' + r.url + '" target="_blank" rel="noreferrer">' + r.title + '</a></div>'
+                + '<div class="paper-meta">'
+                + '<span class="pill" style="font-size:10px">' + r.domain + '</span>'
+                + '<span class="pill" style="font-size:10px">' + r.label + '</span>'
+                + '<a href="#" class="pill" style="font-size:10px" data-twin="' + safeTitle + '">Use this term ↗</a>'
+                + '</div>'
+                + (extract ? '<div class="paper-abstract">' + extract + '</div>' : '')
+                + '</div>';
+            }).join('');
+            
+            var header = isSemanticFallback 
+                ? '<p class="muted" style="font-size:12px; margin-bottom:8px">No formulas found. Showing conceptual parallels for <b>' + term + '</b>:</p>'
+                : '<p class="muted" style="font-size:12px; margin-bottom:8px">Structural matches based on operators:</p>';
+                
+            box.innerHTML = header + html;
+            
+            var links = box.querySelectorAll('[data-twin]');
+            for (var i = 0; i < links.length; i++) {
+              links[i].addEventListener('click', function (e) {
+                e.preventDefault();
+                var t = this.getAttribute('data-twin');
+                var qInput = document.getElementById('query');
+                if (qInput) qInput.value = t;
+                if (api && api.searchLive) api.searchLive(t);
+                recordTerm(t);
+              });
+            }
+          }
+        }).catch(function (e) {
+          box.innerHTML = '<div class="empty">Error: ' + String((e && e.message) || e) + '</div>';
+        }).then(function () {
+          btn.disabled = false; btn.textContent = original;
+        });
+      }
+
+      function wireTwins() {
+        var btn = document.getElementById('findTwinsBtn');
+        if (btn && !btn.dataset.v22wired) {
+          btn.dataset.v22wired = '1';
+          btn.addEventListener('click', runTwins);
+        }
+      }
+
+      function waitForApi(cb, tries) {
+        tries = tries || 0;
+        if (window.__scilexiconV22) return cb(window.__scilexiconV22);
+        if (tries > 100) return;
+        setTimeout(function () { waitForApi(cb, tries + 1); }, 50);
+      }
+
+      function restoreLastQuery() {
+        if (!memoryEnabled) return;
+        waitForApi(function (api) {
+          if (storedTheme) {
+            var isLight = document.body.classList.contains('light');
+            var wantLight = storedTheme === 'light';
+            if (isLight !== wantLight) {
+              var themeBtn = document.getElementById('themeBtn');
+              if (themeBtn) themeBtn.click();
+            }
+          }
+          if (lastQuery) {
+            var qInput = document.getElementById('query');
+            if (qInput) qInput.value = lastQuery;
+            if (lastQuery.toLowerCase() !== 'entropy') {
+              try { api.searchLive(lastQuery); } catch (e) {}
+            }
+          }
+        });
+      }
+
+      function init() {
+        wireDisclaimer();
+        wireTheme();
+        wireSearch();
+        wireExports();
+        wireTwins();
+        restoreLastQuery();
+        setTimeout(function () {
+          wireTheme(); wireSearch(); wireExports(); wireTwins();
+        }, 500);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
     </script>
 </body>
 </html>
